@@ -1,35 +1,15 @@
-const ipWhitelist = (req, res, next) => {
-  // Only enforce for admin login attempts
-  const allowedIPs = (process.env.ADMIN_ALLOWED_IPS || '127.0.0.1')
-    .split(',')
-    .map(ip => ip.trim());
-
-  const clientIP =
-    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+const getClientIP = (req) => {
+  const forwarded = req.headers['x-forwarded-for'];
+  const raw =
+    (forwarded ? forwarded.split(',')[0].trim() : null) ||
     req.connection?.remoteAddress ||
-    req.socket?.remoteAddress ||
-    req.ip;
+    req.ip || '';
+  return raw.replace('::ffff:', '').replace('::1', '127.0.0.1');
+};
 
-  // Normalize IPv6 loopback
-  const normalizedIP = clientIP === '::1' ? '127.0.0.1' : 
-    clientIP?.replace('::ffff:', '') || '';
-
-  const isAllowed = allowedIPs.some(allowedIP => {
-    const normalizedAllowed = allowedIP === '::1' ? '127.0.0.1' : 
-      allowedIP.replace('::ffff:', '');
-    return normalizedIP === normalizedAllowed || clientIP === allowedIP;
-  });
-
-  if (!isAllowed) {
-    console.warn(`⚠️ Admin login blocked from IP: ${clientIP}`);
-    return res.status(403).json({
-      success: false,
-      message: 'Access denied. Your IP address is not authorized for admin access.',
-      ip: normalizedIP,
-    });
-  }
-
+const ipWhitelist = (req, res, next) => {
+  req.clientIP = getClientIP(req);
   next();
 };
 
-module.exports = { ipWhitelist };
+module.exports = { ipWhitelist, getClientIP };
