@@ -1,328 +1,333 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StaffSync — Admin Control</title>
+  <title>STAFF ANG — Admin Control</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Syne', sans-serif; background: #05080A; color: #E8F4F8; }
-    .mono { font-family: 'DM Mono', monospace; }
-    .grid-bg {
-      background-image:
-        linear-gradient(rgba(251,191,36,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(251,191,36,0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-    input:focus,select:focus { outline: none; border-color: #F59E0B !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
-    .nav-btn { transition: all 0.2s; }
-    .nav-btn.active { background: rgba(245,158,11,0.15); color: #FCD34D; border-color: rgba(245,158,11,0.3); }
-    .nav-btn:not(.active):hover { background: rgba(255,255,255,0.05); }
-    .stat-card { background: rgba(15,20,25,0.8); border: 1px solid rgba(255,255,255,0.06); }
-    table { border-collapse: collapse; }
-    thead th { position: sticky; top: 0; background: #0D1117; z-index: 10; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-    .badge-reached { background: rgba(16,185,129,0.15); color: #34D399; border: 1px solid rgba(16,185,129,0.2); }
-    .badge-failed { background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
-    .badge-pending { background: rgba(100,116,139,0.15); color: #94A3B8; border: 1px solid rgba(100,116,139,0.2); }
-    .scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
-    .scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-    .btn-amber { background: linear-gradient(135deg, #D97706, #F59E0B); transition: all 0.2s; }
-    .btn-amber:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(245,158,11,0.25); }
-    .btn-amber:disabled { opacity: 0.5; cursor: not-allowed; }
+    :root{--red:#E63946;--gold:#FFB703;--dark:#080C10;--dark2:#0D1219;--dark3:#131A24;--border:rgba(255,255,255,0.06);}
+    *{box-sizing:border-box;}
+    body{font-family:'Outfit',sans-serif;background:var(--dark);color:#E8EDF2;min-height:100vh;}
+    .bebas{font-family:'Bebas Neue',cursive;}
+    .mono{font-family:'JetBrains Mono',monospace;}
+    .bg-base{background:radial-gradient(ellipse 70% 40% at 10% 10%,rgba(255,183,3,0.05) 0%,transparent 60%),linear-gradient(180deg,#080C10 0%,#0A0F16 100%);}
+    input,select{outline:none;}
+    input:focus,select:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(255,183,3,0.1);}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp 0.45s ease-out forwards;}
+
+    .sidebar{background:rgba(10,15,20,0.98);border-right:1px solid var(--border);}
+    .nav-item{transition:all 0.2s;border-radius:10px;cursor:pointer;border:1px solid transparent;}
+    .nav-item:hover{background:rgba(255,255,255,0.04);}
+    .nav-item.active{background:rgba(255,183,3,0.08);border-color:rgba(255,183,3,0.15);}
+    .nav-item.active .nav-label{color:var(--gold);}
+
+    .stat-card{background:var(--dark3);border:1px solid var(--border);border-radius:16px;}
+    .card-red{border-color:rgba(230,57,70,0.2);background:rgba(230,57,70,0.04);}
+    .card-green{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.04);}
+    .card-gold{border-color:rgba(255,183,3,0.2);background:rgba(255,183,3,0.04);}
+    .card-blue{border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.04);}
+
+    .btn-gold{background:linear-gradient(135deg,#B45309,#FFB703);color:#000;font-weight:700;transition:all 0.2s;border:none;}
+    .btn-gold:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,183,3,0.3);}
+    .btn-gold:disabled{opacity:0.4;cursor:not-allowed;}
+    .btn-red{background:linear-gradient(135deg,#991B1B,#E63946);color:#fff;font-weight:700;transition:all 0.2s;border:none;}
+    .btn-red:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(230,57,70,0.3);}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:#94A3B8;transition:all 0.2s;}
+    .btn-outline:hover{border-color:rgba(255,255,255,0.15);color:#E8EDF2;}
+
+    .table-row{border-bottom:1px solid var(--border);transition:background 0.15s;}
+    .table-row:last-child{border-bottom:none;}
+    .table-row:hover{background:rgba(255,255,255,0.02);}
+
+    .badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:600;}
+    .badge-green{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
+    .badge-red{background:rgba(230,57,70,0.1);color:#F87171;border:1px solid rgba(230,57,70,0.2);}
+    .badge-yellow{background:rgba(255,183,3,0.1);color:#FCD34D;border:1px solid rgba(255,183,3,0.2);}
+    .badge-gray{background:rgba(255,255,255,0.05);color:#94A3B8;border:1px solid var(--border);}
+
+    .progress-track{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;}
+    .progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#E63946,#FF6B6B);transition:width 0.6s ease;}
+    .progress-fill.done{background:linear-gradient(90deg,#16A34A,#22C55E);}
+
+    /* Modal */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .modal-box{background:var(--dark3);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;}
+
+    /* Toast */
+    #toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:12px 18px;border-radius:12px;font-size:13px;font-family:'JetBrains Mono',monospace;animation:fadeUp 0.3s ease-out;min-width:240px;}
+    .toast-success{background:rgba(21,128,61,0.9);border:1px solid rgba(34,197,94,0.3);color:#4ADE80;}
+    .toast-error{background:rgba(153,27,27,0.9);border:1px solid rgba(230,57,70,0.3);color:#F87171;}
+
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
   </style>
 </head>
-<body class="min-h-screen grid-bg">
+<body class="bg-base">
+<div id="toast-container"></div>
 
-<!-- ===== LOGIN ===== -->
+<!-- LOGIN -->
 <div id="view-login" class="min-h-screen flex items-center justify-center px-4">
-  <div class="w-full max-w-md fade-in">
-    <div class="text-center mb-10">
-      <a href="/" class="mono text-xs text-slate-500 hover:text-amber-400 transition-colors">← Back</a>
-      <div class="mt-4 mb-2">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900/30 border border-amber-700/30 mono text-xs text-amber-400">
-          🔒 IP-Restricted Access
-        </span>
-      </div>
-      <h1 class="text-4xl font-extrabold mt-4 mb-1">Admin Control</h1>
-      <p class="mono text-xs text-slate-500">Master Administrator Only</p>
+  <div class="w-full max-w-sm fade-up">
+    <div class="text-center mb-8">
+      <a href="/" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">← Kembali</a>
+      <div class="bebas text-5xl mt-4 mb-1" style="background:linear-gradient(135deg,#fff,#FFB703);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
+      <p class="mono text-xs text-slate-600 tracking-wider">ADMIN CONTROL</p>
     </div>
-
-    <div class="bg-slate-900/70 border border-amber-900/20 rounded-2xl p-8 backdrop-blur">
-      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-300 text-sm mono"></div>
-
+    <div class="stat-card p-7">
+      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
       <div class="mb-5">
-        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Username</label>
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Username</label>
         <input id="login-username" type="text" placeholder="admin"
-          class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono" />
+          class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all"/>
       </div>
-      <div class="mb-7">
-        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+      <div class="mb-6">
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Password</label>
         <div class="relative">
           <input id="login-password" type="password" placeholder="••••••••"
-            class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors" />
-          <button onclick="togglePwd()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-amber-400 transition-colors mono text-xs">SHOW</button>
+            class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm transition-all"/>
+          <button onclick="togglePwd('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">LIHAT</button>
         </div>
       </div>
-      <button id="login-btn" onclick="doLogin()" class="btn-amber w-full py-3.5 rounded-xl font-bold text-slate-900 text-sm">
-        Access Control Panel
-      </button>
+      <button id="login-btn" onclick="doLogin()" class="btn-gold w-full py-3.5 rounded-xl text-sm">Masuk Admin</button>
     </div>
+    <p class="mono text-xs text-slate-700 text-center mt-4">⚠ Akses dibatasi oleh IP Whitelist</p>
   </div>
 </div>
 
-<!-- ===== APP ===== -->
+<!-- APP -->
 <div id="view-app" class="hidden min-h-screen flex">
 
   <!-- Sidebar -->
-  <aside class="hidden lg:flex flex-col w-64 bg-slate-950/80 border-r border-slate-800/50 sticky top-0 h-screen">
-    <div class="p-6 border-b border-slate-800/50">
-      <h1 class="text-xl font-extrabold">Staff<span class="text-amber-400">Sync</span></h1>
-      <p class="mono text-xs text-slate-500 mt-1">Admin Control</p>
+  <aside class="sidebar hidden lg:flex flex-col w-64 sticky top-0 h-screen">
+    <div class="p-5 border-b border-white/5">
+      <div class="bebas text-3xl" style="background:linear-gradient(135deg,#fff,#FFB703);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
+      <p class="mono text-xs text-slate-600 mt-0.5">Admin Control</p>
     </div>
-    <nav class="flex-1 p-4 space-y-1">
-      <button onclick="showPage('dashboard')" id="nav-dashboard" class="nav-btn active w-full text-left px-4 py-3 rounded-xl text-sm border border-transparent font-medium flex items-center gap-3">
-        <span>📊</span> Dashboard
-      </button>
-      <button onclick="showPage('monitoring')" id="nav-monitoring" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-sm border border-transparent font-medium flex items-center gap-3">
-        <span>🎯</span> Target Monitoring
-      </button>
-      <button onclick="showPage('permissions')" id="nav-permissions" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-sm border border-transparent font-medium flex items-center gap-3">
-        <span>🔑</span> Permission Logs
-      </button>
-      <button onclick="showPage('staff')" id="nav-staff" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-sm border border-transparent font-medium flex items-center gap-3">
-        <span>👥</span> Staff List
-      </button>
-      <button onclick="showPage('ranking')" id="nav-ranking" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-sm border border-transparent font-medium flex items-center gap-3">
-        <span>🏆</span> Rankings
-      </button>
-    </nav>
-    <div class="p-4 border-t border-slate-800/50">
-      <div class="mb-3">
-        <p id="admin-name" class="text-sm font-semibold"></p>
-        <p class="mono text-xs text-amber-400">Master Admin</p>
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active px-4 py-3 flex items-center gap-3">
+        <span>📊</span><span class="nav-label text-sm font-medium">Dashboard</span>
       </div>
-      <button onclick="doLogout()" class="w-full mono text-xs text-slate-500 hover:text-red-400 transition-colors text-left">← Logout</button>
+      <div onclick="showPage('monitoring')" id="nav-monitoring" class="nav-item px-4 py-3 flex items-center gap-3">
+        <span>🎯</span><span class="nav-label text-sm font-medium">Target Monitoring</span>
+      </div>
+      <div onclick="showPage('permissions')" id="nav-permissions" class="nav-item px-4 py-3 flex items-center gap-3">
+        <span>📋</span><span class="nav-label text-sm font-medium">Log Permission</span>
+      </div>
+      <div onclick="showPage('stafflist')" id="nav-stafflist" class="nav-item px-4 py-3 flex items-center gap-3">
+        <span>👥</span><span class="nav-label text-sm font-medium">Kelola Staff</span>
+      </div>
+      <div onclick="showPage('ranking')" id="nav-ranking" class="nav-item px-4 py-3 flex items-center gap-3">
+        <span>🏆</span><span class="nav-label text-sm font-medium">Rankings</span>
+      </div>
+      <div class="pt-2 mt-2 border-t border-white/5">
+        <div onclick="showPage('ipwhitelist')" id="nav-ipwhitelist" class="nav-item px-4 py-3 flex items-center gap-3">
+          <span>🛡️</span><span class="nav-label text-sm font-medium">IP Whitelist</span>
+        </div>
+      </div>
+    </nav>
+    <div class="p-4 border-t border-white/5">
+      <p id="user-name" class="text-sm font-semibold text-yellow-400"></p>
+      <p class="mono text-xs text-slate-600 mb-3">Master Admin</p>
+      <button onclick="doLogout()" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors">← Keluar</button>
     </div>
   </aside>
 
   <!-- Main -->
   <div class="flex-1 flex flex-col min-w-0">
     <!-- Mobile header -->
-    <header class="lg:hidden sticky top-0 z-40 bg-slate-950/80 backdrop-blur border-b border-slate-800/50">
+    <header class="lg:hidden sticky top-0 z-40 border-b border-white/5" style="background:rgba(8,12,16,0.97);backdrop-filter:blur(12px)">
       <div class="px-4 h-14 flex items-center justify-between">
-        <h1 class="font-bold">Staff<span class="text-amber-400">Sync</span> <span class="text-xs text-slate-500">Admin</span></h1>
-        <button onclick="doLogout()" class="mono text-xs text-slate-500">Logout</button>
+        <span class="bebas text-2xl" style="background:linear-gradient(135deg,#fff,#FFB703);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</span>
+        <button onclick="doLogout()" class="mono text-xs text-red-400">Keluar</button>
       </div>
-      <div class="flex overflow-x-auto scrollbar border-t border-slate-800/50">
-        <button onclick="showPage('dashboard')" class="flex-shrink-0 px-4 py-2 text-xs mono">Dashboard</button>
-        <button onclick="showPage('monitoring')" class="flex-shrink-0 px-4 py-2 text-xs mono">Monitoring</button>
-        <button onclick="showPage('permissions')" class="flex-shrink-0 px-4 py-2 text-xs mono">Perms</button>
-        <button onclick="showPage('staff')" class="flex-shrink-0 px-4 py-2 text-xs mono">Staff</button>
-        <button onclick="showPage('ranking')" class="flex-shrink-0 px-4 py-2 text-xs mono">Ranking</button>
+      <div class="flex border-t border-white/5 text-xs overflow-x-auto">
+        <button onclick="showPage('dashboard')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Overview</button>
+        <button onclick="showPage('monitoring')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Target</button>
+        <button onclick="showPage('permissions')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Log</button>
+        <button onclick="showPage('stafflist')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Staff</button>
+        <button onclick="showPage('ranking')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Rank</button>
+        <button onclick="showPage('ipwhitelist')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">🛡️ IP</button>
       </div>
     </header>
 
-    <main class="flex-1 p-6 space-y-6">
+    <main class="flex-1 p-4 md:p-6 space-y-5">
 
-      <!-- DASHBOARD PAGE -->
-      <div id="page-dashboard" class="fade-in space-y-6">
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="fade-up space-y-5">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-2xl font-bold">Overview</h2>
-            <p id="dash-date" class="mono text-xs text-slate-500 mt-1"></p>
+            <h1 class="bebas text-3xl">Overview Hari Ini</h1>
+            <p id="dash-date" class="mono text-xs text-slate-500 mt-0.5"></p>
           </div>
-          <button onclick="loadDashboard()" class="btn-amber px-4 py-2 rounded-xl text-xs font-bold text-slate-900">↻ Refresh</button>
+          <button onclick="loadDashboard()" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors flex items-center gap-1.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Refresh
+          </button>
         </div>
-
-        <!-- Stats row -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="stat-card rounded-xl p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Total Staff</p>
-            <p id="dash-total" class="text-4xl font-extrabold">47</p>
-          </div>
-          <div class="stat-card rounded-xl p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target Reached</p>
-            <p id="dash-reached" class="text-4xl font-extrabold text-teal-400">—</p>
-          </div>
-          <div class="stat-card rounded-xl p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Failed Target</p>
-            <p id="dash-failed" class="text-4xl font-extrabold text-red-400">—</p>
-          </div>
-          <div class="stat-card rounded-xl p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Not Started</p>
-            <p id="dash-pending" class="text-4xl font-extrabold text-slate-400">—</p>
-          </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="stat-card p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Total Staff</p><p id="d-total" class="bebas text-4xl text-white">0</p></div>
+          <div class="stat-card card-green p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target Tercapai</p><p id="d-reached" class="bebas text-4xl text-green-400">0</p></div>
+          <div class="stat-card card-red p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Gagal Target</p><p id="d-failed" class="bebas text-4xl text-red-400">0</p></div>
+          <div class="stat-card card-gold p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Belum Mulai</p><p id="d-pending" class="bebas text-4xl text-yellow-400">0</p></div>
         </div>
-
-        <!-- Chart -->
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="stat-card rounded-xl p-6">
-            <h3 class="font-semibold mb-4">Target Distribution</h3>
-            <div class="h-48">
-              <canvas id="chart-target"></canvas>
-            </div>
+        <div class="stat-card overflow-hidden">
+          <div class="px-5 py-4 border-b border-white/5">
+            <h3 class="font-semibold text-sm">Status Staff — Hari Ini</h3>
           </div>
-          <div class="stat-card rounded-xl p-6">
-            <h3 class="font-semibold mb-4">Permission Usage</h3>
-            <div class="h-48">
-              <canvas id="chart-perms"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick monitoring table -->
-        <div class="stat-card rounded-xl p-6">
-          <h3 class="font-semibold mb-4">Staff Status — Today</h3>
-          <div class="overflow-x-auto scrollbar -mx-2">
-            <table class="w-full text-sm min-w-[700px]">
-              <thead>
-                <tr class="text-left border-b border-slate-800">
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Staff</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Target</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Break</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Toilet</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Smoke 1</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Smoke 2</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody id="dash-table-body" class="divide-y divide-slate-800/50">
-                <tr><td colspan="7" class="text-center py-6 mono text-xs text-slate-500">Loading...</td></tr>
-              </tbody>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead><tr class="border-b border-white/5">
+                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Staff</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Target</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Break</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Toilet</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Smoke</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Status</th>
+              </tr></thead>
+              <tbody id="dash-table"><tr><td colspan="6" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- MONITORING PAGE -->
-      <div id="page-monitoring" class="fade-in hidden space-y-6">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-          <h2 class="text-2xl font-bold">Target Monitoring</h2>
-          <div class="flex gap-3 items-center">
-            <input type="date" id="monitor-date" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm mono" />
-            <button onclick="loadMonitoring()" class="btn-amber px-4 py-2 rounded-xl text-xs font-bold text-slate-900">Load</button>
+      <!-- MONITORING -->
+      <div id="page-monitoring" class="fade-up hidden space-y-5">
+        <h1 class="bebas text-3xl">Target Monitoring</h1>
+        <div class="stat-card overflow-hidden">
+          <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Detail Input Member Per Staff</h3>
+            <button onclick="loadMonitoring()" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">Refresh</button>
+          </div>
+          <div id="monitoring-list" class="p-5 space-y-4">
+            <p class="mono text-xs text-slate-600 text-center py-4">Memuat data...</p>
           </div>
         </div>
-        <div id="monitoring-content" class="stat-card rounded-xl p-6">
-          <div class="overflow-x-auto scrollbar">
-            <table class="w-full text-sm min-w-[800px]">
-              <thead>
-                <tr class="text-left border-b border-slate-800">
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">#</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Employee ID</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Name</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Valid Members</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Break Time</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody id="monitor-body" class="divide-y divide-slate-800/50">
-                <tr><td colspan="6" class="text-center py-6 mono text-xs text-slate-500">Select a date to load data.</td></tr>
-              </tbody>
+      </div>
+
+      <!-- PERMISSIONS LOG -->
+      <div id="page-permissions" class="fade-up hidden space-y-5">
+        <h1 class="bebas text-3xl">Log Permission</h1>
+        <div class="stat-card overflow-hidden">
+          <div class="px-5 py-4 border-b border-white/5">
+            <h3 class="font-semibold text-sm">Riwayat Izin Hari Ini</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead><tr class="border-b border-white/5">
+                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Staff</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Toilet</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Smoke 1</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Smoke 2</th>
+              </tr></thead>
+              <tbody id="perm-table"><tr><td colspan="4" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- PERMISSIONS PAGE -->
-      <div id="page-permissions" class="fade-in hidden space-y-6">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-          <h2 class="text-2xl font-bold">Permission Logs</h2>
-          <div class="flex gap-3 items-center">
-            <input type="date" id="perm-log-date" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm mono" />
-            <button onclick="loadPermLogs()" class="btn-amber px-4 py-2 rounded-xl text-xs font-bold text-slate-900">Load</button>
-          </div>
-        </div>
-        <div class="stat-card rounded-xl p-6">
-          <div class="overflow-x-auto scrollbar">
-            <table class="w-full text-sm min-w-[600px]">
-              <thead>
-                <tr class="text-left border-b border-slate-800">
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Staff</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Employee ID</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Permission</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody id="perm-log-body" class="divide-y divide-slate-800/50">
-                <tr><td colspan="4" class="text-center py-6 mono text-xs text-slate-500">Select a date to load logs.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- STAFF PAGE -->
-      <div id="page-staff" class="fade-in hidden space-y-6">
+      <!-- STAFF LIST -->
+      <div id="page-stafflist" class="fade-up hidden space-y-5">
         <div class="flex items-center justify-between">
-          <h2 class="text-2xl font-bold">Staff List</h2>
-          <button onclick="toggleAddStaff()" class="btn-amber px-4 py-2 rounded-xl text-xs font-bold text-slate-900">+ Add Staff</button>
+          <h1 class="bebas text-3xl">Kelola Staff</h1>
+          <button onclick="openAddStaff()" class="btn-gold px-5 py-2.5 rounded-xl text-sm">+ Tambah Staff</button>
+        </div>
+        <div class="stat-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead><tr class="border-b border-white/5">
+                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Nama</th>
+                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Username</th>
+                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">ID Karyawan</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Status</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Aksi</th>
+              </tr></thead>
+              <tbody id="staff-table"><tr><td colspan="5" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RANKING -->
+      <div id="page-ranking" class="fade-up hidden space-y-5">
+        <h1 class="bebas text-3xl">Rankings Hari Ini</h1>
+        <div id="ranking-list" class="space-y-3">
+          <p class="mono text-xs text-slate-600 text-center py-8">Memuat data...</p>
+        </div>
+      </div>
+
+      <!-- IP WHITELIST -->
+      <div id="page-ipwhitelist" class="fade-up hidden space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="bebas text-3xl">IP Whitelist</h1>
+            <p class="mono text-xs text-slate-500 mt-0.5">Hanya IP terdaftar yang bisa login admin</p>
+          </div>
+          <button onclick="whitelistMyIP()" class="btn-gold px-5 py-2.5 rounded-xl text-sm">+ Whitelist IP Saya</button>
         </div>
 
-        <!-- Add Staff Form -->
-        <div id="add-staff-form" class="hidden stat-card rounded-xl p-6">
-          <h3 class="font-semibold mb-5">Add New Staff Member</h3>
-          <div id="staff-form-error" class="hidden mb-4 p-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-300 text-sm mono"></div>
-          <div class="grid md:grid-cols-2 gap-4 mb-5">
+        <!-- Info Box -->
+        <div class="stat-card card-gold p-5">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">⚡</span>
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
-              <input id="new-name" type="text" placeholder="John Doe" class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Username</label>
-              <input id="new-username" type="text" placeholder="staff048" class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm mono" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Employee ID</label>
-              <input id="new-empid" type="text" placeholder="EMP048" class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm mono uppercase" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
-              <input id="new-password" type="password" placeholder="••••••••" class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm" />
+              <p class="font-semibold text-sm text-yellow-400 mb-1">Cara Kerja IP Whitelist</p>
+              <p class="mono text-xs text-slate-500 leading-relaxed">
+                Database kosong = semua IP bisa login (mode setup).<br>
+                Setelah ada IP terdaftar = hanya IP itu yang bisa login admin.<br>
+                Tambahkan semua IP kantor terlebih dahulu sebelum mengaktifkan.
+              </p>
             </div>
           </div>
+        </div>
+
+        <!-- IP Saya -->
+        <div class="stat-card p-5 flex items-center justify-between">
+          <div>
+            <p class="mono text-xs text-slate-500 mb-1 uppercase tracking-wider">IP Publik Kamu Sekarang</p>
+            <p id="my-ip" class="mono text-lg font-bold text-white">Memuat...</p>
+          </div>
+          <button onclick="whitelistMyIP()" class="btn-outline px-4 py-2 rounded-xl text-sm mono">Tambah IP Ini</button>
+        </div>
+
+        <!-- Form Tambah Manual -->
+        <div class="stat-card p-5">
+          <h3 class="font-semibold text-sm mb-4">Tambah IP Manual</h3>
           <div class="flex gap-3">
-            <button onclick="addStaff()" class="btn-amber px-6 py-2.5 rounded-xl text-xs font-bold text-slate-900">Create Staff</button>
-            <button onclick="toggleAddStaff()" class="px-6 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 transition-colors">Cancel</button>
+            <input id="new-ip" type="text" placeholder="contoh: 103.21.45.123"
+              class="flex-1 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all" />
+            <input id="new-ip-label" type="text" placeholder="Label (contoh: Kantor Pusat)"
+              class="flex-1 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all" />
+            <button onclick="addIPManual()" class="btn-gold px-5 py-2.5 rounded-xl text-sm whitespace-nowrap">Tambah</button>
           </div>
         </div>
 
-        <!-- Staff table -->
-        <div class="stat-card rounded-xl p-6">
-          <div class="overflow-x-auto scrollbar">
-            <table class="w-full text-sm min-w-[600px]">
-              <thead>
-                <tr class="text-left border-b border-slate-800">
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Employee ID</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Name</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Username</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Status</th>
-                  <th class="mono text-xs text-slate-500 font-normal py-3 px-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="staff-list-body" class="divide-y divide-slate-800/50">
-                <tr><td colspan="5" class="text-center py-6 mono text-xs text-slate-500">Loading...</td></tr>
-              </tbody>
-            </table>
+        <!-- List -->
+        <div class="stat-card overflow-hidden">
+          <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+            <h3 class="font-semibold text-sm">IP Terdaftar</h3>
+            <span id="ip-count" class="mono text-xs text-slate-600">0 IP</span>
+          </div>
+          <div id="ip-list" class="divide-y divide-white/5">
+            <p class="mono text-xs text-slate-600 text-center py-8">Memuat data...</p>
           </div>
         </div>
-      </div>
 
-      <!-- RANKING PAGE -->
-      <div id="page-ranking" class="fade-in hidden space-y-6">
-        <div class="flex items-center justify-between">
-          <h2 class="text-2xl font-bold">Today's Rankings</h2>
-          <button onclick="loadRanking()" class="btn-amber px-4 py-2 rounded-xl text-xs font-bold text-slate-900">↻ Refresh</button>
-        </div>
-        <div id="ranking-content" class="space-y-3">
-          <p class="mono text-xs text-slate-500 text-center py-8">Loading rankings...</p>
+        <!-- Warning -->
+        <div class="stat-card card-red p-4">
+          <div class="flex items-start gap-3">
+            <span class="text-xl">⚠️</span>
+            <div>
+              <p class="font-semibold text-sm text-red-400 mb-1">Perhatian</p>
+              <p class="mono text-xs text-slate-500 leading-relaxed">
+                Jangan hapus semua IP jika kamu tidak tahu IP publik kamu.<br>
+                Kalau terkunci, tambahkan IP baru lewat Render Shell atau MongoDB Atlas.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -330,351 +335,307 @@
   </div>
 </div>
 
-<script src="/shared/api.js"></script>
-<script>
-  let charts = {};
-
-  function togglePwd() {
-    const el = document.getElementById('login-password');
-    el.type = el.type === 'password' ? 'text' : 'password';
-  }
-
-  async function doLogin() {
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value;
-    const btn = document.getElementById('login-btn');
-    const errEl = document.getElementById('login-error');
-
-    if (!username || !password) {
-      errEl.textContent = 'Please enter credentials.';
-      errEl.classList.remove('hidden');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Verifying…';
-    errEl.classList.add('hidden');
-
-    const data = await api.post('/auth/login/admin', { username, password });
-
-    if (data.success) {
-      api.setToken(data.token);
-      api.setUser(data.user);
-      initApp(data.user);
-    } else {
-      errEl.textContent = data.message || 'Access denied.';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Access Control Panel';
-    }
-  }
-
-  function initApp(user) {
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-app').classList.remove('hidden');
-    document.getElementById('admin-name').textContent = user.name;
-    document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    // Set date inputs to today
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('monitor-date').value = today;
-    document.getElementById('perm-log-date').value = today;
-
-    loadDashboard();
-  }
-
-  function doLogout() { api.logout(); }
-
-  function showPage(page) {
-    ['dashboard', 'monitoring', 'permissions', 'staff', 'ranking'].forEach(p => {
-      document.getElementById(`page-${p}`)?.classList.add('hidden');
-      document.getElementById(`nav-${p}`)?.classList.remove('active');
-    });
-    document.getElementById(`page-${page}`)?.classList.remove('hidden');
-    document.getElementById(`nav-${page}`)?.classList.add('active');
-
-    if (page === 'dashboard') loadDashboard();
-    if (page === 'monitoring') loadMonitoring();
-    if (page === 'permissions') loadPermLogs();
-    if (page === 'staff') loadStaffList();
-    if (page === 'ranking') loadRanking();
-  }
-
-  function statusBadge(item) {
-    if (item.validCount === 0) return '<span class="badge-pending px-2 py-0.5 rounded-full mono text-xs">Not Started</span>';
-    if (item.targetReached) return '<span class="badge-reached px-2 py-0.5 rounded-full mono text-xs">✓ Reached</span>';
-    return '<span class="badge-failed px-2 py-0.5 rounded-full mono text-xs">In Progress</span>';
-  }
-
-  function permIcon(used) {
-    return used
-      ? '<span class="text-teal-400">✓</span>'
-      : '<span class="text-slate-600">—</span>';
-  }
-
-  async function loadDashboard() {
-    const data = await api.get('/members/admin/all');
-    if (!data.success) return;
-
-    const { stats, data: staff } = data;
-
-    document.getElementById('dash-total').textContent = stats.total;
-    document.getElementById('dash-reached').textContent = stats.reached;
-    document.getElementById('dash-failed').textContent = stats.failed;
-    document.getElementById('dash-pending').textContent = stats.notStarted;
-
-    // Table
-    const tbody = document.getElementById('dash-table-body');
-    tbody.innerHTML = staff.map(s => `
-      <tr>
-        <td class="py-3 px-3">
-          <div class="font-medium">${s.name}</div>
-          <div class="mono text-xs text-slate-500">${s.employeeId}</div>
-        </td>
-        <td class="py-3 px-3 mono text-sm">${s.validCount}<span class="text-slate-600">/3</span></td>
-        <td class="py-3 px-3 mono text-sm ${s.breakHours >= 2 ? 'text-teal-400' : 'text-amber-400'}">${s.breakHours}h</td>
-        <td class="py-3 px-3">${permIcon(s.toiletUsed)}</td>
-        <td class="py-3 px-3">${permIcon(s.smoke1Used)}</td>
-        <td class="py-3 px-3">${permIcon(s.smoke2Used)}</td>
-        <td class="py-3 px-3">${statusBadge(s)}</td>
-      </tr>
-    `).join('');
-
-    // Charts
-    drawTargetChart(stats);
-    drawPermChart(staff);
-  }
-
-  function drawTargetChart(stats) {
-    const ctx = document.getElementById('chart-target');
-    if (!ctx) return;
-    if (charts.target) charts.target.destroy();
-
-    charts.target = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Reached', 'In Progress', 'Not Started'],
-        datasets: [{
-          data: [stats.reached, stats.failed - stats.notStarted, stats.notStarted],
-          backgroundColor: ['rgba(52,211,153,0.8)', 'rgba(251,191,36,0.8)', 'rgba(100,116,139,0.5)'],
-          borderColor: ['#0f172a', '#0f172a', '#0f172a'],
-          borderWidth: 3,
-        }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#94A3B8', font: { family: 'DM Mono', size: 11 } } } },
-      },
-    });
-  }
-
-  function drawPermChart(staff) {
-    const ctx = document.getElementById('chart-perms');
-    if (!ctx) return;
-    if (charts.perms) charts.perms.destroy();
-
-    const toilet = staff.filter(s => s.toiletUsed).length;
-    const smoke1 = staff.filter(s => s.smoke1Used).length;
-    const smoke2 = staff.filter(s => s.smoke2Used).length;
-
-    charts.perms = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Toilet', 'Smoking 1', 'Smoking 2'],
-        datasets: [{
-          label: 'Used',
-          data: [toilet, smoke1, smoke2],
-          backgroundColor: ['rgba(96,165,250,0.7)', 'rgba(251,146,60,0.7)', 'rgba(251,146,60,0.5)'],
-          borderRadius: 8,
-        }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#94A3B8', font: { family: 'DM Mono', size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { ticks: { color: '#94A3B8', font: { family: 'DM Mono', size: 11 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' }, max: staff.length },
-        },
-      },
-    });
-  }
-
-  async function loadMonitoring() {
-    const date = document.getElementById('monitor-date').value;
-    if (!date) return;
-
-    const data = await api.get(`/members/admin/all?date=${date}`);
-    if (!data.success) return;
-
-    const tbody = document.getElementById('monitor-body');
-    tbody.innerHTML = data.data.map((s, i) => `
-      <tr>
-        <td class="py-3 px-3 mono text-xs text-slate-500">${i+1}</td>
-        <td class="py-3 px-3 mono text-sm text-amber-400">${s.employeeId}</td>
-        <td class="py-3 px-3 font-medium">${s.name}</td>
-        <td class="py-3 px-3">
-          <div class="flex items-center gap-2">
-            <div class="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div class="h-full rounded-full ${s.validCount >= 3 ? 'bg-teal-400' : 'bg-amber-400'}" style="width:${(s.validCount/3)*100}%"></div>
-            </div>
-            <span class="mono text-xs">${s.validCount}/3</span>
-          </div>
-        </td>
-        <td class="py-3 px-3 mono text-sm ${s.breakHours >= 2 ? 'text-teal-400' : 'text-amber-400'}">${s.breakHours}h</td>
-        <td class="py-3 px-3">${statusBadge(s)}</td>
-      </tr>
-    `).join('');
-  }
-
-  async function loadPermLogs() {
-    const date = document.getElementById('perm-log-date').value;
-    if (!date) return;
-
-    const data = await api.get(`/permissions/admin/logs?date=${date}`);
-    if (!data.success) return;
-
-    const tbody = document.getElementById('perm-log-body');
-    if (!data.data.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 mono text-xs text-slate-500">No permission logs for this date.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = data.data.map(l => `
-      <tr>
-        <td class="py-3 px-3 font-medium">${l.staffName}</td>
-        <td class="py-3 px-3 mono text-xs text-amber-400">${l.employeeId}</td>
-        <td class="py-3 px-3">
-          <span class="flex items-center gap-2">
-            <span>${l.type === 'toilet' ? '🚽' : '🚬'}</span>
-            <span class="capitalize text-sm">${l.type.replace('_', ' ')}</span>
-          </span>
-        </td>
-        <td class="py-3 px-3 mono text-xs text-slate-400">${formatDate(l.usedAt)}</td>
-      </tr>
-    `).join('');
-  }
-
-  async function loadStaffList() {
-    const data = await api.get('/staff');
-    if (!data.success) return;
-
-    const tbody = document.getElementById('staff-list-body');
-    tbody.innerHTML = data.data.map(s => `
-      <tr>
-        <td class="py-3 px-3 mono text-sm text-amber-400">${s.employeeId}</td>
-        <td class="py-3 px-3 font-medium">${s.name}</td>
-        <td class="py-3 px-3 mono text-sm text-slate-400">${s.username}</td>
-        <td class="py-3 px-3">
-          <span class="px-2 py-0.5 rounded-full mono text-xs ${s.isActive ? 'badge-reached' : 'badge-failed'}">
-            ${s.isActive ? 'Active' : 'Inactive'}
-          </span>
-        </td>
-        <td class="py-3 px-3">
-          <button onclick="toggleStaffStatus('${s._id}', ${s.isActive})" class="mono text-xs ${s.isActive ? 'text-red-400 hover:text-red-300' : 'text-teal-400 hover:text-teal-300'} transition-colors">
-            ${s.isActive ? 'Deactivate' : 'Activate'}
-          </button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  async function toggleStaffStatus(id, currentActive) {
-    const data = await api.put(`/staff/${id}`, { isActive: !currentActive });
-    if (data.success) {
-      toast.success(`Staff ${currentActive ? 'deactivated' : 'activated'}.`);
-      loadStaffList();
-    } else {
-      toast.error(data.message);
-    }
-  }
-
-  function toggleAddStaff() {
-    const form = document.getElementById('add-staff-form');
-    form.classList.toggle('hidden');
-  }
-
-  async function addStaff() {
-    const name = document.getElementById('new-name').value.trim();
-    const username = document.getElementById('new-username').value.trim();
-    const employeeId = document.getElementById('new-empid').value.trim().toUpperCase();
-    const password = document.getElementById('new-password').value;
-    const errEl = document.getElementById('staff-form-error');
-
-    errEl.classList.add('hidden');
-
-    if (!name || !username || !employeeId || !password) {
-      errEl.textContent = 'All fields are required.';
-      errEl.classList.remove('hidden');
-      return;
-    }
-
-    const data = await api.post('/staff', { name, username, password, employeeId });
-
-    if (data.success) {
-      toast.success('Staff created successfully!');
-      toggleAddStaff();
-      loadStaffList();
-      ['new-name', 'new-username', 'new-empid', 'new-password'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-    } else {
-      errEl.textContent = data.message;
-      errEl.classList.remove('hidden');
-    }
-  }
-
-  async function loadRanking() {
-    const data = await api.get('/staff/ranking/today');
-    if (!data.success) return;
-
-    const medals = ['🥇', '🥈', '🥉'];
-    const container = document.getElementById('ranking-content');
-
-    if (!data.data.length) {
-      container.innerHTML = '<p class="mono text-xs text-slate-500 text-center py-8">No data yet today.</p>';
-      return;
-    }
-
-    container.innerHTML = data.data.map((r, i) => `
-      <div class="stat-card rounded-xl px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <span class="text-2xl w-8 text-center">${medals[i] || `<span class="mono text-slate-500 text-sm">#${i+1}</span>`}</span>
-          <div>
-            <p class="font-semibold">${r.name}</p>
-            <p class="mono text-xs text-slate-500">${r.employeeId}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-6 text-right">
-          <div>
-            <p class="mono text-xs text-slate-500 mb-0.5">Members</p>
-            <p class="font-bold mono">${r.validCount}<span class="text-slate-600">/3</span></p>
-          </div>
-          <div>
-            <p class="mono text-xs text-slate-500 mb-0.5">Total Deposit</p>
-            <p class="font-bold text-teal-400 text-sm">${formatCurrency(r.totalDeposit)}</p>
-          </div>
-          <div>${r.targetReached
-            ? '<span class="badge-reached px-3 py-1 rounded-full mono text-xs">✓ Done</span>'
-            : '<span class="badge-pending px-3 py-1 rounded-full mono text-xs">Pending</span>'
-          }</div>
+<!-- Modal Tambah Staff -->
+<div id="modal-staff" class="modal-bg hidden">
+  <div class="modal-box">
+    <h2 class="bebas text-2xl mb-5 text-yellow-400">Tambah Staff Baru</h2>
+    <div id="modal-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
+    <div class="space-y-4">
+      <div>
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+        <input id="s-name" type="text" placeholder="contoh: Ahmad Rizky" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
+      </div>
+      <div>
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
+        <input id="s-username" type="text" placeholder="contoh: ahmad01" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all"/>
+      </div>
+      <div>
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">ID Karyawan</label>
+        <input id="s-empid" type="text" placeholder="contoh: EMP001" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all"/>
+      </div>
+      <div>
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+        <div class="relative">
+          <input id="s-password" type="password" placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
+          <button onclick="togglePwd('s-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">LIHAT</button>
         </div>
       </div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="closeModal('modal-staff')" class="btn-outline flex-1 py-2.5 rounded-xl text-sm">Batal</button>
+      <button onclick="submitAddStaff()" class="btn-gold flex-1 py-2.5 rounded-xl text-sm">Buat Staff</button>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/api.js"></script>
+<script>
+// Helpers
+function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function showToast(msg,type='success'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+function formatCurrency(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);}
+
+// Auth
+async function doLogin(){
+  const username=document.getElementById('login-username').value.trim();
+  const password=document.getElementById('login-password').value;
+  const btn=document.getElementById('login-btn');
+  const errEl=document.getElementById('login-error');
+  if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
+  const data=await api.post('/auth/login/admin',{username,password});
+  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
+  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk Admin';}
+}
+function doLogout(){api.logout();}
+
+function initApp(user){
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  document.getElementById('user-name').textContent=user.name;
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  loadDashboard();
+}
+
+function showPage(page){
+  const pages=['dashboard','monitoring','permissions','stafflist','ranking','ipwhitelist'];
+  pages.forEach(p=>{
+    document.getElementById(`page-${p}`)?.classList.add('hidden');
+    document.getElementById(`nav-${p}`)?.classList.remove('active');
+  });
+  document.getElementById(`page-${page}`)?.classList.remove('hidden');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  if(page==='dashboard')loadDashboard();
+  else if(page==='monitoring')loadMonitoring();
+  else if(page==='permissions')loadPermLogs();
+  else if(page==='stafflist')loadStaffList();
+  else if(page==='ranking')loadRanking();
+  else if(page==='ipwhitelist')loadIPWhitelist();
+}
+
+// Dashboard
+async function loadDashboard(){
+  const data=await api.get('/members/admin/all');
+  if(!data.success)return;
+  const staff=data.data;
+  const total=staff.length;
+  const reached=staff.filter(s=>s.targetReached).length;
+  const failed=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
+  const pending=staff.filter(s=>s.validCount===0).length;
+  document.getElementById('d-total').textContent=total;
+  document.getElementById('d-reached').textContent=reached;
+  document.getElementById('d-failed').textContent=failed;
+  document.getElementById('d-pending').textContent=pending;
+
+  const permsData=await api.get('/permissions/admin/logs');
+  const permsMap={};
+  if(permsData.success)permsData.data.forEach(p=>{permsMap[p.staffId]=p;});
+
+  document.getElementById('dash-table').innerHTML=staff.length===0
+    ?'<tr><td colspan="6" class="text-center py-8 mono text-xs text-slate-600">Belum ada data staff.</td></tr>'
+    :staff.map(s=>{
+      const p=permsMap[s.staffId]||{};
+      const status=s.validCount===0
+        ?'<span class="badge badge-gray">Belum Mulai</span>'
+        :s.targetReached
+          ?'<span class="badge badge-green">Target ✓</span>'
+          :'<span class="badge badge-yellow">Dalam Proses</span>';
+      const pct=Math.min(100,Math.round((s.validCount/3)*100));
+      return `<tr class="table-row">
+        <td class="px-5 py-3.5">
+          <p class="font-semibold text-sm">${s.staffName}</p>
+          <p class="mono text-xs text-slate-600">${s.employeeId}</p>
+        </td>
+        <td class="px-4 py-3.5 text-center">
+          <div class="flex flex-col items-center gap-1.5">
+            <span class="mono text-sm font-bold">${s.validCount}<span class="text-slate-600">/3</span></span>
+            <div class="progress-track w-20"><div class="progress-fill ${s.targetReached?'done':''}" style="width:${pct}%"></div></div>
+          </div>
+        </td>
+        <td class="px-4 py-3.5 text-center"><span class="mono text-sm ${s.targetReached?'text-green-400':'text-yellow-400'}">${s.breakHours}j</span></td>
+        <td class="px-4 py-3.5 text-center"><span class="${p.toiletUsed?'text-red-400':'text-slate-600'} text-lg">${p.toiletUsed?'✓':'—'}</span></td>
+        <td class="px-4 py-3.5 text-center"><span class="mono text-xs text-slate-400">${[p.smoke1Used,p.smoke2Used].filter(Boolean).length}/2</span></td>
+        <td class="px-4 py-3.5 text-center">${status}</td>
+      </tr>`;
+    }).join('');
+}
+
+// Monitoring
+async function loadMonitoring(){
+  const data=await api.get('/members/admin/all');
+  if(!data.success)return;
+  document.getElementById('monitoring-list').innerHTML=data.data.length===0
+    ?'<p class="mono text-xs text-slate-600 text-center py-4">Belum ada data.</p>'
+    :data.data.map(s=>`
+      <div class="stat-card p-4 mb-3">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <span class="font-semibold">${s.staffName}</span>
+            <span class="mono text-xs text-slate-600 ml-2">${s.employeeId}</span>
+          </div>
+          <span class="badge ${s.targetReached?'badge-green':s.validCount>0?'badge-yellow':'badge-gray'}">${s.targetReached?'Target ✓':s.validCount>0?'Proses':'Belum'}</span>
+        </div>
+        <div class="progress-track mb-2"><div class="progress-fill ${s.targetReached?'done':''}" style="width:${Math.round((s.validCount/3)*100)}%"></div></div>
+        <p class="mono text-xs text-slate-600 mb-3">${s.validCount}/3 member valid · Break ${s.breakHours} jam</p>
+        ${s.members&&s.members.length>0?`<div class="space-y-1.5">${s.members.map((m,i)=>`
+          <div class="flex items-center justify-between bg-white/3 rounded-lg px-3 py-2">
+            <span class="mono text-xs text-slate-500">#${i+1} ${m.memberId}</span>
+            <div class="flex items-center gap-2">
+              <span class="mono text-xs text-green-400">${formatCurrency(m.deposit)}</span>
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${m.isValid?'bg-green-900/50 text-green-400':'bg-red-900/50 text-red-400'}">${m.isValid?'✓':'✕'}</span>
+            </div>
+          </div>`).join('')}</div>`:'<p class="mono text-xs text-slate-700">Belum ada entri.</p>'}
+      </div>
     `).join('');
-  }
+}
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !document.getElementById('view-login').classList.contains('hidden')) {
-      doLogin();
-    }
-  });
+// Permission Logs
+async function loadPermLogs(){
+  const data=await api.get('/permissions/admin/logs');
+  if(!data.success)return;
+  document.getElementById('perm-table').innerHTML=data.data.length===0
+    ?'<tr><td colspan="4" class="text-center py-8 mono text-xs text-slate-600">Belum ada data.</td></tr>'
+    :data.data.map(p=>`<tr class="table-row">
+      <td class="px-5 py-3.5"><p class="font-semibold text-sm">${p.staffName||'—'}</p></td>
+      <td class="px-4 py-3.5 text-center"><span class="${p.toiletUsed?'text-blue-400':'text-slate-700'}">${p.toiletUsed?'✓ '+new Date(p.toiletTime||Date.now()).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—'}</span></td>
+      <td class="px-4 py-3.5 text-center"><span class="${p.smoke1Used?'text-orange-400':'text-slate-700'}">${p.smoke1Used?'✓':'—'}</span></td>
+      <td class="px-4 py-3.5 text-center"><span class="${p.smoke2Used?'text-orange-400':'text-slate-700'}">${p.smoke2Used?'✓':'—'}</span></td>
+    </tr>`).join('');
+}
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const token = api.getToken();
-    const user = api.getUser();
-    if (token && user && user.role === 'admin') {
-      initApp(user);
-    }
-  });
+// Staff List
+async function loadStaffList(){
+  const data=await api.get('/staff');
+  if(!data.success)return;
+  document.getElementById('staff-table').innerHTML=data.data.length===0
+    ?'<tr><td colspan="5" class="text-center py-8 mono text-xs text-slate-600">Belum ada staff. Tambah staff baru.</td></tr>'
+    :data.data.filter(s=>s.role==='staff').map(s=>`<tr class="table-row">
+      <td class="px-5 py-3.5"><p class="font-semibold text-sm">${s.name}</p></td>
+      <td class="px-5 py-3.5"><span class="mono text-sm text-slate-400">${s.username}</span></td>
+      <td class="px-5 py-3.5"><span class="mono text-xs text-yellow-400">${s.employeeId}</span></td>
+      <td class="px-4 py-3.5 text-center"><span class="badge ${s.isActive?'badge-green':'badge-red'}">${s.isActive?'Aktif':'Nonaktif'}</span></td>
+      <td class="px-4 py-3.5 text-center">
+        <button onclick="toggleStaff('${s._id}',${s.isActive})" class="mono text-xs ${s.isActive?'text-red-400 hover:text-red-300':'text-green-400 hover:text-green-300'} transition-colors">${s.isActive?'Nonaktifkan':'Aktifkan'}</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openAddStaff(){
+  document.getElementById('modal-staff').classList.remove('hidden');
+  document.getElementById('modal-error').classList.add('hidden');
+  ['s-name','s-username','s-empid','s-password'].forEach(id=>document.getElementById(id).value='');
+}
+async function submitAddStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  const username=document.getElementById('s-username').value.trim();
+  const employeeId=document.getElementById('s-empid').value.trim();
+  const password=document.getElementById('s-password').value;
+  const errEl=document.getElementById('modal-error');
+  if(!name||!username||!employeeId||!password){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
+  const data=await api.post('/staff',{name,username,employeeId,password,role:'staff'});
+  if(data.success){closeModal('modal-staff');showToast(`Staff ${name} berhasil ditambahkan!`);loadStaffList();}
+  else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
+}
+async function toggleStaff(id,isActive){
+  const data=await api.put(`/staff/${id}`,{isActive:!isActive});
+  if(data.success){showToast(`Staff ${isActive?'dinonaktifkan':'diaktifkan'}.`);loadStaffList();}
+  else showToast(data.message,'error');
+}
+
+// Ranking
+async function loadRanking(){
+  const data=await api.get('/staff/ranking/today');
+  if(!data.success)return;
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('ranking-list').innerHTML=data.data.length===0
+    ?'<p class="mono text-xs text-slate-600 text-center py-8">Belum ada data hari ini.</p>'
+    :data.data.map((s,i)=>`
+      <div class="stat-card flex items-center gap-4 px-5 py-4 ${i<3?'card-gold':''}" style="${i===0?'border-color:rgba(255,183,3,0.3)':''}">
+        <span class="text-3xl w-10 text-center">${medals[i]||`#${i+1}`}</span>
+        <div class="flex-1">
+          <p class="font-semibold">${s.name}</p>
+          <p class="mono text-xs text-slate-600">${s.employeeId}</p>
+        </div>
+        <div class="text-right">
+          <p class="bebas text-2xl ${s.targetReached?'text-green-400':'text-slate-400'}">${s.validCount}<span class="text-slate-600">/3</span></p>
+          <p class="mono text-xs text-slate-600">Break ${s.breakHours}j</p>
+        </div>
+        <span class="badge ${s.targetReached?'badge-green':'badge-gray'}">${s.targetReached?'✓ Target':'Proses'}</span>
+      </div>
+    `).join('');
+}
+
+// IP WHITELIST
+async function loadIPWhitelist(){
+  // Get my IP
+  const myIPData=await api.get('/ip-whitelist/myip');
+  if(myIPData.success)document.getElementById('my-ip').textContent=myIPData.data.ip;
+
+  // Get list
+  const data=await api.get('/ip-whitelist');
+  if(!data.success)return;
+  const list=data.data;
+  document.getElementById('ip-count').textContent=`${list.length} IP`;
+
+  document.getElementById('ip-list').innerHTML=list.length===0
+    ?'<div class="px-5 py-8 text-center"><p class="mono text-xs text-green-400 mb-1">⚡ Mode Setup Aktif</p><p class="mono text-xs text-slate-600">Database kosong = semua IP bisa login. Tambahkan IP kantor untuk mengaktifkan pembatasan.</p></div>'
+    :list.map(ip=>`
+      <div class="flex items-center justify-between px-5 py-4 hover:bg-white/2 transition-colors">
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full ${ip.isActive?'bg-green-400':'bg-slate-600'}"></div>
+          <div>
+            <p class="mono text-sm font-bold">${ip.ip}</p>
+            <p class="mono text-xs text-slate-600">${ip.label||'—'} · Ditambah ${new Date(ip.createdAt).toLocaleDateString('id-ID')}</p>
+          </div>
+        </div>
+        <button onclick="deleteIP('${ip._id}','${ip.ip}')" class="mono text-xs text-red-400 hover:text-red-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-950/30">Hapus</button>
+      </div>
+    `).join('');
+}
+
+async function whitelistMyIP(){
+  const myIPData=await api.get('/ip-whitelist/myip');
+  if(!myIPData.success){showToast('Gagal mendapatkan IP.','error');return;}
+  const ip=myIPData.data.ip;
+  const label=prompt(`Tambah IP ${ip} dengan label:`) || 'IP Saya';
+  if(label===null)return;
+  const data=await api.post('/ip-whitelist',{ip,label});
+  if(data.success){showToast(`IP ${ip} berhasil ditambahkan!`);loadIPWhitelist();}
+  else showToast(data.message||'Gagal.','error');
+}
+
+async function addIPManual(){
+  const ip=document.getElementById('new-ip').value.trim();
+  const label=document.getElementById('new-ip-label').value.trim()||'Manual';
+  if(!ip){showToast('Masukkan IP address.','error');return;}
+  const data=await api.post('/ip-whitelist',{ip,label});
+  if(data.success){
+    showToast(`IP ${ip} ditambahkan!`);
+    document.getElementById('new-ip').value='';
+    document.getElementById('new-ip-label').value='';
+    loadIPWhitelist();
+  }else showToast(data.message||'Gagal.','error');
+}
+
+async function deleteIP(id,ip){
+  if(!confirm(`Hapus IP ${ip}?\n\nPastikan kamu masih bisa login setelahnya!`))return;
+  const data=await api.delete(`/ip-whitelist/${id}`);
+  if(data.success){showToast(`IP ${ip} dihapus.`);loadIPWhitelist();}
+  else showToast(data.message||'Gagal.','error');
+}
+
+// Init
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
+window.addEventListener('DOMContentLoaded',()=>{
+  const token=api.getToken();const user=api.getUser();
+  if(token&&user&&user.role==='admin')initApp(user);
+});
 </script>
 </body>
 </html>

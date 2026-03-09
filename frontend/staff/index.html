@@ -1,534 +1,449 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StaffSync — Staff Portal</title>
+  <title>STAFF ANG — Portal Staff</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Syne', sans-serif; background: #050A0E; color: #E8F4F8; }
-    .mono { font-family: 'DM Mono', monospace; }
-    .grid-bg {
-      background-image:
-        linear-gradient(rgba(0,200,180,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,200,180,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
+    :root { --red:#E63946; --gold:#FFB703; --dark:#080C10; --dark2:#0D1219; --dark3:#131A24; --border:rgba(255,255,255,0.06); }
+    * { box-sizing:border-box; }
+    body { font-family:'Outfit',sans-serif; background:var(--dark); color:#E8EDF2; min-height:100vh; }
+    .bebas { font-family:'Bebas Neue',cursive; }
+    .mono { font-family:'JetBrains Mono',monospace; }
+    .bg-base {
+      background: radial-gradient(ellipse 70% 40% at 10% 10%, rgba(230,57,70,0.07) 0%, transparent 60%),
+                  linear-gradient(180deg, #080C10 0%, #0A0F16 100%);
     }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-    @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(0,200,180,0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(0,200,180,0); }
-      100% { box-shadow: 0 0 0 0 rgba(0,200,180,0); }
-    }
-    .ring-pulse { animation: pulse-ring 2s infinite; }
-    .nav-btn { transition: all 0.2s; }
-    .nav-btn.active { background: rgba(0,200,180,0.15); color: #2DD4BF; border-color: rgba(0,200,180,0.3); }
-    .nav-btn:not(.active):hover { background: rgba(255,255,255,0.05); }
-    input:focus { outline: none; border-color: #2DD4BF !important; box-shadow: 0 0 0 3px rgba(45,212,191,0.1); }
-    .progress-bar {
-      background: linear-gradient(90deg, #0D9488, #2DD4BF);
-      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #0D9488, #2DD4BF);
-      transition: all 0.2s;
-    }
-    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,200,180,0.3); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .perm-btn { transition: all 0.25s; }
-    .perm-btn:not(:disabled):hover { transform: translateY(-2px); }
-    .perm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    input:focus { outline:none; border-color:var(--red)!important; box-shadow:0 0 0 3px rgba(230,57,70,0.1); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .fade-up { animation:fadeUp 0.5s ease-out forwards; }
+
+    /* Sidebar */
+    .sidebar { background:rgba(13,18,25,0.95); border-right:1px solid var(--border); }
+    .nav-item { transition:all 0.2s; border-radius:10px; cursor:pointer; }
+    .nav-item:hover { background:rgba(255,255,255,0.04); }
+    .nav-item.active { background:rgba(230,57,70,0.1); border:1px solid rgba(230,57,70,0.2); }
+    .nav-item.active span { color:var(--red); }
+
+    /* Cards */
+    .stat-card { background:var(--dark3); border:1px solid var(--border); border-radius:16px; }
+    .stat-card.highlight-red { border-color:rgba(230,57,70,0.2); background:rgba(230,57,70,0.05); }
+    .stat-card.highlight-green { border-color:rgba(34,197,94,0.2); background:rgba(34,197,94,0.05); }
+    .stat-card.highlight-gold { border-color:rgba(255,183,3,0.2); background:rgba(255,183,3,0.05); }
+
+    /* Progress */
+    .progress-track { background:rgba(255,255,255,0.06); border-radius:100px; height:10px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,#E63946,#FF6B6B); transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
+    .progress-fill.done { background:linear-gradient(90deg,#16A34A,#22C55E); }
+
+    /* Buttons */
+    .btn-primary { background:linear-gradient(135deg,#C1121F,#E63946); transition:all 0.2s; border:none; }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 25px rgba(230,57,70,0.35); }
+    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn-perm { transition:all 0.25s; border-radius:12px; }
+    .btn-perm:not(:disabled):hover { transform:translateY(-2px); }
+    .btn-perm:disabled { opacity:0.4; cursor:not-allowed; }
+
+    /* Member item */
+    .member-item { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
   </style>
 </head>
-<body class="min-h-screen grid-bg">
+<body class="bg-base">
 
-<!-- ===== LOGIN VIEW ===== -->
+<!-- LOGIN -->
 <div id="view-login" class="min-h-screen flex items-center justify-center px-4">
-  <div class="w-full max-w-md fade-in">
-    <div class="text-center mb-10">
-      <a href="/" class="mono text-xs text-slate-500 hover:text-teal-400 transition-colors">← Back</a>
-      <h1 class="text-4xl font-extrabold mt-4 mb-1">Staff Portal</h1>
-      <p class="mono text-xs text-slate-500">StaffSync v2.1</p>
+  <div class="w-full max-w-sm fade-up">
+    <div class="text-center mb-8">
+      <a href="/" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors">← Kembali</a>
+      <div class="bebas text-5xl mt-4 mb-1" style="background:linear-gradient(135deg,#fff,#E63946);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
+      <p class="mono text-xs text-slate-600 tracking-wider">PORTAL STAFF</p>
     </div>
 
-    <div class="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-8 backdrop-blur">
-      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-300 text-sm mono"></div>
-
+    <div style="background:var(--dark3);border:1px solid var(--border)" class="rounded-2xl p-7">
+      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
       <div class="mb-5">
-        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Username</label>
-        <input id="login-username" type="text" placeholder="staff001"
-          class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono"
-          autocomplete="username" />
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Username</label>
+        <input id="login-username" type="text" placeholder="contoh: staff01"
+          class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all" />
       </div>
-      <div class="mb-7">
-        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+      <div class="mb-6">
+        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Password</label>
         <div class="relative">
           <input id="login-password" type="password" placeholder="••••••••"
-            class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors"
-            autocomplete="current-password" />
-          <button onclick="togglePwd('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-teal-400 transition-colors mono text-xs">SHOW</button>
+            class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm transition-all" />
+          <button onclick="togglePwd('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-red-400 transition-colors">LIHAT</button>
         </div>
       </div>
-      <button id="login-btn" onclick="doLogin()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-slate-900 text-sm">
-        Sign In
+      <button id="login-btn" onclick="doLogin()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-white text-sm">
+        Masuk
       </button>
     </div>
   </div>
 </div>
 
-<!-- ===== MAIN APP (after login) ===== -->
-<div id="view-app" class="hidden min-h-screen flex flex-col">
+<!-- APP -->
+<div id="view-app" class="hidden min-h-screen flex">
 
-  <!-- Top Nav -->
-  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur border-b border-slate-800/50">
-    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-2 h-2 rounded-full bg-teal-400 ring-pulse"></div>
-        <span class="font-bold text-sm">Staff<span class="text-teal-400">Sync</span></span>
-      </div>
-      <nav class="hidden sm:flex items-center gap-1">
-        <button onclick="showPage('dashboard')" id="nav-dashboard" class="nav-btn active px-4 py-2 rounded-lg text-sm border border-transparent font-medium">Dashboard</button>
-        <button onclick="showPage('input')" id="nav-input" class="nav-btn px-4 py-2 rounded-lg text-sm border border-transparent font-medium">Input Member</button>
-        <button onclick="showPage('permission')" id="nav-permission" class="nav-btn px-4 py-2 rounded-lg text-sm border border-transparent font-medium">Permission</button>
-      </nav>
-      <div class="flex items-center gap-3">
-        <span id="user-name" class="mono text-xs text-slate-400"></span>
-        <button onclick="doLogout()" class="mono text-xs text-slate-500 hover:text-red-400 transition-colors">Logout</button>
-      </div>
+  <!-- Sidebar Desktop -->
+  <aside class="sidebar hidden lg:flex flex-col w-60 sticky top-0 h-screen">
+    <div class="p-5 border-b border-white/5">
+      <div class="bebas text-3xl" style="background:linear-gradient(135deg,#fff,#E63946);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
+      <p class="mono text-xs text-slate-600 mt-0.5">Portal Staff</p>
     </div>
-    <!-- Mobile nav -->
-    <div class="sm:hidden flex border-t border-slate-800/50">
-      <button onclick="showPage('dashboard')" id="mnav-dashboard" class="flex-1 py-2 text-xs font-medium text-slate-400 border-b-2 border-transparent data-[active=true]:border-teal-400 data-[active=true]:text-teal-400">Dashboard</button>
-      <button onclick="showPage('input')" id="mnav-input" class="flex-1 py-2 text-xs font-medium text-slate-400 border-b-2 border-transparent">Input</button>
-      <button onclick="showPage('permission')" id="mnav-permission" class="flex-1 py-2 text-xs font-medium text-slate-400 border-b-2 border-transparent">Permission</button>
+    <nav class="flex-1 p-4 space-y-1">
+      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active px-4 py-3 flex items-center gap-3">
+        <span>📊</span><span class="text-sm font-medium">Dashboard</span>
+      </div>
+      <div onclick="showPage('input')" id="nav-input" class="nav-item px-4 py-3 flex items-center gap-3">
+        <span>➕</span><span class="text-sm font-medium">Input Member</span>
+      </div>
+      <div onclick="showPage('permission')" id="nav-permission" class="nav-item px-4 py-3 flex items-center gap-3">
+        <span>🔑</span><span class="text-sm font-medium">Izin Harian</span>
+      </div>
+    </nav>
+    <div class="p-4 border-t border-white/5">
+      <p id="user-name" class="text-sm font-semibold"></p>
+      <p id="user-empid" class="mono text-xs text-red-400 mb-3"></p>
+      <button onclick="doLogout()" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors">← Keluar</button>
     </div>
-  </header>
+  </aside>
 
-  <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+  <!-- Main -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Mobile header -->
+    <header class="lg:hidden sticky top-0 z-40 border-b border-white/5" style="background:rgba(8,12,16,0.95);backdrop-filter:blur(12px)">
+      <div class="px-4 h-14 flex items-center justify-between">
+        <span class="bebas text-2xl" style="background:linear-gradient(135deg,#fff,#E63946);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</span>
+        <div class="flex items-center gap-3">
+          <span id="user-name-m" class="mono text-xs text-slate-500"></span>
+          <button onclick="doLogout()" class="mono text-xs text-red-400">Keluar</button>
+        </div>
+      </div>
+      <div class="flex border-t border-white/5 text-xs">
+        <button onclick="showPage('dashboard')" class="flex-1 py-2.5 mono text-slate-400 hover:text-white transition-colors">Dashboard</button>
+        <button onclick="showPage('input')" class="flex-1 py-2.5 mono text-slate-400 hover:text-white transition-colors">Input</button>
+        <button onclick="showPage('permission')" class="flex-1 py-2.5 mono text-slate-400 hover:text-white transition-colors">Izin</button>
+      </div>
+    </header>
 
-    <!-- DASHBOARD PAGE -->
-    <div id="page-dashboard" class="fade-in">
-      <div class="flex items-center justify-between mb-8">
+    <main class="flex-1 p-4 md:p-6 space-y-5">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="fade-up space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="bebas text-3xl text-white">Overview Hari Ini</h1>
+            <p id="today-date" class="mono text-xs text-slate-500 mt-0.5"></p>
+          </div>
+          <button onclick="loadDashboard()" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors flex items-center gap-1.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="stat-card p-5">
+            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Member Valid</p>
+            <p id="stat-members" class="bebas text-4xl text-white">0<span class="text-slate-600">/3</span></p>
+          </div>
+          <div id="stat-target-card" class="stat-card p-5">
+            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target</p>
+            <p id="stat-target" class="bebas text-4xl text-slate-500">Belum</p>
+          </div>
+          <div class="stat-card p-5">
+            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Waktu Break</p>
+            <p id="stat-break" class="bebas text-4xl text-yellow-400">1 JAM</p>
+          </div>
+          <div class="stat-card p-5">
+            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Izin Dipakai</p>
+            <p id="stat-perms" class="bebas text-4xl text-white">0<span class="text-slate-600">/3</span></p>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="stat-card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-semibold text-sm">Progress Target Harian</span>
+            <span id="progress-label" class="mono text-xs text-slate-500">0 / 3 member</span>
+          </div>
+          <div class="progress-track mb-3">
+            <div id="progress-bar" class="progress-fill" style="width:0%"></div>
+          </div>
+          <p id="progress-hint" class="mono text-xs text-slate-600">Masukkan 3 member valid (deposit ≥ Rp 50.000) untuk break penuh.</p>
+        </div>
+
+        <!-- Member List -->
+        <div class="stat-card p-5">
+          <h3 class="font-semibold text-sm mb-4">Entri Hari Ini</h3>
+          <div id="member-list" class="space-y-2">
+            <p class="mono text-xs text-slate-600 text-center py-4">Belum ada entri hari ini.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- INPUT -->
+      <div id="page-input" class="fade-up hidden space-y-5">
         <div>
-          <h2 class="text-2xl font-bold">Today's Overview</h2>
-          <p id="today-date" class="mono text-xs text-slate-500 mt-1"></p>
+          <h1 class="bebas text-3xl text-white">Input Member</h1>
+          <p class="mono text-xs text-slate-500 mt-0.5">Masukkan ID member dan jumlah deposit</p>
         </div>
-        <button onclick="loadDashboard()" class="mono text-xs text-slate-500 hover:text-teal-400 transition-colors flex items-center gap-1">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-          Refresh
-        </button>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
-          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Valid Members</p>
-          <p id="stat-members" class="text-3xl font-bold">0<span class="text-slate-600">/3</span></p>
-        </div>
-        <div id="stat-target-card" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
-          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target</p>
-          <p id="stat-target" class="text-3xl font-bold text-red-400">Pending</p>
-        </div>
-        <div id="stat-break-card" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
-          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Break Time</p>
-          <p id="stat-break" class="text-3xl font-bold text-amber-400">1h</p>
-        </div>
-        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
-          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Perms Used</p>
-          <p id="stat-perms" class="text-3xl font-bold">0<span class="text-slate-600">/3</span></p>
-        </div>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 mb-6">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-sm font-semibold">Daily Target Progress</span>
-          <span id="progress-label" class="mono text-xs text-slate-400">0 / 3 members</span>
-        </div>
-        <div class="h-3 bg-slate-800 rounded-full overflow-hidden">
-          <div id="progress-bar" class="progress-bar h-full rounded-full" style="width:0%"></div>
-        </div>
-        <p id="progress-hint" class="mono text-xs text-slate-500 mt-3">Add 3 valid members (deposit ≥ 50,000) to reach full break time.</p>
-      </div>
-
-      <!-- Member List -->
-      <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6">
-        <h3 class="font-semibold mb-4">Today's Entries</h3>
-        <div id="member-list" class="space-y-3">
-          <p class="mono text-xs text-slate-500 text-center py-4">No entries yet today.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- INPUT PAGE -->
-    <div id="page-input" class="fade-in hidden">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold">Input Member</h2>
-        <p class="mono text-xs text-slate-500 mt-1">Enter member ID and deposit amount</p>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6">
-          <div id="input-error" class="hidden mb-4 p-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-300 text-sm"></div>
-          <div id="input-success" class="hidden mb-4 p-3 rounded-xl bg-teal-900/50 border border-teal-500/30 text-teal-300 text-sm"></div>
-
-          <div class="mb-5">
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Member ID</label>
-            <input id="input-member-id" type="text" placeholder="e.g. MBR-10045"
-              class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono uppercase"
-              autocomplete="off" />
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="stat-card p-6">
+            <div id="input-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
+            <div id="input-success" class="hidden mb-4 p-3 rounded-xl bg-green-950/50 border border-green-800/30 text-green-400 text-sm mono"></div>
+            <div class="mb-5">
+              <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">ID Member</label>
+              <input id="input-member-id" type="text" placeholder="contoh: MBR-10045"
+                class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all uppercase" autocomplete="off" />
+            </div>
+            <div class="mb-6">
+              <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Jumlah Deposit (Rp)</label>
+              <input id="input-deposit" type="number" placeholder="50000" min="0"
+                class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all" autocomplete="off" />
+              <p class="mono text-xs text-slate-700 mt-1.5">Minimum: Rp 50.000</p>
+            </div>
+            <button id="input-btn" onclick="submitMember()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-white text-sm">
+              Submit Entri
+            </button>
           </div>
-          <div class="mb-6">
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deposit Amount (IDR)</label>
-            <input id="input-deposit" type="number" placeholder="50000" min="0"
-              class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono"
-              autocomplete="off" />
-            <p class="mono text-xs text-slate-600 mt-1.5">Minimum: Rp 50,000</p>
-          </div>
-          <button id="input-btn" onclick="submitMember()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-slate-900 text-sm">
-            Submit Entry
-          </button>
-        </div>
-
-        <!-- Rules info -->
-        <div class="space-y-4">
-          <div class="bg-slate-900/40 border border-slate-700/30 rounded-xl p-5">
-            <h4 class="font-semibold text-sm mb-3 text-teal-400">Daily Rules</h4>
-            <ul class="space-y-2 mono text-xs text-slate-400">
-              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> 3 valid members required per day</li>
-              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> Minimum deposit Rp 50,000 each</li>
-              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> No duplicate member IDs</li>
-              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> Entries below 50k are rejected</li>
-            </ul>
-          </div>
-          <div class="bg-slate-900/40 border border-slate-700/30 rounded-xl p-5">
-            <h4 class="font-semibold text-sm mb-3 text-amber-400">Break Time Rules</h4>
-            <ul class="space-y-2 mono text-xs text-slate-400">
-              <li class="flex items-start gap-2"><span class="text-teal-400">✓</span> Target reached → <span class="text-white">2 hours break</span></li>
-              <li class="flex items-start gap-2"><span class="text-red-400">✗</span> Target not reached → <span class="text-white">1 hour break</span></li>
-            </ul>
-          </div>
-          <div id="input-today-status" class="bg-slate-900/40 border border-slate-700/30 rounded-xl p-5">
-            <h4 class="font-semibold text-sm mb-3">Today's Status</h4>
-            <p id="input-status-text" class="mono text-xs text-slate-400">Loading...</p>
+          <div class="space-y-4">
+            <div class="stat-card p-5">
+              <h4 class="font-semibold text-sm mb-3 text-red-400">Aturan Harian</h4>
+              <ul class="space-y-2 mono text-xs text-slate-500">
+                <li class="flex gap-2"><span class="text-red-400">→</span> 3 member valid per hari</li>
+                <li class="flex gap-2"><span class="text-red-400">→</span> Deposit minimum Rp 50.000</li>
+                <li class="flex gap-2"><span class="text-red-400">→</span> ID member tidak boleh duplikat</li>
+                <li class="flex gap-2"><span class="text-red-400">→</span> Deposit kurang dari 50k ditolak</li>
+              </ul>
+            </div>
+            <div class="stat-card p-5">
+              <h4 class="font-semibold text-sm mb-3 text-yellow-400">Aturan Break</h4>
+              <ul class="space-y-2 mono text-xs text-slate-500">
+                <li class="flex gap-2"><span class="text-green-400">✓</span> Target tercapai → <span class="text-white">Break 2 jam</span></li>
+                <li class="flex gap-2"><span class="text-red-400">✗</span> Target tidak tercapai → <span class="text-white">Break 1 jam</span></li>
+              </ul>
+            </div>
+            <div class="stat-card p-5">
+              <h4 class="font-semibold text-sm mb-3">Status Hari Ini</h4>
+              <p id="input-status-text" class="mono text-xs text-slate-500">Loading...</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- PERMISSION PAGE -->
-    <div id="page-permission" class="fade-in hidden">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold">Daily Permissions</h2>
-        <p class="mono text-xs text-slate-500 mt-1">10 minutes each · Resets at midnight</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-5 mb-8">
-        <!-- Toilet -->
-        <div id="perm-card-toilet" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 text-center">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🚽</div>
-          <h3 class="font-bold mb-1">Toilet Break</h3>
-          <p class="mono text-xs text-slate-500 mb-5">10 minutes</p>
-          <div id="perm-status-toilet" class="mono text-xs text-slate-500 mb-4">Available</div>
-          <button id="perm-btn-toilet" onclick="usePermission('toilet')" class="perm-btn w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-600/80 hover:bg-blue-500 border border-blue-500/30">
-            Use Toilet Break
-          </button>
+      <!-- PERMISSION -->
+      <div id="page-permission" class="fade-up hidden space-y-5">
+        <div>
+          <h1 class="bebas text-3xl text-white">Izin Harian</h1>
+          <p class="mono text-xs text-slate-500 mt-0.5">10 menit per izin · Reset tengah malam</p>
         </div>
-
-        <!-- Smoking 1 -->
-        <div id="perm-card-smoke1" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 text-center">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🚬</div>
-          <h3 class="font-bold mb-1">Smoking Break 1</h3>
-          <p class="mono text-xs text-slate-500 mb-5">10 minutes</p>
-          <div id="perm-status-smoke1" class="mono text-xs text-slate-500 mb-4">Available</div>
-          <button id="perm-btn-smoke1" onclick="usePermission('smoke_1')" class="perm-btn w-full py-2.5 rounded-xl text-sm font-semibold bg-orange-600/80 hover:bg-orange-500 border border-orange-500/30">
-            Use Smoking Break 1
-          </button>
+        <div class="grid md:grid-cols-3 gap-4 mb-5">
+          <!-- Toilet -->
+          <div id="perm-card-toilet" class="stat-card p-6 text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-950/50 border border-blue-800/20 flex items-center justify-center text-3xl">🚽</div>
+            <h3 class="font-bold mb-1">Toilet</h3>
+            <p class="mono text-xs text-slate-600 mb-4">10 menit</p>
+            <p id="perm-status-toilet" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
+            <button id="perm-btn-toilet" onclick="usePermission('toilet')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-blue-900/50 hover:bg-blue-800/60 border border-blue-700/30 rounded-xl text-blue-300">
+              Gunakan
+            </button>
+          </div>
+          <!-- Smoking 1 -->
+          <div id="perm-card-smoke1" class="stat-card p-6 text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-orange-950/50 border border-orange-800/20 flex items-center justify-center text-3xl">🚬</div>
+            <h3 class="font-bold mb-1">Smoking 1</h3>
+            <p class="mono text-xs text-slate-600 mb-4">10 menit</p>
+            <p id="perm-status-smoke1" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
+            <button id="perm-btn-smoke1" onclick="usePermission('smoke_1')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-orange-900/50 hover:bg-orange-800/60 border border-orange-700/30 rounded-xl text-orange-300">
+              Gunakan
+            </button>
+          </div>
+          <!-- Smoking 2 -->
+          <div id="perm-card-smoke2" class="stat-card p-6 text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-orange-950/50 border border-orange-800/20 flex items-center justify-center text-3xl">🚬</div>
+            <h3 class="font-bold mb-1">Smoking 2</h3>
+            <p class="mono text-xs text-slate-600 mb-4">10 menit</p>
+            <p id="perm-status-smoke2" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
+            <button id="perm-btn-smoke2" onclick="usePermission('smoke_2')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-orange-900/50 hover:bg-orange-800/60 border border-orange-700/30 rounded-xl text-orange-300">
+              Gunakan
+            </button>
+          </div>
         </div>
-
-        <!-- Smoking 2 -->
-        <div id="perm-card-smoke2" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 text-center">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🚬</div>
-          <h3 class="font-bold mb-1">Smoking Break 2</h3>
-          <p class="mono text-xs text-slate-500 mb-5">10 minutes</p>
-          <div id="perm-status-smoke2" class="mono text-xs text-slate-500 mb-4">Available</div>
-          <button id="perm-btn-smoke2" onclick="usePermission('smoke_2')" class="perm-btn w-full py-2.5 rounded-xl text-sm font-semibold bg-orange-600/80 hover:bg-orange-500 border border-orange-500/30">
-            Use Smoking Break 2
-          </button>
-        </div>
-      </div>
-
-      <!-- Permission Log -->
-      <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6">
-        <h3 class="font-semibold mb-4">Today's Log</h3>
-        <div id="perm-log" class="space-y-2">
-          <p class="mono text-xs text-slate-500 text-center py-4">No permissions used today.</p>
+        <div class="stat-card p-5">
+          <h3 class="font-semibold text-sm mb-4">Log Izin Hari Ini</h3>
+          <div id="perm-log" class="space-y-2">
+            <p class="mono text-xs text-slate-600 text-center py-4">Belum ada izin digunakan hari ini.</p>
+          </div>
         </div>
       </div>
-    </div>
 
-  </main>
+    </main>
+  </div>
 </div>
 
 <script src="/shared/api.js"></script>
 <script>
-  let currentPage = 'dashboard';
+function togglePwd(id) { const e=document.getElementById(id); e.type=e.type==='password'?'text':'password'; }
 
-  function togglePwd(id) {
-    const el = document.getElementById(id);
-    el.type = el.type === 'password' ? 'text' : 'password';
-  }
+async function doLogin() {
+  const username=document.getElementById('login-username').value.trim();
+  const password=document.getElementById('login-password').value;
+  const btn=document.getElementById('login-btn');
+  const errEl=document.getElementById('login-error');
+  if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
+  const data=await api.post('/auth/login/staff',{username,password});
+  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
+  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
+}
 
-  async function doLogin() {
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value;
-    const btn = document.getElementById('login-btn');
-    const errEl = document.getElementById('login-error');
+function initApp(user) {
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  document.getElementById('user-name').textContent=user.name;
+  document.getElementById('user-empid').textContent=user.employeeId;
+  document.getElementById('user-name-m')&&(document.getElementById('user-name-m').textContent=user.employeeId);
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  loadDashboard();loadPermissions();
+}
 
-    if (!username || !password) {
-      errEl.textContent = 'Please enter username and password.';
-      errEl.classList.remove('hidden');
-      return;
-    }
+function doLogout(){api.logout();}
 
-    btn.disabled = true;
-    btn.textContent = 'Signing in…';
-    errEl.classList.add('hidden');
-
-    const data = await api.post('/auth/login/staff', { username, password });
-
-    if (data.success) {
-      api.setToken(data.token);
-      api.setUser(data.user);
-      initApp(data.user);
-    } else {
-      errEl.textContent = data.message || 'Login failed.';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Sign In';
-    }
-  }
-
-  function initApp(user) {
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-app').classList.remove('hidden');
-    document.getElementById('user-name').textContent = user.employeeId;
-    document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    loadDashboard();
-    loadPermissions();
-  }
-
-  function doLogout() {
-    api.logout();
-  }
-
-  function showPage(page) {
-    ['dashboard', 'input', 'permission'].forEach(p => {
-      document.getElementById(`page-${p}`).classList.add('hidden');
-      document.getElementById(`nav-${p}`)?.classList.remove('active');
-    });
-    document.getElementById(`page-${page}`).classList.remove('hidden');
-    document.getElementById(`nav-${page}`)?.classList.add('active');
-    currentPage = page;
-
-    if (page === 'dashboard') loadDashboard();
-    if (page === 'input') { loadDashboard(); loadInputStatus(); }
-    if (page === 'permission') loadPermissions();
-  }
-
-  async function loadDashboard() {
-    const [members, perms] = await Promise.all([
-      api.get('/members/today'),
-      api.get('/permissions/today'),
-    ]);
-
-    if (!members.success) return;
-
-    const { validCount, targetReached, breakHours, members: list } = members.data;
-    const perm = perms.success ? perms.data : {};
-
-    // Stats
-    document.getElementById('stat-members').innerHTML = `${validCount}<span class="text-slate-600">/3</span>`;
-    
-    const targetEl = document.getElementById('stat-target');
-    if (validCount === 0) { targetEl.textContent = 'Pending'; targetEl.className = 'text-3xl font-bold text-slate-400'; }
-    else if (targetReached) { targetEl.textContent = 'Reached ✓'; targetEl.className = 'text-3xl font-bold text-teal-400'; }
-    else { targetEl.textContent = 'In Progress'; targetEl.className = 'text-3xl font-bold text-amber-400'; }
-
-    const breakEl = document.getElementById('stat-break');
-    breakEl.textContent = `${breakHours}h`;
-    breakEl.className = `text-3xl font-bold ${breakHours >= 2 ? 'text-teal-400' : 'text-amber-400'}`;
-
-    const usedPerms = [perm.toiletUsed, perm.smoke1Used, perm.smoke2Used].filter(Boolean).length;
-    document.getElementById('stat-perms').innerHTML = `${usedPerms}<span class="text-slate-600">/3</span>`;
-
-    // Progress
-    const pct = Math.round((validCount / 3) * 100);
-    document.getElementById('progress-bar').style.width = `${pct}%`;
-    document.getElementById('progress-label').textContent = `${validCount} / 3 members`;
-    document.getElementById('progress-hint').textContent = targetReached
-      ? '🎉 Target reached! You have full 2-hour break today.'
-      : `${3 - validCount} more valid member(s) needed for full break time.`;
-
-    // Member list
-    const listEl = document.getElementById('member-list');
-    if (!list || list.length === 0) {
-      listEl.innerHTML = '<p class="mono text-xs text-slate-500 text-center py-4">No entries yet today.</p>';
-    } else {
-      listEl.innerHTML = list.map((m, i) => `
-        <div class="flex items-center justify-between bg-slate-800/40 rounded-xl px-4 py-3">
-          <div class="flex items-center gap-3">
-            <span class="mono text-xs text-slate-500">#${i+1}</span>
-            <span class="mono text-sm font-medium">${m.memberId}</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="mono text-sm text-teal-400">${formatCurrency(m.deposit)}</span>
-            <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${m.isValid ? 'bg-teal-900 text-teal-400' : 'bg-red-900 text-red-400'}">
-              ${m.isValid ? '✓' : '✕'}
-            </span>
-          </div>
-        </div>
-      `).join('');
-    }
-  }
-
-  async function loadInputStatus() {
-    const data = await api.get('/members/today');
-    if (data.success) {
-      const { validCount, targetReached } = data.data;
-      document.getElementById('input-status-text').innerHTML = `
-        Valid entries: <span class="text-white">${validCount}/3</span><br>
-        Target: <span class="${targetReached ? 'text-teal-400' : 'text-amber-400'}">${targetReached ? 'Reached ✓' : 'Not yet'}</span><br>
-        Remaining: <span class="text-white">${Math.max(0, 3-validCount)} more</span>
-      `;
-      
-      if (validCount >= 3) {
-        document.getElementById('input-btn').disabled = true;
-        document.getElementById('input-btn').textContent = 'Daily Limit Reached';
-      }
-    }
-  }
-
-  async function submitMember() {
-    const memberId = document.getElementById('input-member-id').value.trim();
-    const deposit = document.getElementById('input-deposit').value;
-    const btn = document.getElementById('input-btn');
-    const errEl = document.getElementById('input-error');
-    const succEl = document.getElementById('input-success');
-
-    errEl.classList.add('hidden');
-    succEl.classList.add('hidden');
-
-    if (!memberId || !deposit) {
-      errEl.textContent = 'Please fill in all fields.';
-      errEl.classList.remove('hidden');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Submitting…';
-
-    const data = await api.post('/members/input', { memberId, deposit: Number(deposit) });
-
-    if (data.success) {
-      succEl.textContent = `✓ Member ${memberId} added successfully! (${formatCurrency(data.data.deposit)})`;
-      succEl.classList.remove('hidden');
-      document.getElementById('input-member-id').value = '';
-      document.getElementById('input-deposit').value = '';
-      toast.success(`Member added! ${data.data.validCount}/3 target`);
-      loadInputStatus();
-    } else {
-      errEl.textContent = data.message || 'Failed to add member.';
-      errEl.classList.remove('hidden');
-      toast.error(data.message);
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Submit Entry';
-  }
-
-  async function loadPermissions() {
-    const data = await api.get('/permissions/today');
-    if (!data.success) return;
-
-    const { toiletUsed, smoke1Used, smoke2Used, logs } = data.data;
-
-    updatePermBtn('toilet', toiletUsed);
-    updatePermBtn('smoke1', smoke1Used);
-    updatePermBtn('smoke2', smoke2Used);
-
-    // Logs
-    const logEl = document.getElementById('perm-log');
-    if (!logs || logs.length === 0) {
-      logEl.innerHTML = '<p class="mono text-xs text-slate-500 text-center py-4">No permissions used today.</p>';
-    } else {
-      logEl.innerHTML = logs.map(l => `
-        <div class="flex items-center justify-between bg-slate-800/40 rounded-xl px-4 py-3">
-          <div class="flex items-center gap-3">
-            <span class="text-lg">${l.type === 'toilet' ? '🚽' : '🚬'}</span>
-            <span class="text-sm font-medium capitalize">${l.type.replace('_', ' ')}</span>
-          </div>
-          <span class="mono text-xs text-slate-500">${new Date(l.usedAt).toLocaleTimeString('en-GB')}</span>
-        </div>
-      `).join('');
-    }
-  }
-
-  function updatePermBtn(key, used) {
-    const btn = document.getElementById(`perm-btn-${key}`);
-    const status = document.getElementById(`perm-status-${key}`);
-    const card = document.getElementById(`perm-card-${key}`);
-
-    if (used) {
-      btn.disabled = true;
-      btn.textContent = 'Used ✓';
-      btn.className = btn.className.replace(/bg-\w+-\d+\/\d+/g, 'bg-slate-700/50');
-      status.textContent = '⏱ Used today';
-      status.className = 'mono text-xs text-slate-500 mb-4';
-      card.style.opacity = '0.6';
-    } else {
-      btn.disabled = false;
-      status.textContent = '✓ Available';
-      status.className = 'mono text-xs text-teal-400 mb-4';
-      card.style.opacity = '1';
-    }
-  }
-
-  async function usePermission(type) {
-    const btn = document.getElementById(`perm-btn-${type === 'smoke_1' ? 'smoke1' : type === 'smoke_2' ? 'smoke2' : type}`);
-    btn.disabled = true;
-    btn.textContent = 'Recording…';
-
-    const data = await api.post('/permissions/use', { type });
-
-    if (data.success) {
-      toast.success(`${type.replace('_', ' ')} permission recorded!`);
-      loadPermissions();
-    } else {
-      toast.error(data.message);
-      btn.disabled = false;
-      btn.textContent = btn.textContent.replace('Recording…', `Use ${type.replace('_', ' ')}`);
-    }
-  }
-
-  // Enter key support
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const loginView = document.getElementById('view-login');
-      if (!loginView.classList.contains('hidden')) doLogin();
-    }
+function showPage(page) {
+  ['dashboard','input','permission'].forEach(p=>{
+    document.getElementById(`page-${p}`)?.classList.add('hidden');
+    document.getElementById(`nav-${p}`)?.classList.remove('active');
   });
+  document.getElementById(`page-${page}`)?.classList.remove('hidden');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  if(page==='dashboard')loadDashboard();
+  if(page==='input'){loadDashboard();loadInputStatus();}
+  if(page==='permission')loadPermissions();
+}
 
-  // Check if already logged in
-  window.addEventListener('DOMContentLoaded', () => {
-    const token = api.getToken();
-    const user = api.getUser();
-    if (token && user && user.role === 'staff') {
-      initApp(user);
-    }
-  });
+async function loadDashboard() {
+  const [members,perms]=await Promise.all([api.get('/members/today'),api.get('/permissions/today')]);
+  if(!members.success)return;
+  const{validCount,targetReached,breakHours,members:list}=members.data;
+  const perm=perms.success?perms.data:{};
+
+  document.getElementById('stat-members').innerHTML=`${validCount}<span class="text-slate-600">/3</span>`;
+
+  const tEl=document.getElementById('stat-target');
+  if(validCount===0){tEl.textContent='BELUM';tEl.className='bebas text-4xl text-slate-500';}
+  else if(targetReached){tEl.textContent='TERCAPAI ✓';tEl.className='bebas text-4xl text-green-400';}
+  else{tEl.textContent='PROSES';tEl.className='bebas text-4xl text-yellow-400';}
+
+  const bEl=document.getElementById('stat-break');
+  bEl.textContent=`${breakHours} JAM`;
+  bEl.className=`bebas text-4xl ${breakHours>=2?'text-green-400':'text-yellow-400'}`;
+
+  const usedPerms=[perm.toiletUsed,perm.smoke1Used,perm.smoke2Used].filter(Boolean).length;
+  document.getElementById('stat-perms').innerHTML=`${usedPerms}<span class="text-slate-600">/3</span>`;
+
+  const pct=Math.round((validCount/3)*100);
+  const bar=document.getElementById('progress-bar');
+  bar.style.width=`${pct}%`;
+  if(targetReached)bar.classList.add('done');else bar.classList.remove('done');
+  document.getElementById('progress-label').textContent=`${validCount} / 3 member`;
+  document.getElementById('progress-hint').textContent=targetReached?'🎉 Target tercapai! Break penuh 2 jam hari ini.':`${3-validCount} member lagi untuk break penuh.`;
+
+  const listEl=document.getElementById('member-list');
+  if(!list||list.length===0){listEl.innerHTML='<p class="mono text-xs text-slate-600 text-center py-4">Belum ada entri hari ini.</p>';}
+  else{listEl.innerHTML=list.map((m,i)=>`
+    <div class="member-item flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3">
+        <span class="mono text-xs text-slate-600">#${i+1}</span>
+        <span class="mono text-sm font-medium">${m.memberId}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="mono text-sm text-green-400">${formatCurrency(m.deposit)}</span>
+        <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${m.isValid?'bg-green-900/50 text-green-400':'bg-red-900/50 text-red-400'}">${m.isValid?'✓':'✕'}</span>
+      </div>
+    </div>
+  `).join('');}
+}
+
+async function loadInputStatus() {
+  const data=await api.get('/members/today');
+  if(data.success){
+    const{validCount,targetReached}=data.data;
+    document.getElementById('input-status-text').innerHTML=`Entri valid: <span class="text-white">${validCount}/3</span><br>Target: <span class="${targetReached?'text-green-400':'text-yellow-400'}">${targetReached?'Tercapai ✓':'Belum'}</span><br>Sisa: <span class="text-white">${Math.max(0,3-validCount)} member lagi</span>`;
+    if(validCount>=3){document.getElementById('input-btn').disabled=true;document.getElementById('input-btn').textContent='Batas Harian Tercapai';}
+  }
+}
+
+async function submitMember() {
+  const memberId=document.getElementById('input-member-id').value.trim();
+  const deposit=document.getElementById('input-deposit').value;
+  const btn=document.getElementById('input-btn');
+  const errEl=document.getElementById('input-error');
+  const succEl=document.getElementById('input-success');
+  errEl.classList.add('hidden');succEl.classList.add('hidden');
+  if(!memberId||!deposit){errEl.textContent='Isi semua field.';errEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Menyimpan…';
+  const data=await api.post('/members/input',{memberId,deposit:Number(deposit)});
+  if(data.success){
+    succEl.textContent=`✓ Member ${memberId} berhasil ditambahkan! (${formatCurrency(data.data.deposit)})`;
+    succEl.classList.remove('hidden');
+    document.getElementById('input-member-id').value='';
+    document.getElementById('input-deposit').value='';
+    toast.success(`Member ditambahkan! ${data.data.validCount}/3 target`);
+    loadInputStatus();
+  }else{errEl.textContent=data.message||'Gagal menambahkan member.';errEl.classList.remove('hidden');toast.error(data.message);}
+  btn.disabled=false;btn.textContent='Submit Entri';
+}
+
+async function loadPermissions() {
+  const data=await api.get('/permissions/today');
+  if(!data.success)return;
+  const{toiletUsed,smoke1Used,smoke2Used,logs}=data.data;
+  updatePermBtn('toilet',toiletUsed);updatePermBtn('smoke1',smoke1Used);updatePermBtn('smoke2',smoke2Used);
+  const logEl=document.getElementById('perm-log');
+  if(!logs||logs.length===0){logEl.innerHTML='<p class="mono text-xs text-slate-600 text-center py-4">Belum ada izin digunakan hari ini.</p>';}
+  else{logEl.innerHTML=logs.map(l=>`
+    <div class="member-item flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3"><span>${l.type==='toilet'?'🚽':'🚬'}</span><span class="text-sm font-medium capitalize">${l.type.replace('_',' ')}</span></div>
+      <span class="mono text-xs text-slate-500">${new Date(l.usedAt).toLocaleTimeString('id-ID')}</span>
+    </div>
+  `).join('');}
+}
+
+function updatePermBtn(key,used) {
+  const btn=document.getElementById(`perm-btn-${key}`);
+  const status=document.getElementById(`perm-status-${key}`);
+  const card=document.getElementById(`perm-card-${key}`);
+  if(used){
+    btn.disabled=true;btn.textContent='Sudah Digunakan ✓';
+    btn.className='btn-perm w-full py-2.5 text-sm font-semibold bg-slate-800/50 border border-slate-700/30 rounded-xl text-slate-500';
+    status.textContent='⏱ Sudah dipakai';status.className='mono text-xs text-slate-600 mb-4';
+    card.style.opacity='0.5';
+  }else{
+    btn.disabled=false;status.textContent='✓ Tersedia';status.className='mono text-xs text-green-400 mb-4';card.style.opacity='1';
+  }
+}
+
+async function usePermission(type) {
+  const keyMap={toilet:'toilet',smoke_1:'smoke1',smoke_2:'smoke2'};
+  const btn=document.getElementById(`perm-btn-${keyMap[type]}`);
+  btn.disabled=true;btn.textContent='Mencatat…';
+  const data=await api.post('/permissions/use',{type});
+  if(data.success){toast.success(`Izin ${type.replace('_',' ')} dicatat!`);loadPermissions();}
+  else{toast.error(data.message);btn.disabled=false;}
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
+window.addEventListener('DOMContentLoaded',()=>{
+  const token=api.getToken();const user=api.getUser();
+  if(token&&user&&user.role==='staff')initApp(user);
+});
 </script>
 </body>
 </html>
