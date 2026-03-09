@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StaffSync — Monitoring System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Syne', sans-serif; background: #050A0E; color: #E8F4F8; overflow-x: hidden; }
+    .mono { font-family: 'DM Mono', monospace; }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(0, 200, 180, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 180, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .glow-teal { box-shadow: 0 0 40px rgba(0, 200, 180, 0.2); }
+    .glow-amber { box-shadow: 0 0 40px rgba(251, 191, 36, 0.2); }
+
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+    }
+    .card-hover:hover .card-staff { box-shadow: 0 0 60px rgba(0, 200, 180, 0.3); }
+    .card-hover:hover .card-admin { box-shadow: 0 0 60px rgba(251, 191, 36, 0.3); }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-up { animation: slide-up 0.6s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.25s; opacity: 0; }
+    .delay-3 { animation-delay: 0.4s; opacity: 0; }
+
+    .scanline {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body class="min-h-screen grid-bg flex items-center justify-center">
+  <div class="scanline"></div>
+
+  <div class="w-full max-w-4xl px-6 py-12">
+
+    <!-- Header -->
+    <div class="text-center mb-16 slide-up">
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <div class="w-2 h-2 rounded-full bg-teal-400 pulse-dot"></div>
+        <span class="mono text-xs text-teal-400 tracking-widest uppercase">System Online</span>
+        <div class="w-2 h-2 rounded-full bg-teal-400 pulse-dot" style="animation-delay:0.5s"></div>
+      </div>
+      <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">
+        Staff<span class="text-teal-400">Sync</span>
+      </h1>
+      <p class="mono text-sm text-slate-400">v2.1 · Staff Monitoring Dashboard System</p>
+    </div>
+
+    <!-- Login Cards -->
+    <div class="grid md:grid-cols-2 gap-6 slide-up delay-2">
+
+      <!-- Staff Card -->
+      <div class="card-hover" onclick="window.location.href='/staff/index.html'">
+        <div class="card-staff border border-teal-900/50 bg-slate-900/60 backdrop-blur rounded-2xl p-8 glow-teal">
+          <div class="flex items-start justify-between mb-8">
+            <div class="w-14 h-14 rounded-xl bg-teal-400/10 border border-teal-400/20 flex items-center justify-center">
+              <svg class="w-7 h-7 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <span class="mono text-xs text-teal-400/60 tracking-wider">47 USERS</span>
+          </div>
+          <h2 class="text-2xl font-bold mb-2">Staff Portal</h2>
+          <p class="text-slate-400 text-sm leading-relaxed mb-8">Input member data, track daily targets, manage break permissions and usage.</p>
+          <div class="flex items-center gap-2 text-teal-400">
+            <span class="text-sm font-semibold">Enter as Staff</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Card -->
+      <div class="card-hover" onclick="window.location.href='/admin/index.html'">
+        <div class="card-admin border border-amber-900/50 bg-slate-900/60 backdrop-blur rounded-2xl p-8 glow-amber">
+          <div class="flex items-start justify-between mb-8">
+            <div class="w-14 h-14 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center">
+              <svg class="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <span class="mono text-xs text-amber-400/60 tracking-wider">IP SECURED</span>
+          </div>
+          <h2 class="text-2xl font-bold mb-2">Admin Control</h2>
+          <p class="text-slate-400 text-sm leading-relaxed mb-8">Monitor all staff performance, view targets, breaks, and permission logs in real-time.</p>
+          <div class="flex items-center gap-2 text-amber-400">
+            <span class="text-sm font-semibold">Enter as Admin</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-12 slide-up delay-3">
+      <p class="mono text-xs text-slate-600">Resets daily at midnight · Session expires in 8 hours</p>
+    </div>
+  </div>
+</body>
+</html>

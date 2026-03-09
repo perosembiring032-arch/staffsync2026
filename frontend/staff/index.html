@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StaffSync — Staff Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Syne', sans-serif; background: #050A0E; color: #E8F4F8; }
+    .mono { font-family: 'DM Mono', monospace; }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(0,200,180,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,180,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(0,200,180,0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(0,200,180,0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,200,180,0); }
+    }
+    .ring-pulse { animation: pulse-ring 2s infinite; }
+    .nav-btn { transition: all 0.2s; }
+    .nav-btn.active { background: rgba(0,200,180,0.15); color: #2DD4BF; border-color: rgba(0,200,180,0.3); }
+    .nav-btn:not(.active):hover { background: rgba(255,255,255,0.05); }
+    input:focus { outline: none; border-color: #2DD4BF !important; box-shadow: 0 0 0 3px rgba(45,212,191,0.1); }
+    .progress-bar {
+      background: linear-gradient(90deg, #0D9488, #2DD4BF);
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0D9488, #2DD4BF);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,200,180,0.3); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .perm-btn { transition: all 0.25s; }
+    .perm-btn:not(:disabled):hover { transform: translateY(-2px); }
+    .perm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body class="min-h-screen grid-bg">
+
+<!-- ===== LOGIN VIEW ===== -->
+<div id="view-login" class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md fade-in">
+    <div class="text-center mb-10">
+      <a href="/" class="mono text-xs text-slate-500 hover:text-teal-400 transition-colors">← Back</a>
+      <h1 class="text-4xl font-extrabold mt-4 mb-1">Staff Portal</h1>
+      <p class="mono text-xs text-slate-500">StaffSync v2.1</p>
+    </div>
+
+    <div class="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-8 backdrop-blur">
+      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-300 text-sm mono"></div>
+
+      <div class="mb-5">
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Username</label>
+        <input id="login-username" type="text" placeholder="staff001"
+          class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono"
+          autocomplete="username" />
+      </div>
+      <div class="mb-7">
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+        <div class="relative">
+          <input id="login-password" type="password" placeholder="••••••••"
+            class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors"
+            autocomplete="current-password" />
+          <button onclick="togglePwd('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-teal-400 transition-colors mono text-xs">SHOW</button>
+        </div>
+      </div>
+      <button id="login-btn" onclick="doLogin()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-slate-900 text-sm">
+        Sign In
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP (after login) ===== -->
+<div id="view-app" class="hidden min-h-screen flex flex-col">
+
+  <!-- Top Nav -->
+  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur border-b border-slate-800/50">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full bg-teal-400 ring-pulse"></div>
+        <span class="font-bold text-sm">Staff<span class="text-teal-400">Sync</span></span>
+      </div>
+      <nav class="hidden sm:flex items-center gap-1">
+        <button onclick="showPage('dashboard')" id="nav-dashboard" class="nav-btn active px-4 py-2 rounded-lg text-sm border border-transparent font-medium">Dashboard</button>
+        <button onclick="showPage('input')" id="nav-input" class="nav-btn px-4 py-2 rounded-lg text-sm border border-transparent font-medium">Input Member</button>
+        <button onclick="showPage('permission')" id="nav-permission" class="nav-btn px-4 py-2 rounded-lg text-sm border border-transparent font-medium">Permission</button>
+      </nav>
+      <div class="flex items-center gap-3">
+        <span id="user-name" class="mono text-xs text-slate-400"></span>
+        <button onclick="doLogout()" class="mono text-xs text-slate-500 hover:text-red-400 transition-colors">Logout</button>
+      </div>
+    </div>
+    <!-- Mobile nav -->
+    <div class="sm:hidden flex border-t border-slate-800/50">
+      <button onclick="showPage('dashboard')" id="mnav-dashboard" class="flex-1 py-2 text-xs font-medium text-slate-400 border-b-2 border-transparent data-[active=true]:border-teal-400 data-[active=true]:text-teal-400">Dashboard</button>
+      <button onclick="showPage('input')" id="mnav-input" class="flex-1 py-2 text-xs font-medium text-slate-400 border-b-2 border-transparent">Input</button>
+      <button onclick="showPage('permission')" id="mnav-permission" class="flex-1 py-2 text-xs font-medium text-slate-400 border-b-2 border-transparent">Permission</button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="fade-in">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-bold">Today's Overview</h2>
+          <p id="today-date" class="mono text-xs text-slate-500 mt-1"></p>
+        </div>
+        <button onclick="loadDashboard()" class="mono text-xs text-slate-500 hover:text-teal-400 transition-colors flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
+          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Valid Members</p>
+          <p id="stat-members" class="text-3xl font-bold">0<span class="text-slate-600">/3</span></p>
+        </div>
+        <div id="stat-target-card" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
+          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target</p>
+          <p id="stat-target" class="text-3xl font-bold text-red-400">Pending</p>
+        </div>
+        <div id="stat-break-card" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
+          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Break Time</p>
+          <p id="stat-break" class="text-3xl font-bold text-amber-400">1h</p>
+        </div>
+        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5">
+          <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Perms Used</p>
+          <p id="stat-perms" class="text-3xl font-bold">0<span class="text-slate-600">/3</span></p>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-semibold">Daily Target Progress</span>
+          <span id="progress-label" class="mono text-xs text-slate-400">0 / 3 members</span>
+        </div>
+        <div class="h-3 bg-slate-800 rounded-full overflow-hidden">
+          <div id="progress-bar" class="progress-bar h-full rounded-full" style="width:0%"></div>
+        </div>
+        <p id="progress-hint" class="mono text-xs text-slate-500 mt-3">Add 3 valid members (deposit ≥ 50,000) to reach full break time.</p>
+      </div>
+
+      <!-- Member List -->
+      <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6">
+        <h3 class="font-semibold mb-4">Today's Entries</h3>
+        <div id="member-list" class="space-y-3">
+          <p class="mono text-xs text-slate-500 text-center py-4">No entries yet today.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT PAGE -->
+    <div id="page-input" class="fade-in hidden">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold">Input Member</h2>
+        <p class="mono text-xs text-slate-500 mt-1">Enter member ID and deposit amount</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6">
+          <div id="input-error" class="hidden mb-4 p-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-300 text-sm"></div>
+          <div id="input-success" class="hidden mb-4 p-3 rounded-xl bg-teal-900/50 border border-teal-500/30 text-teal-300 text-sm"></div>
+
+          <div class="mb-5">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Member ID</label>
+            <input id="input-member-id" type="text" placeholder="e.g. MBR-10045"
+              class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono uppercase"
+              autocomplete="off" />
+          </div>
+          <div class="mb-6">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deposit Amount (IDR)</label>
+            <input id="input-deposit" type="number" placeholder="50000" min="0"
+              class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm transition-colors mono"
+              autocomplete="off" />
+            <p class="mono text-xs text-slate-600 mt-1.5">Minimum: Rp 50,000</p>
+          </div>
+          <button id="input-btn" onclick="submitMember()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-slate-900 text-sm">
+            Submit Entry
+          </button>
+        </div>
+
+        <!-- Rules info -->
+        <div class="space-y-4">
+          <div class="bg-slate-900/40 border border-slate-700/30 rounded-xl p-5">
+            <h4 class="font-semibold text-sm mb-3 text-teal-400">Daily Rules</h4>
+            <ul class="space-y-2 mono text-xs text-slate-400">
+              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> 3 valid members required per day</li>
+              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> Minimum deposit Rp 50,000 each</li>
+              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> No duplicate member IDs</li>
+              <li class="flex items-start gap-2"><span class="text-teal-400">→</span> Entries below 50k are rejected</li>
+            </ul>
+          </div>
+          <div class="bg-slate-900/40 border border-slate-700/30 rounded-xl p-5">
+            <h4 class="font-semibold text-sm mb-3 text-amber-400">Break Time Rules</h4>
+            <ul class="space-y-2 mono text-xs text-slate-400">
+              <li class="flex items-start gap-2"><span class="text-teal-400">✓</span> Target reached → <span class="text-white">2 hours break</span></li>
+              <li class="flex items-start gap-2"><span class="text-red-400">✗</span> Target not reached → <span class="text-white">1 hour break</span></li>
+            </ul>
+          </div>
+          <div id="input-today-status" class="bg-slate-900/40 border border-slate-700/30 rounded-xl p-5">
+            <h4 class="font-semibold text-sm mb-3">Today's Status</h4>
+            <p id="input-status-text" class="mono text-xs text-slate-400">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERMISSION PAGE -->
+    <div id="page-permission" class="fade-in hidden">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold">Daily Permissions</h2>
+        <p class="mono text-xs text-slate-500 mt-1">10 minutes each · Resets at midnight</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <!-- Toilet -->
+        <div id="perm-card-toilet" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🚽</div>
+          <h3 class="font-bold mb-1">Toilet Break</h3>
+          <p class="mono text-xs text-slate-500 mb-5">10 minutes</p>
+          <div id="perm-status-toilet" class="mono text-xs text-slate-500 mb-4">Available</div>
+          <button id="perm-btn-toilet" onclick="usePermission('toilet')" class="perm-btn w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-600/80 hover:bg-blue-500 border border-blue-500/30">
+            Use Toilet Break
+          </button>
+        </div>
+
+        <!-- Smoking 1 -->
+        <div id="perm-card-smoke1" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🚬</div>
+          <h3 class="font-bold mb-1">Smoking Break 1</h3>
+          <p class="mono text-xs text-slate-500 mb-5">10 minutes</p>
+          <div id="perm-status-smoke1" class="mono text-xs text-slate-500 mb-4">Available</div>
+          <button id="perm-btn-smoke1" onclick="usePermission('smoke_1')" class="perm-btn w-full py-2.5 rounded-xl text-sm font-semibold bg-orange-600/80 hover:bg-orange-500 border border-orange-500/30">
+            Use Smoking Break 1
+          </button>
+        </div>
+
+        <!-- Smoking 2 -->
+        <div id="perm-card-smoke2" class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6 text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🚬</div>
+          <h3 class="font-bold mb-1">Smoking Break 2</h3>
+          <p class="mono text-xs text-slate-500 mb-5">10 minutes</p>
+          <div id="perm-status-smoke2" class="mono text-xs text-slate-500 mb-4">Available</div>
+          <button id="perm-btn-smoke2" onclick="usePermission('smoke_2')" class="perm-btn w-full py-2.5 rounded-xl text-sm font-semibold bg-orange-600/80 hover:bg-orange-500 border border-orange-500/30">
+            Use Smoking Break 2
+          </button>
+        </div>
+      </div>
+
+      <!-- Permission Log -->
+      <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-6">
+        <h3 class="font-semibold mb-4">Today's Log</h3>
+        <div id="perm-log" class="space-y-2">
+          <p class="mono text-xs text-slate-500 text-center py-4">No permissions used today.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="/shared/api.js"></script>
+<script>
+  let currentPage = 'dashboard';
+
+  function togglePwd(id) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+  }
+
+  async function doLogin() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+
+    if (!username || !password) {
+      errEl.textContent = 'Please enter username and password.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    errEl.classList.add('hidden');
+
+    const data = await api.post('/auth/login/staff', { username, password });
+
+    if (data.success) {
+      api.setToken(data.token);
+      api.setUser(data.user);
+      initApp(data.user);
+    } else {
+      errEl.textContent = data.message || 'Login failed.';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  function initApp(user) {
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-app').classList.remove('hidden');
+    document.getElementById('user-name').textContent = user.employeeId;
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    loadDashboard();
+    loadPermissions();
+  }
+
+  function doLogout() {
+    api.logout();
+  }
+
+  function showPage(page) {
+    ['dashboard', 'input', 'permission'].forEach(p => {
+      document.getElementById(`page-${p}`).classList.add('hidden');
+      document.getElementById(`nav-${p}`)?.classList.remove('active');
+    });
+    document.getElementById(`page-${page}`).classList.remove('hidden');
+    document.getElementById(`nav-${page}`)?.classList.add('active');
+    currentPage = page;
+
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'input') { loadDashboard(); loadInputStatus(); }
+    if (page === 'permission') loadPermissions();
+  }
+
+  async function loadDashboard() {
+    const [members, perms] = await Promise.all([
+      api.get('/members/today'),
+      api.get('/permissions/today'),
+    ]);
+
+    if (!members.success) return;
+
+    const { validCount, targetReached, breakHours, members: list } = members.data;
+    const perm = perms.success ? perms.data : {};
+
+    // Stats
+    document.getElementById('stat-members').innerHTML = `${validCount}<span class="text-slate-600">/3</span>`;
+    
+    const targetEl = document.getElementById('stat-target');
+    if (validCount === 0) { targetEl.textContent = 'Pending'; targetEl.className = 'text-3xl font-bold text-slate-400'; }
+    else if (targetReached) { targetEl.textContent = 'Reached ✓'; targetEl.className = 'text-3xl font-bold text-teal-400'; }
+    else { targetEl.textContent = 'In Progress'; targetEl.className = 'text-3xl font-bold text-amber-400'; }
+
+    const breakEl = document.getElementById('stat-break');
+    breakEl.textContent = `${breakHours}h`;
+    breakEl.className = `text-3xl font-bold ${breakHours >= 2 ? 'text-teal-400' : 'text-amber-400'}`;
+
+    const usedPerms = [perm.toiletUsed, perm.smoke1Used, perm.smoke2Used].filter(Boolean).length;
+    document.getElementById('stat-perms').innerHTML = `${usedPerms}<span class="text-slate-600">/3</span>`;
+
+    // Progress
+    const pct = Math.round((validCount / 3) * 100);
+    document.getElementById('progress-bar').style.width = `${pct}%`;
+    document.getElementById('progress-label').textContent = `${validCount} / 3 members`;
+    document.getElementById('progress-hint').textContent = targetReached
+      ? '🎉 Target reached! You have full 2-hour break today.'
+      : `${3 - validCount} more valid member(s) needed for full break time.`;
+
+    // Member list
+    const listEl = document.getElementById('member-list');
+    if (!list || list.length === 0) {
+      listEl.innerHTML = '<p class="mono text-xs text-slate-500 text-center py-4">No entries yet today.</p>';
+    } else {
+      listEl.innerHTML = list.map((m, i) => `
+        <div class="flex items-center justify-between bg-slate-800/40 rounded-xl px-4 py-3">
+          <div class="flex items-center gap-3">
+            <span class="mono text-xs text-slate-500">#${i+1}</span>
+            <span class="mono text-sm font-medium">${m.memberId}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="mono text-sm text-teal-400">${formatCurrency(m.deposit)}</span>
+            <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${m.isValid ? 'bg-teal-900 text-teal-400' : 'bg-red-900 text-red-400'}">
+              ${m.isValid ? '✓' : '✕'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  async function loadInputStatus() {
+    const data = await api.get('/members/today');
+    if (data.success) {
+      const { validCount, targetReached } = data.data;
+      document.getElementById('input-status-text').innerHTML = `
+        Valid entries: <span class="text-white">${validCount}/3</span><br>
+        Target: <span class="${targetReached ? 'text-teal-400' : 'text-amber-400'}">${targetReached ? 'Reached ✓' : 'Not yet'}</span><br>
+        Remaining: <span class="text-white">${Math.max(0, 3-validCount)} more</span>
+      `;
+      
+      if (validCount >= 3) {
+        document.getElementById('input-btn').disabled = true;
+        document.getElementById('input-btn').textContent = 'Daily Limit Reached';
+      }
+    }
+  }
+
+  async function submitMember() {
+    const memberId = document.getElementById('input-member-id').value.trim();
+    const deposit = document.getElementById('input-deposit').value;
+    const btn = document.getElementById('input-btn');
+    const errEl = document.getElementById('input-error');
+    const succEl = document.getElementById('input-success');
+
+    errEl.classList.add('hidden');
+    succEl.classList.add('hidden');
+
+    if (!memberId || !deposit) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    const data = await api.post('/members/input', { memberId, deposit: Number(deposit) });
+
+    if (data.success) {
+      succEl.textContent = `✓ Member ${memberId} added successfully! (${formatCurrency(data.data.deposit)})`;
+      succEl.classList.remove('hidden');
+      document.getElementById('input-member-id').value = '';
+      document.getElementById('input-deposit').value = '';
+      toast.success(`Member added! ${data.data.validCount}/3 target`);
+      loadInputStatus();
+    } else {
+      errEl.textContent = data.message || 'Failed to add member.';
+      errEl.classList.remove('hidden');
+      toast.error(data.message);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Submit Entry';
+  }
+
+  async function loadPermissions() {
+    const data = await api.get('/permissions/today');
+    if (!data.success) return;
+
+    const { toiletUsed, smoke1Used, smoke2Used, logs } = data.data;
+
+    updatePermBtn('toilet', toiletUsed);
+    updatePermBtn('smoke1', smoke1Used);
+    updatePermBtn('smoke2', smoke2Used);
+
+    // Logs
+    const logEl = document.getElementById('perm-log');
+    if (!logs || logs.length === 0) {
+      logEl.innerHTML = '<p class="mono text-xs text-slate-500 text-center py-4">No permissions used today.</p>';
+    } else {
+      logEl.innerHTML = logs.map(l => `
+        <div class="flex items-center justify-between bg-slate-800/40 rounded-xl px-4 py-3">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">${l.type === 'toilet' ? '🚽' : '🚬'}</span>
+            <span class="text-sm font-medium capitalize">${l.type.replace('_', ' ')}</span>
+          </div>
+          <span class="mono text-xs text-slate-500">${new Date(l.usedAt).toLocaleTimeString('en-GB')}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  function updatePermBtn(key, used) {
+    const btn = document.getElementById(`perm-btn-${key}`);
+    const status = document.getElementById(`perm-status-${key}`);
+    const card = document.getElementById(`perm-card-${key}`);
+
+    if (used) {
+      btn.disabled = true;
+      btn.textContent = 'Used ✓';
+      btn.className = btn.className.replace(/bg-\w+-\d+\/\d+/g, 'bg-slate-700/50');
+      status.textContent = '⏱ Used today';
+      status.className = 'mono text-xs text-slate-500 mb-4';
+      card.style.opacity = '0.6';
+    } else {
+      btn.disabled = false;
+      status.textContent = '✓ Available';
+      status.className = 'mono text-xs text-teal-400 mb-4';
+      card.style.opacity = '1';
+    }
+  }
+
+  async function usePermission(type) {
+    const btn = document.getElementById(`perm-btn-${type === 'smoke_1' ? 'smoke1' : type === 'smoke_2' ? 'smoke2' : type}`);
+    btn.disabled = true;
+    btn.textContent = 'Recording…';
+
+    const data = await api.post('/permissions/use', { type });
+
+    if (data.success) {
+      toast.success(`${type.replace('_', ' ')} permission recorded!`);
+      loadPermissions();
+    } else {
+      toast.error(data.message);
+      btn.disabled = false;
+      btn.textContent = btn.textContent.replace('Recording…', `Use ${type.replace('_', ' ')}`);
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const loginView = document.getElementById('view-login');
+      if (!loginView.classList.contains('hidden')) doLogin();
+    }
+  });
+
+  // Check if already logged in
+  window.addEventListener('DOMContentLoaded', () => {
+    const token = api.getToken();
+    const user = api.getUser();
+    if (token && user && user.role === 'staff') {
+      initApp(user);
+    }
+  });
+</script>
+</body>
+</html>
