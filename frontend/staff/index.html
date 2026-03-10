@@ -175,6 +175,34 @@
           <button onclick="loadDashboard()" class="btn btn-ghost" style="padding:8px 14px;font-size:12px;">Refresh</button>
         </div>
 
+        <!-- Absensi + Pengumuman row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+          <!-- Clock in/out -->
+          <div class="card" style="padding:18px;">
+            <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.12em;margin-bottom:12px;">ABSENSI HARI INI</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+              <div style="flex:1;">
+                <div class="mono" style="font-size:10px;color:#475569;margin-bottom:2px;">CLOCK IN</div>
+                <div id="ci-time" style="font-family:'Bebas Neue';font-size:22px;color:#22C55E;">—</div>
+              </div>
+              <div style="flex:1;">
+                <div class="mono" style="font-size:10px;color:#475569;margin-bottom:2px;">CLOCK OUT</div>
+                <div id="co-time" style="font-family:'Bebas Neue';font-size:22px;color:#94A3B8;">—</div>
+              </div>
+              <span id="att-badge" class="badge bg">BELUM</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button id="btn-clockin" onclick="doClockIn()" class="btn" style="flex:1;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:10px;font-size:12px;">Clock In</button>
+              <button id="btn-clockout" onclick="doClockOut()" class="btn btn-ghost" style="flex:1;padding:10px;font-size:12px;" disabled>Clock Out</button>
+            </div>
+          </div>
+          <!-- Pengumuman preview -->
+          <div class="card" style="padding:18px;overflow:hidden;">
+            <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.12em;margin-bottom:12px;">PENGUMUMAN TERBARU</div>
+            <div id="ann-preview"><p class="mono" style="font-size:11px;color:#334155;">Memuat...</p></div>
+          </div>
+        </div>
+
         <!-- Stats -->
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">
           <div class="card stat-widget"><div class="stat-label">Member Valid</div><div class="stat-value" style="color:#fff;" id="stat-members">0<span style="color:#1E293B;font-size:28px;">/3</span></div><div class="stat-sub">hari ini</div></div>
@@ -245,46 +273,56 @@
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
           <div>
             <div class="page-title">IZIN HARIAN</div>
-            <div class="page-sub">3 izin × 10 menit = 30 menit total · Reset tengah malam</div>
+            <div class="page-sub">3 izin × 10 menit = 30 menit · Reset tengah malam</div>
           </div>
-          <div class="card" style="padding:12px 16px;text-align:center;min-width:100px;" id="break-badge">
+          <div class="card" style="padding:12px 16px;text-align:center;min-width:100px;">
             <div class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">BREAK HARI INI</div>
             <div id="break-val" style="font-family:'Bebas Neue';font-size:24px;color:#F59E0B;">—</div>
           </div>
         </div>
 
-        <!-- Izin cards -->
+        <!-- TIMER BESAR - tampil saat izin aktif -->
+        <div id="timer-panel" class="card" style="display:none;margin-bottom:20px;padding:28px;text-align:center;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.04);">
+          <div class="mono" style="font-size:11px;color:#EF4444;letter-spacing:.15em;margin-bottom:8px;" id="timer-label">IZIN 1 BERJALAN</div>
+          <div style="font-family:'Bebas Neue';font-size:80px;line-height:1;color:#fff;letter-spacing:.02em;" id="timer-display">10:00</div>
+          <div class="mono" style="font-size:11px;color:#475569;margin-top:6px;" id="timer-sub">Sisa waktu izin</div>
+          <button onclick="doStopTimer()" id="btn-masuk" class="btn" style="margin-top:20px;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:14px 40px;font-size:15px;border-radius:12px;width:100%;max-width:300px;">
+            ↩ MASUK — Selesai Izin
+          </button>
+          <div id="overtime-warn" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;">
+            <p class="mono" style="font-size:11px;color:#FCD34D;">⚠ Waktu habis! Izin berikutnya mulai terpotong...</p>
+          </div>
+        </div>
+
+        <!-- 3 Izin cards -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
-          <!-- Izin 1 -->
           <div class="izin-card" id="izin-card-1">
             <div class="izin-num izin-num-avail" id="izin-num-1">1</div>
             <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 1</h3>
             <p class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">10 menit</p>
-            <p id="izin-time-1" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
+            <p id="izin-dur-1" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
             <p id="izin-status-1" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
-            <button id="izin-btn-1" onclick="usePermission('toilet')" class="izin-btn izin-btn-avail">Gunakan Izin 1</button>
+            <button id="izin-btn-1" onclick="startIzin('toilet',1)" class="izin-btn izin-btn-avail">Izin 1</button>
           </div>
-          <!-- Izin 2 -->
           <div class="izin-card" id="izin-card-2">
             <div class="izin-num izin-num-avail" id="izin-num-2">2</div>
             <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 2</h3>
             <p class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">10 menit</p>
-            <p id="izin-time-2" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
+            <p id="izin-dur-2" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
             <p id="izin-status-2" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
-            <button id="izin-btn-2" onclick="usePermission('smoke_1')" class="izin-btn izin-btn-avail">Gunakan Izin 2</button>
+            <button id="izin-btn-2" onclick="startIzin('smoke_1',2)" class="izin-btn izin-btn-avail">Izin 2</button>
           </div>
-          <!-- Izin 3 -->
           <div class="izin-card" id="izin-card-3">
             <div class="izin-num izin-num-avail" id="izin-num-3">3</div>
             <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 3</h3>
             <p class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">10 menit</p>
-            <p id="izin-time-3" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
+            <p id="izin-dur-3" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
             <p id="izin-status-3" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
-            <button id="izin-btn-3" onclick="usePermission('smoke_2')" class="izin-btn izin-btn-avail">Gunakan Izin 3</button>
+            <button id="izin-btn-3" onclick="startIzin('smoke_2',3)" class="izin-btn izin-btn-avail">Izin 3</button>
           </div>
         </div>
 
-        <!-- Log izin -->
+        <!-- Log -->
         <div class="card">
           <div class="section-head"><span class="section-title">Log Izin Hari Ini</span></div>
           <div id="perm-log" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p></div>
@@ -297,6 +335,11 @@
 
 <script src="/shared/api.js"></script>
 <script>
+// ── Timer State ──────────────────────────────────────────────
+let timerInterval = null;
+let timerServerSeconds = 0; // seconds left dari server
+let timerLocalStart = null; // local Date when we started counting
+
 function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
 function showToast(msg,type='ok'){
   const w=document.getElementById('toast-wrap');const t=document.createElement('div');
@@ -315,6 +358,12 @@ async function doLogin(){
   else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
 }
 function doLogout(){api.logout();}
+
+function showToast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
 
 function initApp(user){
   document.getElementById('view-login').classList.add('hidden');
@@ -339,34 +388,39 @@ function showPage(page){
   if(page==='permission')loadPermissions();
 }
 
+// ── DASHBOARD ──────────────────────────────────────────────
 async function loadDashboard(){
-  const[members,perms]=await Promise.all([api.get('/members/today'),api.get('/permissions/today')]);
+  const[members,perms,att,anns]=await Promise.all([
+    api.get('/members/today'),
+    api.get('/permissions/today'),
+    api.get('/attendance/today'),
+    api.get('/announcements'),
+  ]);
   if(!members.success)return;
   const{validCount,targetReached,breakHours,members:list}=members.data;
   const perm=perms.success?perms.data:{};
 
+  // Stats
   document.getElementById('stat-members').innerHTML=`${validCount}<span style="color:#1E293B;font-size:28px;">/3</span>`;
-
   const tEl=document.getElementById('stat-target');
   const tCard=document.getElementById('stat-target-card');
   if(validCount===0){tEl.textContent='BELUM';tEl.style.color='#334155';tCard.style.borderColor='var(--border)';}
   else if(targetReached){tEl.textContent='TERCAPAI';tEl.style.color='#22C55E';tCard.style.borderColor='rgba(34,197,94,0.2)';}
   else{tEl.textContent='PROSES';tEl.style.color='#F59E0B';tCard.style.borderColor='rgba(245,158,11,0.2)';}
-
-  const bEl=document.getElementById('break-val');
-  if(breakHours===0){document.getElementById('stat-break').textContent='NO BREAK';document.getElementById('stat-break').style.color='#EF4444';document.getElementById('stat-break-sub').textContent='belum ada member';}
-  else{document.getElementById('stat-break').textContent=`${breakHours} JAM`;document.getElementById('stat-break').style.color=breakHours>=2?'#22C55E':'#F59E0B';document.getElementById('stat-break-sub').textContent='waktu break hari ini';}
-
+  if(breakHours===0){document.getElementById('stat-break').textContent='NO BREAK';document.getElementById('stat-break').style.color='#EF4444';}
+  else{document.getElementById('stat-break').textContent=`${breakHours} JAM`;document.getElementById('stat-break').style.color=breakHours>=2?'#22C55E':'#F59E0B';}
   const usedPerms=[perm.toiletUsed,perm.smoke1Used,perm.smoke2Used].filter(Boolean).length;
   document.getElementById('stat-perms').innerHTML=`${usedPerms}<span style="color:#1E293B;font-size:28px;">/3</span>`;
 
+  // Progress
   const pct=Math.round((validCount/3)*100);
   const bar=document.getElementById('progress-bar');
   bar.style.width=`${pct}%`;
   if(targetReached)bar.classList.add('done');else bar.classList.remove('done');
   document.getElementById('progress-label').textContent=`${validCount} / 3 member`;
-  document.getElementById('progress-hint').textContent=targetReached?'Target tercapai! Break penuh 2 jam hari ini.':`${3-validCount} member lagi untuk mencapai target.`;
+  document.getElementById('progress-hint').textContent=targetReached?'Target tercapai! Break penuh 2 jam.': `${3-validCount} member lagi untuk mencapai target.`;
 
+  // Member list
   const listEl=document.getElementById('member-list');
   if(!list||!list.length){listEl.innerHTML='<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p>';}
   else{listEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${list.map((m,i)=>`
@@ -379,9 +433,60 @@ async function loadDashboard(){
         <span class="mono" style="font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
         <span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span>
       </div>
-    </div>`).join('')}</div>`;}
+    </div>`).join('')}}</div>`;}
+
+  // Absensi widget
+  if(att.success){
+    const a=att.data;
+    const fmt=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
+    document.getElementById('ci-time').textContent=fmt(a.clockIn);
+    document.getElementById('co-time').textContent=fmt(a.clockOut);
+    const badge=document.getElementById('att-badge');
+    const ciBtn=document.getElementById('btn-clockin');
+    const coBtn=document.getElementById('btn-clockout');
+    if(!a.clockIn){badge.textContent='BELUM';badge.className='badge bg';ciBtn.disabled=false;coBtn.disabled=true;}
+    else if(!a.clockOut){
+      badge.textContent=a.status.toUpperCase();
+      badge.className=`badge ${a.status==='terlambat'?'bgo':'bgg'}`;
+      ciBtn.disabled=true;coBtn.disabled=false;
+    }else{
+      badge.textContent='SELESAI';badge.className='badge bgg';
+      ciBtn.disabled=true;coBtn.disabled=true;
+    }
+  }
+
+  // Pengumuman preview
+  const annEl=document.getElementById('ann-preview');
+  if(anns.success&&anns.data.length){
+    const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
+    annEl.innerHTML=anns.data.slice(0,3).map(a=>`
+      <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
+          <span style="font-size:12px;font-weight:700;color:#D1D9E6;">${a.title}</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.5;padding-left:12px;">${a.content.length>80?a.content.slice(0,80)+'...':a.content}</p>
+      </div>`).join('');
+  }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">Tidak ada pengumuman.</p>';}
 }
 
+// ── Absensi ──────────────────────────────────────────────
+async function doClockIn(){
+  const btn=document.getElementById('btn-clockin');
+  btn.disabled=true;btn.textContent='Mencatat...';
+  const data=await api.post('/attendance/clockin',{});
+  if(data.success){showToast(`Clock-in! Status: ${data.data.status}`);loadDashboard();}
+  else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock In';}
+}
+async function doClockOut(){
+  const btn=document.getElementById('btn-clockout');
+  btn.disabled=true;btn.textContent='Mencatat...';
+  const data=await api.post('/attendance/clockout',{});
+  if(data.success){showToast(`Clock-out! Durasi: ${data.data.duration}`);loadDashboard();}
+  else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock Out';}
+}
+
+// ── Input Member ──────────────────────────────────────────────
 async function loadInputStatus(){
   const data=await api.get('/members/today');
   if(data.success){
@@ -391,7 +496,6 @@ async function loadInputStatus(){
     else{document.getElementById('input-btn').disabled=false;document.getElementById('input-btn').textContent='Submit Entri';}
   }
 }
-
 async function submitMember(){
   const memberId=document.getElementById('input-member-id').value.trim();
   const deposit=document.getElementById('input-deposit').value;
@@ -409,69 +513,180 @@ async function submitMember(){
     document.getElementById('input-deposit').value='';
     showToast(`Member ditambahkan! ${data.data.validCount}/3`);
     loadInputStatus();
-  }else{errEl.textContent=data.message||'Gagal menambahkan member.';errEl.classList.remove('hidden');}
+  }else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
   btn.disabled=false;btn.textContent='Submit Entri';
+}
+
+// ── IZIN & TIMER ──────────────────────────────────────────────
+const TIMER_MAX = 600; // 10 menit
+
+function fmtTimer(s){
+  const m=Math.floor(Math.abs(s)/60);const sec=Math.abs(s)%60;
+  return (s<0?'-':'')+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function fmtDur(s){
+  if(!s)return'—';
+  const m=Math.floor(s/60);const sec=s%60;
+  return `${m}m ${sec}s`;
+}
+
+function startLocalTimer(secondsLeft){
+  if(timerInterval)clearInterval(timerInterval);
+  timerLocalStart=Date.now();
+  timerServerSeconds=secondsLeft;
+
+  function tick(){
+    const elapsed=Math.floor((Date.now()-timerLocalStart)/1000);
+    const remaining=timerServerSeconds-elapsed;
+    const disp=document.getElementById('timer-display');
+    const sub=document.getElementById('timer-sub');
+    const warn=document.getElementById('overtime-warn');
+    if(remaining>=0){
+      disp.textContent=fmtTimer(remaining);
+      disp.style.color=remaining<60?'#EF4444':'#fff';
+      sub.textContent='Sisa waktu izin';
+      warn.style.display='none';
+    }else{
+      disp.textContent=fmtTimer(remaining); // shows -00:05 etc
+      disp.style.color='#F59E0B';
+      sub.textContent='Waktu habis! Izin berikutnya terpotong.';
+      warn.style.display='block';
+    }
+  }
+  tick();
+  timerInterval=setInterval(tick,1000);
+}
+
+function stopLocalTimer(){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
 }
 
 async function loadPermissions(){
   const[permData,memberData]=await Promise.all([api.get('/permissions/today'),api.get('/members/today')]);
   if(!permData.success)return;
-  const{toiletUsed,smoke1Used,smoke2Used,logs}=permData.data;
+  const d=permData.data;
   const validCount=memberData.success?memberData.data.validCount:0;
 
+  // Break badge
   const bv=document.getElementById('break-val');
   if(validCount===0){bv.textContent='NO BREAK';bv.style.color='#EF4444';}
   else{bv.textContent='2 JAM';bv.style.color='#22C55E';}
 
-  const timeMap={};
-  if(logs)logs.forEach(l=>{if(!timeMap[l.type])timeMap[l.type]=l.usedAt;});
+  // If timer active from server (e.g. page reload while timer running)
+  if(d.activeTimer&&d.timerSecondsLeft!==null){
+    showTimerPanel(d.activeTimer,d.timerSecondsLeft);
+    startLocalTimer(d.timerSecondsLeft);
+  }else{
+    stopLocalTimer();
+    document.getElementById('timer-panel').style.display='none';
+  }
 
-  setIzin(1,toiletUsed,'toilet',timeMap['toilet']);
-  setIzin(2,smoke1Used,'smoke_1',timeMap['smoke_1']);
-  setIzin(3,smoke2Used,'smoke_2',timeMap['smoke_2']);
+  // Izin 1
+  setIzinCard(1,d.toiletUsed,d.activeTimer==='toilet',d.toiletDurationSeconds);
+  // Izin 2
+  setIzinCard(2,d.smoke1Used,d.activeTimer==='smoke_1',d.smoke1DurationSeconds);
+  // Izin 3
+  setIzinCard(3,d.smoke2Used,d.activeTimer==='smoke_2',d.smoke2DurationSeconds);
 
+  // Disable all buttons if timer active
+  const hasActive=!!d.activeTimer;
+  ['izin-btn-1','izin-btn-2','izin-btn-3'].forEach(id=>{
+    const btn=document.getElementById(id);
+    if(!btn.classList.contains('izin-btn-used'))btn.disabled=hasActive;
+  });
+
+  // Log
   const logEl=document.getElementById('perm-log');
   const lmap={toilet:'Izin 1',smoke_1:'Izin 2',smoke_2:'Izin 3'};
-  if(!logs||!logs.length){logEl.innerHTML='<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p>';}
-  else{logEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${logs.map(l=>`
+  const actionMap={start:'Mulai',stop:'Selesai',overtime:'Overtime'};
+  const startLogs=d.logs?d.logs.filter(l=>l.action==='start'||l.action==='stop'):[];
+  if(!startLogs.length){logEl.innerHTML='<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p>';}
+  else{logEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${startLogs.map(l=>`
     <div class="member-row">
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="width:28px;height:28px;border-radius:7px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:15px;color:#EF4444;">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</div>
-        <span style="font-size:13px;font-weight:700;">${lmap[l.type]||l.type}</span>
+        <div>
+          <span style="font-size:13px;font-weight:700;">${lmap[l.type]||l.type}</span>
+          <span class="mono" style="font-size:10px;color:#475569;margin-left:6px;">${actionMap[l.action]||l.action}</span>
+        </div>
       </div>
-      <span class="mono" style="font-size:11px;color:#475569;">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
-    </div>`).join('')}</div>`;}
+      <div style="text-align:right;">
+        <div class="mono" style="font-size:11px;color:#475569;">${new Date(l.at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</div>
+        ${l.durationSeconds?`<div class="mono" style="font-size:10px;color:#64748B;">${fmtDur(l.durationSeconds)}</div>`:''}
+      </div>
+    </div>`).join('')}}</div>`;}
 }
 
-function setIzin(num,used,type,usedAt){
+function setIzinCard(num,used,isActive,durSeconds){
+  const typeMap={1:'toilet',2:'smoke_1',3:'smoke_2'};
   const card=document.getElementById(`izin-card-${num}`);
   const numEl=document.getElementById(`izin-num-${num}`);
   const btn=document.getElementById(`izin-btn-${num}`);
   const status=document.getElementById(`izin-status-${num}`);
-  const timeEl=document.getElementById(`izin-time-${num}`);
-  if(used){
+  const durEl=document.getElementById(`izin-dur-${num}`);
+
+  if(isActive){
+    card.classList.remove('used');
+    numEl.className='izin-num';
+    numEl.style.background='rgba(239,68,68,0.2)';
+    numEl.style.borderColor='rgba(239,68,68,0.5)';
+    numEl.style.color='#EF4444';
+    btn.disabled=true;btn.textContent='Sedang Berjalan...';btn.className='izin-btn izin-btn-used';
+    status.textContent='⏱ Timer aktif';status.style.color='#EF4444';
+    durEl.textContent='—';
+  }else if(used){
     card.classList.add('used');
     numEl.className='izin-num izin-num-used';
-    btn.disabled=true;btn.className='izin-btn izin-btn-used';btn.textContent=`Izin ${num} Dipakai ✓`;
+    numEl.style.background='';numEl.style.borderColor='';numEl.style.color='';
+    btn.disabled=true;btn.textContent=`Izin ${num} ✓`;btn.className='izin-btn izin-btn-used';
     status.textContent='Sudah dipakai';status.style.color='#334155';
-    if(timeEl&&usedAt)timeEl.textContent='Pukul '+new Date(usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    durEl.textContent=fmtDur(durSeconds);
   }else{
     card.classList.remove('used');
     numEl.className='izin-num izin-num-avail';
-    btn.disabled=false;btn.className='izin-btn izin-btn-avail';btn.textContent=`Gunakan Izin ${num}`;
+    numEl.style.background='';numEl.style.borderColor='';numEl.style.color='';
+    btn.disabled=false;btn.textContent=`Izin ${num}`;btn.className='izin-btn izin-btn-avail';
     status.textContent='✓ Tersedia';status.style.color='#4ADE80';
-    if(timeEl)timeEl.textContent='—';
+    durEl.textContent='—';
   }
 }
 
-async function usePermission(type){
-  const keyMap={toilet:1,smoke_1:2,smoke_2:3};
-  const labelMap={toilet:'Izin 1',smoke_1:'Izin 2',smoke_2:'Izin 3'};
-  const btn=document.getElementById(`izin-btn-${keyMap[type]}`);
-  btn.disabled=true;btn.textContent='Mencatat…';
-  const data=await api.post('/permissions/use',{type});
-  if(data.success){showToast(`${labelMap[type]} berhasil dicatat!`);loadPermissions();}
-  else{showToast(data.message,'err');btn.disabled=false;}
+function showTimerPanel(type,secondsLeft){
+  const labelMap={toilet:'IZIN 1',smoke_1:'IZIN 2',smoke_2:'IZIN 3'};
+  document.getElementById('timer-label').textContent=`${labelMap[type]||type} BERJALAN`;
+  document.getElementById('timer-display').textContent=fmtTimer(secondsLeft);
+  document.getElementById('timer-panel').style.display='block';
+  document.getElementById('overtime-warn').style.display='none';
+}
+
+async function startIzin(type,num){
+  const btn=document.getElementById(`izin-btn-${num}`);
+  btn.disabled=true;btn.textContent='Memulai...';
+  const data=await api.post('/permissions/start',{type});
+  if(data.success){
+    showToast(`Izin ${num} dimulai! 10 menit.`);
+    showTimerPanel(type,600);
+    startLocalTimer(600);
+    loadPermissions();
+  }else{
+    showToast(data.message,'err');
+    btn.disabled=false;btn.textContent=`Izin ${num}`;
+  }
+}
+
+async function doStopTimer(){
+  const btn=document.getElementById('btn-masuk');
+  btn.disabled=true;btn.textContent='Mencatat...';
+  const data=await api.post('/permissions/stop',{});
+  if(data.success){
+    stopLocalTimer();
+    document.getElementById('timer-panel').style.display='none';
+    showToast(data.message);
+    loadPermissions();
+  }else{
+    showToast(data.message,'err');
+    btn.disabled=false;btn.textContent='↩ MASUK — Selesai Izin';
+  }
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
@@ -479,6 +694,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   const token=api.getToken();const user=api.getUser();
   if(token&&user&&user.role==='staff')initApp(user);
 });
+
 </script>
 </body>
 </html>

@@ -47,6 +47,8 @@ app.use('/api/members', require('./routes/members'));
 app.use('/api/permissions', require('./routes/permissions'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/ip-whitelist', require('./routes/ipWhitelist'));
+app.use('/api/announcements', require('./routes/announcements'));
+app.use('/api/attendance', require('./routes/attendance'));
 
 // Health check
 app.get('/api/health', (req, res) => {
