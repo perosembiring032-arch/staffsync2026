@@ -1,348 +1,333 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>STAFF ANG — Portal Staff</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
-    :root { --red:#E63946; --gold:#FFB703; --dark:#080C10; --dark2:#0D1219; --dark3:#131A24; --border:rgba(255,255,255,0.06); }
-    * { box-sizing:border-box; }
-    body { font-family:'Outfit',sans-serif; background:var(--dark); color:#E8EDF2; min-height:100vh; }
-    .bebas { font-family:'Bebas Neue',cursive; }
-    .mono { font-family:'JetBrains Mono',monospace; }
-    .bg-base {
-      background: radial-gradient(ellipse 70% 40% at 10% 10%, rgba(230,57,70,0.07) 0%, transparent 60%),
-                  linear-gradient(180deg, #080C10 0%, #0A0F16 100%);
+    :root{
+      --red:#EF4444;--red2:#F87171;--green:#22C55E;--gold:#F59E0B;
+      --bg:#06080C;--s1:#0C1018;--s2:#111720;--s3:#161E28;
+      --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
     }
-    input:focus { outline:none; border-color:var(--red)!important; box-shadow:0 0 0 3px rgba(230,57,70,0.1); }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-    .fade-up { animation:fadeUp 0.5s ease-out forwards; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:#D1D9E6;min-height:100vh;overflow-x:hidden;}
+    .mono{font-family:'JetBrains Mono',monospace;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6;}
+    .orb{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+    .orb-r{width:600px;height:600px;background:radial-gradient(circle,rgba(239,68,68,0.07) 0%,transparent 70%);top:-150px;right:-100px;}
+    .orb-b{width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 70%);bottom:-50px;left:-50px;}
+    .sidebar{background:linear-gradient(180deg,var(--s1) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;width:230px;display:flex;flex-direction:column;z-index:50;}
+    .brand-text{font-family:'Bebas Neue';font-size:27px;letter-spacing:.05em;background:linear-gradient(135deg,#fff 30%,var(--red) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    nav{padding:12px;flex:1;display:flex;flex-direction:column;gap:2px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+    .nav-item:hover{background:rgba(255,255,255,0.04);}
+    .nav-item.active{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);}
+    .nav-item.active .nav-label{color:var(--red);}
+    .nav-icon{font-size:15px;width:20px;text-align:center;color:#475569;transition:color .2s;}
+    .nav-item.active .nav-icon{color:var(--red);}
+    .nav-label{font-size:13px;font-weight:600;color:#64748B;transition:color .2s;}
+    .main-wrap{margin-left:230px;min-height:100vh;position:relative;z-index:1;}
+    .content{padding:24px;}
+    .page-title{font-family:'Bebas Neue';font-size:34px;background:linear-gradient(135deg,#fff,#94A3B8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .page-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-top:4px;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .4s ease-out forwards;}
+    .card{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+    .card-red{border-color:rgba(239,68,68,0.18);background:rgba(239,68,68,0.03);}
+    .card-green{border-color:rgba(34,197,94,0.18);background:rgba(34,197,94,0.03);}
+    .card-gold{border-color:rgba(245,158,11,0.18);background:rgba(245,158,11,0.03);}
+    .stat-widget{padding:20px 22px;}
+    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+    .stat-value{font-family:'Bebas Neue';font-size:44px;line-height:1;}
+    .stat-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;margin-top:6px;}
+    .prog-track{height:8px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;}
+    .prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--red),#F97316);transition:width 1s cubic-bezier(.4,0,.2,1);}
+    .prog-fill.done{background:linear-gradient(90deg,#16A34A,var(--green));}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono';font-size:10px;font-weight:700;letter-spacing:.05em;}
+    .bg{background:rgba(255,255,255,0.05);color:#64748B;border:1px solid var(--border);}
+    .bgr{background:rgba(239,68,68,0.1);color:#F87171;border:1px solid rgba(239,68,68,0.2);}
+    .bgg{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
+    .bgo{background:rgba(245,158,11,0.1);color:#FCD34D;border:1px solid rgba(245,158,11,0.2);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'Syne';font-weight:700;border:none;cursor:pointer;transition:all .2s;border-radius:10px;font-size:14px;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-red{background:linear-gradient(135deg,#7F1D1D,#EF4444);color:#fff;padding:12px 20px;}
+    .btn-red:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 24px rgba(239,68,68,0.35);}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#64748B;padding:10px 18px;}
+    .btn-ghost:hover:not(:disabled){border-color:var(--border2);color:#D1D9E6;}
+    .field{width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Syne';font-size:13px;color:#D1D9E6;transition:all .2s;}
+    .field:focus{outline:none;border-color:rgba(239,68,68,0.4);box-shadow:0 0 0 3px rgba(239,68,68,0.08);}
+    .field-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
+    .field-err{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#F87171;margin-bottom:14px;}
+    .field-ok{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#4ADE80;margin-bottom:14px;}
+    #toast-wrap{position:fixed;top:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    .toast{padding:11px 16px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeUp .25s ease-out;min-width:220px;}
+    .toast-ok{background:rgba(21,128,61,0.95);border:1px solid rgba(34,197,94,0.3);color:#4ADE80;}
+    .toast-err{background:rgba(127,29,29,0.95);border:1px solid rgba(239,68,68,0.3);color:#F87171;}
+    .section-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+    .section-title{font-size:13px;font-weight:700;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+    .hidden{display:none!important;}
+    @media(max-width:1023px){.sidebar{transform:translateX(-100%);}.main-wrap{margin-left:0;}.mobile-bar{display:flex!important;}}
+    .mobile-bar{display:none;position:sticky;top:0;z-index:40;background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);overflow-x:auto;}
+    .m-btn{flex-shrink:0;padding:11px 16px;font-family:'JetBrains Mono';font-size:11px;color:#475569;cursor:pointer;border:none;background:none;transition:color .2s;}
+    .m-btn.act{color:var(--red);}
 
-    /* Sidebar */
-    .sidebar { background:rgba(13,18,25,0.95); border-right:1px solid var(--border); }
-    .nav-item { transition:all 0.2s; border-radius:10px; cursor:pointer; }
-    .nav-item:hover { background:rgba(255,255,255,0.04); }
-    .nav-item.active { background:rgba(230,57,70,0.1); border:1px solid rgba(230,57,70,0.2); }
-    .nav-item.active span { color:var(--red); }
-
-    /* Cards */
-    .stat-card { background:var(--dark3); border:1px solid var(--border); border-radius:16px; }
-    .stat-card.highlight-red { border-color:rgba(230,57,70,0.2); background:rgba(230,57,70,0.05); }
-    .stat-card.highlight-green { border-color:rgba(34,197,94,0.2); background:rgba(34,197,94,0.05); }
-    .stat-card.highlight-gold { border-color:rgba(255,183,3,0.2); background:rgba(255,183,3,0.05); }
-
-    /* Progress */
-    .progress-track { background:rgba(255,255,255,0.06); border-radius:100px; height:10px; overflow:hidden; }
-    .progress-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,#E63946,#FF6B6B); transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
-    .progress-fill.done { background:linear-gradient(90deg,#16A34A,#22C55E); }
-
-    /* Buttons */
-    .btn-primary { background:linear-gradient(135deg,#C1121F,#E63946); transition:all 0.2s; border:none; }
-    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 25px rgba(230,57,70,0.35); }
-    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
-    .btn-perm { transition:all 0.25s; border-radius:12px; }
-    .btn-perm:not(:disabled):hover { transform:translateY(-2px); }
-    .btn-perm:disabled { opacity:0.4; cursor:not-allowed; }
-
-    /* Member item */
-    .member-item { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width:4px; }
-    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+    /* Izin cards */
+    .izin-card{border-radius:14px;border:1px solid var(--border);background:var(--s2);padding:22px;text-align:center;transition:all .3s;}
+    .izin-card.used{opacity:.55;background:rgba(255,255,255,0.015);}
+    .izin-card:not(.used):hover{border-color:rgba(239,68,68,0.3);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.4);}
+    .izin-num{font-family:'Bebas Neue';font-size:36px;width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+    .izin-num-avail{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:var(--red);}
+    .izin-num-used{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#334155;}
+    .izin-btn{width:100%;padding:11px;border-radius:10px;font-family:'Syne';font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .25s;}
+    .izin-btn-avail{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.25);color:#F87171;}
+    .izin-btn-avail:hover:not(:disabled){background:rgba(239,68,68,0.25);transform:translateY(-1px);}
+    .izin-btn-used{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#334155;cursor:not-allowed;}
+    .member-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
   </style>
 </head>
-<body class="bg-base">
+<body>
+<div id="toast-wrap"></div>
+<div class="orb orb-r"></div>
+<div class="orb orb-b"></div>
 
 <!-- LOGIN -->
-<div id="view-login" class="min-h-screen flex items-center justify-center px-4">
+<div id="view-login" class="min-h-screen flex items-center justify-center px-4 relative z-10">
   <div class="w-full max-w-sm fade-up">
-    <div class="text-center mb-8">
-      <a href="/" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors">← Kembali</a>
-      <div class="bebas text-5xl mt-4 mb-1" style="background:linear-gradient(135deg,#fff,#E63946);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
-      <p class="mono text-xs text-slate-600 tracking-wider">PORTAL STAFF</p>
+    <div class="text-center" style="margin-bottom:36px;">
+      <a href="/" class="mono text-xs" style="color:#334155;">← Kembali</a>
+      <div style="font-family:'Bebas Neue';font-size:54px;background:linear-gradient(135deg,#fff 30%,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.04em;margin:16px 0 4px;">STAFF ANG</div>
+      <div class="mono text-xs tracking-widest" style="color:#334155;">PORTAL STAFF</div>
     </div>
-
-    <div style="background:var(--dark3);border:1px solid var(--border)" class="rounded-2xl p-7">
-      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
-      <div class="mb-5">
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Username</label>
-        <input id="login-username" type="text" placeholder="contoh: staff01"
-          class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all" />
+    <div class="card" style="padding:28px;">
+      <div id="login-error" class="field-err hidden"></div>
+      <div style="margin-bottom:18px;"><label class="field-label">Username</label><input id="login-username" type="text" placeholder="contoh: staff01" class="field"/></div>
+      <div style="margin-bottom:24px;">
+        <label class="field-label">Password</label>
+        <div style="position:relative;"><input id="login-password" type="password" placeholder="••••••••" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('login-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
       </div>
-      <div class="mb-6">
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Password</label>
-        <div class="relative">
-          <input id="login-password" type="password" placeholder="••••••••"
-            class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm transition-all" />
-          <button onclick="togglePwd('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-red-400 transition-colors">LIHAT</button>
-        </div>
-      </div>
-      <button id="login-btn" onclick="doLogin()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-white text-sm">
-        Masuk
-      </button>
+      <button id="login-btn" onclick="doLogin()" class="btn btn-red" style="width:100%;padding:13px;">Masuk</button>
     </div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="view-app" class="hidden min-h-screen flex">
+<div id="view-app" class="hidden" style="min-height:100vh;position:relative;z-index:1;">
 
-  <!-- Sidebar Desktop -->
-  <aside class="sidebar hidden lg:flex flex-col w-60 sticky top-0 h-screen">
-    <div class="p-5 border-b border-white/5">
-      <div class="bebas text-3xl" style="background:linear-gradient(135deg,#fff,#E63946);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
-      <p class="mono text-xs text-slate-600 mt-0.5">Portal Staff</p>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div style="padding:22px 18px 18px;border-bottom:1px solid var(--border);">
+      <div class="brand-text">STAFF ANG</div>
+      <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.15em;margin-top:2px;">PORTAL STAFF</div>
     </div>
-    <nav class="flex-1 p-4 space-y-1">
-      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active px-4 py-3 flex items-center gap-3">
-        <span class="text-sm font-medium">Dashboard</span>
+    <nav>
+      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active">
+        <span class="nav-icon">◈</span><span class="nav-label">Dashboard</span>
       </div>
-      <div onclick="showPage('input')" id="nav-input" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span class="text-sm font-medium">Input Member</span>
+      <div onclick="showPage('input')" id="nav-input" class="nav-item">
+        <span class="nav-icon">◎</span><span class="nav-label">Input Member</span>
       </div>
-      <div onclick="showPage('permission')" id="nav-permission" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span class="text-sm font-medium">Izin Harian</span>
+      <div onclick="showPage('permission')" id="nav-permission" class="nav-item">
+        <span class="nav-icon">◷</span><span class="nav-label">Izin Harian</span>
       </div>
     </nav>
-    <div class="p-4 border-t border-white/5">
-      <p id="user-name" class="text-sm font-semibold"></p>
-      <p id="user-empid" class="mono text-xs text-red-400 mb-3"></p>
-      <button onclick="doLogout()" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors">← Keluar</button>
+    <div style="padding:16px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#7F1D1D,#EF4444);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:16px;color:#fff;" id="user-avatar-s">S</div>
+        <div>
+          <p id="user-name" style="font-size:13px;font-weight:700;color:#F87171;"></p>
+          <p id="user-empid" class="mono" style="font-size:10px;color:#475569;"></p>
+        </div>
+      </div>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#475569;background:none;border:none;cursor:pointer;">⟵ Keluar</button>
     </div>
   </aside>
 
-  <!-- Main -->
-  <div class="flex-1 flex flex-col min-w-0">
-    <!-- Mobile header -->
-    <header class="lg:hidden sticky top-0 z-40 border-b border-white/5" style="background:rgba(8,12,16,0.95);backdrop-filter:blur(12px)">
-      <div class="px-4 h-14 flex items-center justify-between">
-        <span class="bebas text-2xl" style="background:linear-gradient(135deg,#fff,#E63946);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</span>
-        <div class="flex items-center gap-3">
-          <span id="user-name-m" class="mono text-xs text-slate-500"></span>
-          <button onclick="doLogout()" class="mono text-xs text-red-400">Keluar</button>
-        </div>
+  <div class="main-wrap">
+    <!-- Mobile top -->
+    <div class="lg:hidden" style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40;">
+      <div style="font-family:'Bebas Neue';font-size:24px;background:linear-gradient(135deg,#fff,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">STAFF ANG</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="user-name-m" class="mono" style="font-size:11px;color:#475569;"></span>
+        <button onclick="doLogout()" class="mono text-xs" style="color:#EF4444;background:none;border:none;cursor:pointer;">Keluar</button>
       </div>
-      <div class="flex border-t border-white/5 text-xs">
-        <button onclick="showPage('dashboard')" class="flex-1 py-2.5 mono text-slate-400 hover:text-white transition-colors">Dashboard</button>
-        <button onclick="showPage('input')" class="flex-1 py-2.5 mono text-slate-400 hover:text-white transition-colors">Input</button>
-        <button onclick="showPage('permission')" class="flex-1 py-2.5 mono text-slate-400 hover:text-white transition-colors">Izin</button>
-      </div>
-    </header>
+    </div>
+    <div class="mobile-bar">
+      <button class="m-btn act" onclick="showPage('dashboard');setMA(this)">Dashboard</button>
+      <button class="m-btn" onclick="showPage('input');setMA(this)">Input Member</button>
+      <button class="m-btn" onclick="showPage('permission');setMA(this)">Izin Harian</button>
+    </div>
 
-    <main class="flex-1 p-4 md:p-6 space-y-5">
+    <div class="content">
 
       <!-- DASHBOARD -->
-      <div id="page-dashboard" class="fade-up space-y-5">
-        <div class="flex items-center justify-between">
+      <div id="page-dashboard" class="fade-up">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
           <div>
-            <h1 class="bebas text-3xl text-white">Overview Hari Ini</h1>
-            <p id="today-date" class="mono text-xs text-slate-500 mt-0.5"></p>
+            <div class="page-title">OVERVIEW</div>
+            <div class="page-sub" id="today-date"></div>
           </div>
-          <button onclick="loadDashboard()" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors flex items-center gap-1.5">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Refresh
-          </button>
+          <button onclick="loadDashboard()" class="btn btn-ghost" style="padding:8px 14px;font-size:12px;">Refresh</button>
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="stat-card p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Member Valid</p>
-            <p id="stat-members" class="bebas text-4xl text-white">0<span class="text-slate-600">/3</span></p>
-          </div>
-          <div id="stat-target-card" class="stat-card p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target</p>
-            <p id="stat-target" class="bebas text-4xl text-slate-500">Belum</p>
-          </div>
-          <div class="stat-card p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Waktu Break</p>
-            <p id="stat-break" class="bebas text-4xl text-yellow-400">1 JAM</p>
-          </div>
-          <div class="stat-card p-5">
-            <p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Izin Dipakai</p>
-            <p id="stat-perms" class="bebas text-4xl text-white">0<span class="text-slate-600">/3</span></p>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget"><div class="stat-label">Member Valid</div><div class="stat-value" style="color:#fff;" id="stat-members">0<span style="color:#1E293B;font-size:28px;">/3</span></div><div class="stat-sub">hari ini</div></div>
+          <div class="card stat-widget" id="stat-target-card"><div class="stat-label">Target</div><div class="stat-value" style="color:#64748B;font-size:32px;" id="stat-target">BELUM</div><div class="stat-sub">status target</div></div>
+          <div class="card card-gold stat-widget"><div class="stat-label">Waktu Break</div><div class="stat-value" style="color:#F59E0B;" id="stat-break">-</div><div class="stat-sub" id="stat-break-sub">menunggu target</div></div>
+          <div class="card stat-widget"><div class="stat-label">Izin Dipakai</div><div class="stat-value" style="color:#fff;" id="stat-perms">0<span style="color:#1E293B;font-size:28px;">/3</span></div><div class="stat-sub">dari 3 izin</div></div>
         </div>
 
         <!-- Progress -->
-        <div class="stat-card p-5">
-          <div class="flex items-center justify-between mb-3">
-            <span class="font-semibold text-sm">Progress Target Harian</span>
-            <span id="progress-label" class="mono text-xs text-slate-500">0 / 3 member</span>
+        <div class="card" style="padding:20px 22px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:700;">Progress Target Harian</span>
+            <span id="progress-label" class="mono" style="font-size:11px;color:#475569;">0 / 3</span>
           </div>
-          <div class="progress-track mb-3">
-            <div id="progress-bar" class="progress-fill" style="width:0%"></div>
-          </div>
-          <p id="progress-hint" class="mono text-xs text-slate-600">Masukkan 3 member valid (deposit ≥ Rp 50.000) untuk break penuh.</p>
+          <div class="prog-track" style="margin-bottom:10px;"><div id="progress-bar" class="prog-fill" style="width:0%;"></div></div>
+          <p id="progress-hint" class="mono" style="font-size:11px;color:#475569;">Masukkan 3 member valid (deposit ≥ Rp 50.000) untuk break penuh.</p>
         </div>
 
-        <!-- Member List -->
-        <div class="stat-card p-5">
-          <h3 class="font-semibold text-sm mb-4">Entri Hari Ini</h3>
-          <div id="member-list" class="space-y-2">
-            <p class="mono text-xs text-slate-600 text-center py-4">Belum ada entri hari ini.</p>
-          </div>
+        <!-- Member list -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Entri Hari Ini</span></div>
+          <div id="member-list" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p></div>
         </div>
       </div>
 
-      <!-- INPUT -->
-      <div id="page-input" class="fade-up hidden space-y-5">
-        <div>
-          <h1 class="bebas text-3xl text-white">Input Member</h1>
-          <p class="mono text-xs text-slate-500 mt-0.5">Masukkan ID member dan jumlah deposit</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-5">
-          <div class="stat-card p-6">
-            <div id="input-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
-            <div id="input-success" class="hidden mb-4 p-3 rounded-xl bg-green-950/50 border border-green-800/30 text-green-400 text-sm mono"></div>
-            <div class="mb-5">
-              <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">ID Member</label>
-              <input id="input-member-id" type="text" placeholder="contoh: MBR-10045"
-                class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all uppercase" autocomplete="off" />
+      <!-- INPUT MEMBER -->
+      <div id="page-input" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">INPUT MEMBER</div><div class="page-sub">Masukkan ID member dan jumlah deposit</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="md:grid-cols-2">
+          <div class="card" style="padding:24px;">
+            <div id="input-error" class="field-err hidden"></div>
+            <div id="input-success" class="field-ok hidden"></div>
+            <div style="margin-bottom:18px;"><label class="field-label">ID Member</label><input id="input-member-id" type="text" placeholder="contoh: MBR-10045" class="field mono" style="text-transform:uppercase;" autocomplete="off"/></div>
+            <div style="margin-bottom:22px;">
+              <label class="field-label">Jumlah Deposit (Rp)</label>
+              <input id="input-deposit" type="number" placeholder="50000" min="0" class="field mono" autocomplete="off"/>
+              <p class="mono" style="font-size:10px;color:#334155;margin-top:6px;">Minimum: Rp 50.000</p>
             </div>
-            <div class="mb-6">
-              <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Jumlah Deposit (Rp)</label>
-              <input id="input-deposit" type="number" placeholder="50000" min="0"
-                class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all" autocomplete="off" />
-              <p class="mono text-xs text-slate-700 mt-1.5">Minimum: Rp 50.000</p>
-            </div>
-            <button id="input-btn" onclick="submitMember()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-white text-sm">
-              Submit Entri
-            </button>
+            <button id="input-btn" onclick="submitMember()" class="btn btn-red" style="width:100%;padding:13px;">Submit Entri</button>
           </div>
-          <div class="space-y-4">
-            <div class="stat-card p-5">
-              <h4 class="font-semibold text-sm mb-3 text-red-400">Aturan Harian</h4>
-              <ul class="space-y-2 mono text-xs text-slate-500">
-                <li class="flex gap-2"><span class="text-red-400">→</span> 3 member valid per hari</li>
-                <li class="flex gap-2"><span class="text-red-400">→</span> Deposit minimum Rp 50.000</li>
-                <li class="flex gap-2"><span class="text-red-400">→</span> ID member tidak boleh duplikat</li>
-                <li class="flex gap-2"><span class="text-red-400">→</span> Deposit kurang dari 50k ditolak</li>
-              </ul>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card card-red" style="padding:18px;">
+              <h4 style="font-size:12px;font-weight:700;color:#F87171;margin-bottom:12px;letter-spacing:.04em;">ATURAN HARIAN</h4>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#EF4444;font-size:12px;">→</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid per hari</span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#EF4444;font-size:12px;">→</span><span class="mono" style="font-size:11px;color:#64748B;">Deposit minimum Rp 50.000</span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#EF4444;font-size:12px;">→</span><span class="mono" style="font-size:11px;color:#64748B;">ID member tidak boleh duplikat</span></div>
+              </div>
             </div>
-            <div class="stat-card p-5">
-              <h4 class="font-semibold text-sm mb-3 text-yellow-400">Aturan Break</h4>
-              <ul class="space-y-2 mono text-xs text-slate-500">
-                <li class="flex gap-2"><span class="text-green-400">✓</span> Target tercapai → <span class="text-white">Break 2 jam</span></li>
-                <li class="flex gap-2"><span class="text-red-400">✗</span> Target tidak tercapai → <span class="text-white">Break 1 jam</span></li>
-              </ul>
+            <div class="card card-gold" style="padding:18px;">
+              <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#334155;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
+              </div>
             </div>
-            <div class="stat-card p-5">
-              <h4 class="font-semibold text-sm mb-3">Status Hari Ini</h4>
-              <p id="input-status-text" class="mono text-xs text-slate-500">Loading...</p>
+            <div class="card" style="padding:18px;">
+              <h4 style="font-size:12px;font-weight:700;margin-bottom:10px;">Status Hari Ini</h4>
+              <p id="input-status-text" class="mono" style="font-size:11px;color:#475569;line-height:1.7;">Memuat...</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PERMISSION -->
-      <div id="page-permission" class="fade-up hidden space-y-5">
-        <div class="flex items-start justify-between">
+      <!-- IZIN HARIAN -->
+      <div id="page-permission" class="fade-up hidden">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
           <div>
-            <h1 class="bebas text-3xl text-white">Izin Harian</h1>
-            <p class="mono text-xs text-slate-500 mt-0.5">3 izin × 10 menit = 30 menit total · Reset tengah malam</p>
+            <div class="page-title">IZIN HARIAN</div>
+            <div class="page-sub">3 izin × 10 menit = 30 menit total · Reset tengah malam</div>
           </div>
-          <div id="perm-break-badge" class="stat-card px-4 py-2 text-center" style="min-width:110px">
-            <p class="mono text-xs text-slate-500 mb-0.5">Break Hari Ini</p>
-            <p id="perm-break-val" class="bebas text-2xl text-yellow-400">-</p>
+          <div class="card" style="padding:12px 16px;text-align:center;min-width:100px;" id="break-badge">
+            <div class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">BREAK HARI INI</div>
+            <div id="break-val" style="font-family:'Bebas Neue';font-size:24px;color:#F59E0B;">—</div>
           </div>
         </div>
 
-        <!-- Info break rules -->
-        <div class="stat-card p-4 flex flex-wrap gap-4">
-          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-600"></span><span class="mono text-xs text-slate-500">0 member = <span class="text-red-400">No break</span></span></div>
-          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-400"></span><span class="mono text-xs text-slate-500">1-2 member valid = <span class="text-white">Break 2 jam</span></span></div>
-          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span><span class="mono text-xs text-slate-500">3 member valid = <span class="text-white">Break 2 jam</span></span></div>
-        </div>
-
-        <!-- 3 Izin Cards -->
-        <div class="grid md:grid-cols-3 gap-4">
+        <!-- Izin cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
           <!-- Izin 1 -->
-          <div id="perm-card-toilet" class="stat-card p-6 text-center">
-            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-red-950/40 border border-red-800/20 flex items-center justify-center">
-              <span class="bebas text-3xl text-red-400">1</span>
-            </div>
-            <h3 class="font-bold mb-1">Izin 1</h3>
-            <p class="mono text-xs text-slate-600 mb-1">10 menit</p>
-            <p id="perm-time-toilet" class="mono text-xs text-slate-700 mb-3">—</p>
-            <p id="perm-status-toilet" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
-            <button id="perm-btn-toilet" onclick="usePermission('toilet')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300">
-              Gunakan Izin 1
-            </button>
+          <div class="izin-card" id="izin-card-1">
+            <div class="izin-num izin-num-avail" id="izin-num-1">1</div>
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 1</h3>
+            <p class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">10 menit</p>
+            <p id="izin-time-1" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
+            <p id="izin-status-1" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
+            <button id="izin-btn-1" onclick="usePermission('toilet')" class="izin-btn izin-btn-avail">Gunakan Izin 1</button>
           </div>
           <!-- Izin 2 -->
-          <div id="perm-card-smoke1" class="stat-card p-6 text-center">
-            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-red-950/40 border border-red-800/20 flex items-center justify-center">
-              <span class="bebas text-3xl text-red-400">2</span>
-            </div>
-            <h3 class="font-bold mb-1">Izin 2</h3>
-            <p class="mono text-xs text-slate-600 mb-1">10 menit</p>
-            <p id="perm-time-smoke1" class="mono text-xs text-slate-700 mb-3">—</p>
-            <p id="perm-status-smoke1" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
-            <button id="perm-btn-smoke1" onclick="usePermission('smoke_1')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300">
-              Gunakan Izin 2
-            </button>
+          <div class="izin-card" id="izin-card-2">
+            <div class="izin-num izin-num-avail" id="izin-num-2">2</div>
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 2</h3>
+            <p class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">10 menit</p>
+            <p id="izin-time-2" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
+            <p id="izin-status-2" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
+            <button id="izin-btn-2" onclick="usePermission('smoke_1')" class="izin-btn izin-btn-avail">Gunakan Izin 2</button>
           </div>
           <!-- Izin 3 -->
-          <div id="perm-card-smoke2" class="stat-card p-6 text-center">
-            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-red-950/40 border border-red-800/20 flex items-center justify-center">
-              <span class="bebas text-3xl text-red-400">3</span>
-            </div>
-            <h3 class="font-bold mb-1">Izin 3</h3>
-            <p class="mono text-xs text-slate-600 mb-1">10 menit</p>
-            <p id="perm-time-smoke2" class="mono text-xs text-slate-700 mb-3">—</p>
-            <p id="perm-status-smoke2" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
-            <button id="perm-btn-smoke2" onclick="usePermission('smoke_2')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300">
-              Gunakan Izin 3
-            </button>
+          <div class="izin-card" id="izin-card-3">
+            <div class="izin-num izin-num-avail" id="izin-num-3">3</div>
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 3</h3>
+            <p class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">10 menit</p>
+            <p id="izin-time-3" class="mono" style="font-size:10px;color:#334155;margin-bottom:12px;min-height:14px;">—</p>
+            <p id="izin-status-3" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
+            <button id="izin-btn-3" onclick="usePermission('smoke_2')" class="izin-btn izin-btn-avail">Gunakan Izin 3</button>
           </div>
         </div>
 
-        <!-- Log -->
-        <div class="stat-card p-5">
-          <h3 class="font-semibold text-sm mb-4">Log Izin Hari Ini</h3>
-          <div id="perm-log" class="space-y-2">
-            <p class="mono text-xs text-slate-600 text-center py-4">Belum ada izin digunakan hari ini.</p>
-          </div>
+        <!-- Log izin -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Izin Hari Ini</span></div>
+          <div id="perm-log" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p></div>
         </div>
       </div>
 
-    </main>
+    </div>
   </div>
 </div>
 
 <script src="/shared/api.js"></script>
 <script>
-function togglePwd(id) { const e=document.getElementById(id); e.type=e.type==='password'?'text':'password'; }
+function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
+function showToast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
 
-async function doLogin() {
+async function doLogin(){
   const username=document.getElementById('login-username').value.trim();
   const password=document.getElementById('login-password').value;
-  const btn=document.getElementById('login-btn');
-  const errEl=document.getElementById('login-error');
+  const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
   if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
   btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
   const data=await api.post('/auth/login/staff',{username,password});
   if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
   else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
 }
+function doLogout(){api.logout();}
 
-function initApp(user) {
+function initApp(user){
   document.getElementById('view-login').classList.add('hidden');
   document.getElementById('view-app').classList.remove('hidden');
   document.getElementById('user-name').textContent=user.name;
   document.getElementById('user-empid').textContent=user.employeeId;
+  document.getElementById('user-avatar-s').textContent=user.name?user.name[0].toUpperCase():'S';
   document.getElementById('user-name-m')&&(document.getElementById('user-name-m').textContent=user.employeeId);
   document.getElementById('today-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   loadDashboard();loadPermissions();
 }
 
-function doLogout(){api.logout();}
-
-function showPage(page) {
+function showPage(page){
   ['dashboard','input','permission'].forEach(p=>{
     document.getElementById(`page-${p}`)?.classList.add('hidden');
     document.getElementById(`nav-${p}`)?.classList.remove('active');
@@ -354,59 +339,60 @@ function showPage(page) {
   if(page==='permission')loadPermissions();
 }
 
-async function loadDashboard() {
-  const [members,perms]=await Promise.all([api.get('/members/today'),api.get('/permissions/today')]);
+async function loadDashboard(){
+  const[members,perms]=await Promise.all([api.get('/members/today'),api.get('/permissions/today')]);
   if(!members.success)return;
   const{validCount,targetReached,breakHours,members:list}=members.data;
   const perm=perms.success?perms.data:{};
 
-  document.getElementById('stat-members').innerHTML=`${validCount}<span class="text-slate-600">/3</span>`;
+  document.getElementById('stat-members').innerHTML=`${validCount}<span style="color:#1E293B;font-size:28px;">/3</span>`;
 
   const tEl=document.getElementById('stat-target');
-  if(validCount===0){tEl.textContent='BELUM';tEl.className='bebas text-4xl text-slate-500';}
-  else if(targetReached){tEl.textContent='TERCAPAI ✓';tEl.className='bebas text-4xl text-green-400';}
-  else{tEl.textContent='PROSES';tEl.className='bebas text-4xl text-yellow-400';}
+  const tCard=document.getElementById('stat-target-card');
+  if(validCount===0){tEl.textContent='BELUM';tEl.style.color='#334155';tCard.style.borderColor='var(--border)';}
+  else if(targetReached){tEl.textContent='TERCAPAI';tEl.style.color='#22C55E';tCard.style.borderColor='rgba(34,197,94,0.2)';}
+  else{tEl.textContent='PROSES';tEl.style.color='#F59E0B';tCard.style.borderColor='rgba(245,158,11,0.2)';}
 
-  const bEl=document.getElementById('stat-break');
-  bEl.textContent=`${breakHours} JAM`;
-  bEl.className=`bebas text-4xl ${breakHours>=2?'text-green-400':'text-yellow-400'}`;
+  const bEl=document.getElementById('break-val');
+  if(breakHours===0){document.getElementById('stat-break').textContent='NO BREAK';document.getElementById('stat-break').style.color='#EF4444';document.getElementById('stat-break-sub').textContent='belum ada member';}
+  else{document.getElementById('stat-break').textContent=`${breakHours} JAM`;document.getElementById('stat-break').style.color=breakHours>=2?'#22C55E':'#F59E0B';document.getElementById('stat-break-sub').textContent='waktu break hari ini';}
 
   const usedPerms=[perm.toiletUsed,perm.smoke1Used,perm.smoke2Used].filter(Boolean).length;
-  document.getElementById('stat-perms').innerHTML=`${usedPerms}<span class="text-slate-600">/3</span>`;
+  document.getElementById('stat-perms').innerHTML=`${usedPerms}<span style="color:#1E293B;font-size:28px;">/3</span>`;
 
   const pct=Math.round((validCount/3)*100);
   const bar=document.getElementById('progress-bar');
   bar.style.width=`${pct}%`;
   if(targetReached)bar.classList.add('done');else bar.classList.remove('done');
   document.getElementById('progress-label').textContent=`${validCount} / 3 member`;
-  document.getElementById('progress-hint').textContent=targetReached?'🎉 Target tercapai! Break penuh 2 jam hari ini.':`${3-validCount} member lagi untuk break penuh.`;
+  document.getElementById('progress-hint').textContent=targetReached?'Target tercapai! Break penuh 2 jam hari ini.':`${3-validCount} member lagi untuk mencapai target.`;
 
   const listEl=document.getElementById('member-list');
-  if(!list||list.length===0){listEl.innerHTML='<p class="mono text-xs text-slate-600 text-center py-4">Belum ada entri hari ini.</p>';}
-  else{listEl.innerHTML=list.map((m,i)=>`
-    <div class="member-item flex items-center justify-between px-4 py-3">
-      <div class="flex items-center gap-3">
-        <span class="mono text-xs text-slate-600">#${i+1}</span>
-        <span class="mono text-sm font-medium">${m.memberId}</span>
+  if(!list||!list.length){listEl.innerHTML='<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p>';}
+  else{listEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${list.map((m,i)=>`
+    <div class="member-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="mono" style="font-size:10px;color:#334155;">#${i+1}</span>
+        <span class="mono" style="font-size:13px;font-weight:700;">${m.memberId}</span>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="mono text-sm text-green-400">${formatCurrency(m.deposit)}</span>
-        <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${m.isValid?'bg-green-900/50 text-green-400':'bg-red-900/50 text-red-400'}">${m.isValid?'✓':'✕'}</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="mono" style="font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
+        <span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span>
       </div>
-    </div>
-  `).join('');}
+    </div>`).join('')}</div>`;}
 }
 
-async function loadInputStatus() {
+async function loadInputStatus(){
   const data=await api.get('/members/today');
   if(data.success){
     const{validCount,targetReached}=data.data;
-    document.getElementById('input-status-text').innerHTML=`Entri valid: <span class="text-white">${validCount}/3</span><br>Target: <span class="${targetReached?'text-green-400':'text-yellow-400'}">${targetReached?'Tercapai ✓':'Belum'}</span><br>Sisa: <span class="text-white">${Math.max(0,3-validCount)} member lagi</span>`;
+    document.getElementById('input-status-text').innerHTML=`Entri valid: <span style="color:#fff;">${validCount}/3</span><br>Target: <span style="color:${targetReached?'#22C55E':'#F59E0B'};">${targetReached?'Tercapai ✓':'Belum'}</span><br>Sisa: <span style="color:#fff;">${Math.max(0,3-validCount)} member lagi</span>`;
     if(validCount>=3){document.getElementById('input-btn').disabled=true;document.getElementById('input-btn').textContent='Batas Harian Tercapai';}
+    else{document.getElementById('input-btn').disabled=false;document.getElementById('input-btn').textContent='Submit Entri';}
   }
 }
 
-async function submitMember() {
+async function submitMember(){
   const memberId=document.getElementById('input-member-id').value.trim();
   const deposit=document.getElementById('input-deposit').value;
   const btn=document.getElementById('input-btn');
@@ -417,97 +403,75 @@ async function submitMember() {
   btn.disabled=true;btn.textContent='Menyimpan…';
   const data=await api.post('/members/input',{memberId,deposit:Number(deposit)});
   if(data.success){
-    succEl.textContent=`✓ Member ${memberId} berhasil ditambahkan! (${formatCurrency(data.data.deposit)})`;
+    succEl.textContent=`✓ Member ${memberId} berhasil! (${formatCurrency(data.data.deposit)})`;
     succEl.classList.remove('hidden');
     document.getElementById('input-member-id').value='';
     document.getElementById('input-deposit').value='';
-    toast.success(`Member ditambahkan! ${data.data.validCount}/3 target`);
+    showToast(`Member ditambahkan! ${data.data.validCount}/3`);
     loadInputStatus();
-  }else{errEl.textContent=data.message||'Gagal menambahkan member.';errEl.classList.remove('hidden');toast.error(data.message);}
+  }else{errEl.textContent=data.message||'Gagal menambahkan member.';errEl.classList.remove('hidden');}
   btn.disabled=false;btn.textContent='Submit Entri';
 }
 
-async function loadPermissions() {
-  const [permData, memberData] = await Promise.all([
-    api.get('/permissions/today'),
-    api.get('/members/today')
-  ]);
-  if(!permData.success) return;
-
+async function loadPermissions(){
+  const[permData,memberData]=await Promise.all([api.get('/permissions/today'),api.get('/members/today')]);
+  if(!permData.success)return;
   const{toiletUsed,smoke1Used,smoke2Used,logs}=permData.data;
-  const validCount = memberData.success ? memberData.data.validCount : 0;
+  const validCount=memberData.success?memberData.data.validCount:0;
 
-  // Update break badge
-  const breakEl = document.getElementById('perm-break-val');
-  const badgeEl = document.getElementById('perm-break-badge');
-  if(validCount === 0){
-    breakEl.textContent = 'NO BREAK';
-    breakEl.className = 'bebas text-xl text-red-400';
-    badgeEl.style.borderColor = 'rgba(230,57,70,0.3)';
-  } else {
-    breakEl.textContent = '2 JAM';
-    breakEl.className = 'bebas text-2xl text-green-400';
-    badgeEl.style.borderColor = 'rgba(34,197,94,0.3)';
-  }
+  const bv=document.getElementById('break-val');
+  if(validCount===0){bv.textContent='NO BREAK';bv.style.color='#EF4444';}
+  else{bv.textContent='2 JAM';bv.style.color='#22C55E';}
 
-  // Get used times from logs
-  const timeMap = {};
-  if(logs) logs.forEach(l => { if(!timeMap[l.type]) timeMap[l.type] = l.usedAt; });
+  const timeMap={};
+  if(logs)logs.forEach(l=>{if(!timeMap[l.type])timeMap[l.type]=l.usedAt;});
 
-  updatePermBtn('toilet', toiletUsed, 'toilet', timeMap['toilet']);
-  updatePermBtn('smoke1', smoke1Used, 'smoke_1', timeMap['smoke_1']);
-  updatePermBtn('smoke2', smoke2Used, 'smoke_2', timeMap['smoke_2']);
+  setIzin(1,toiletUsed,'toilet',timeMap['toilet']);
+  setIzin(2,smoke1Used,'smoke_1',timeMap['smoke_1']);
+  setIzin(3,smoke2Used,'smoke_2',timeMap['smoke_2']);
 
   const logEl=document.getElementById('perm-log');
-  const labelMap = {toilet:'Izin 1', smoke_1:'Izin 2', smoke_2:'Izin 3'};
-  if(!logs||logs.length===0){
-    logEl.innerHTML='<p class="mono text-xs text-slate-600 text-center py-4">Belum ada izin digunakan hari ini.</p>';
-  } else {
-    logEl.innerHTML=logs.map(l=>`
-      <div class="member-item flex items-center justify-between px-4 py-3">
-        <div class="flex items-center gap-3">
-          <span class="w-7 h-7 rounded-lg bg-red-900/40 border border-red-800/20 flex items-center justify-center bebas text-red-400">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</span>
-          <span class="text-sm font-medium">${labelMap[l.type]||l.type}</span>
-        </div>
-        <span class="mono text-xs text-slate-500">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+  const lmap={toilet:'Izin 1',smoke_1:'Izin 2',smoke_2:'Izin 3'};
+  if(!logs||!logs.length){logEl.innerHTML='<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p>';}
+  else{logEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${logs.map(l=>`
+    <div class="member-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:15px;color:#EF4444;">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</div>
+        <span style="font-size:13px;font-weight:700;">${lmap[l.type]||l.type}</span>
       </div>
-    `).join('');
-  }
+      <span class="mono" style="font-size:11px;color:#475569;">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+    </div>`).join('')}</div>`;}
 }
 
-function updatePermBtn(key, used, type, usedAt) {
-  const btn=document.getElementById(`perm-btn-${key}`);
-  const status=document.getElementById(`perm-status-${key}`);
-  const card=document.getElementById(`perm-card-${key}`);
-  const timeEl=document.getElementById(`perm-time-${key}`);
-  const labelNum = key==='toilet'?'1':key==='smoke1'?'2':'3';
+function setIzin(num,used,type,usedAt){
+  const card=document.getElementById(`izin-card-${num}`);
+  const numEl=document.getElementById(`izin-num-${num}`);
+  const btn=document.getElementById(`izin-btn-${num}`);
+  const status=document.getElementById(`izin-status-${num}`);
+  const timeEl=document.getElementById(`izin-time-${num}`);
   if(used){
-    btn.disabled=true;
-    btn.textContent=`Izin ${labelNum} Dipakai ✓`;
-    btn.className='btn-perm w-full py-2.5 text-sm font-semibold bg-slate-800/50 border border-slate-700/30 rounded-xl text-slate-500';
-    status.textContent='⏱ Sudah dipakai';
-    status.className='mono text-xs text-slate-600 mb-4';
-    if(timeEl && usedAt) timeEl.textContent='Dipakai '+new Date(usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-    card.style.opacity='0.5';
-  } else {
-    btn.disabled=false;
-    btn.textContent=`Gunakan Izin ${labelNum}`;
-    btn.className='btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300';
-    status.textContent='✓ Tersedia';
-    status.className='mono text-xs text-green-400 mb-4';
-    if(timeEl) timeEl.textContent='—';
-    card.style.opacity='1';
+    card.classList.add('used');
+    numEl.className='izin-num izin-num-used';
+    btn.disabled=true;btn.className='izin-btn izin-btn-used';btn.textContent=`Izin ${num} Dipakai ✓`;
+    status.textContent='Sudah dipakai';status.style.color='#334155';
+    if(timeEl&&usedAt)timeEl.textContent='Pukul '+new Date(usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  }else{
+    card.classList.remove('used');
+    numEl.className='izin-num izin-num-avail';
+    btn.disabled=false;btn.className='izin-btn izin-btn-avail';btn.textContent=`Gunakan Izin ${num}`;
+    status.textContent='✓ Tersedia';status.style.color='#4ADE80';
+    if(timeEl)timeEl.textContent='—';
   }
 }
 
-async function usePermission(type) {
-  const keyMap={toilet:'toilet',smoke_1:'smoke1',smoke_2:'smoke2'};
+async function usePermission(type){
+  const keyMap={toilet:1,smoke_1:2,smoke_2:3};
   const labelMap={toilet:'Izin 1',smoke_1:'Izin 2',smoke_2:'Izin 3'};
-  const btn=document.getElementById(`perm-btn-${keyMap[type]}`);
+  const btn=document.getElementById(`izin-btn-${keyMap[type]}`);
   btn.disabled=true;btn.textContent='Mencatat…';
   const data=await api.post('/permissions/use',{type});
-  if(data.success){toast.success(`${labelMap[type]} berhasil dicatat!`);loadPermissions();}
-  else{toast.error(data.message);btn.disabled=false;}
+  if(data.success){showToast(`${labelMap[type]} berhasil dicatat!`);loadPermissions();}
+  else{showToast(data.message,'err');btn.disabled=false;}
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});

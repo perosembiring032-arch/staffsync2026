@@ -1,516 +1,437 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STAFF ANG — Admin Control</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>STAFF ANG — Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
-    :root{--red:#E63946;--gold:#FFB703;--dark:#080C10;--dark2:#0D1219;--dark3:#131A24;--border:rgba(255,255,255,0.06);}
-    *{box-sizing:border-box;}
-    body{font-family:'Outfit',sans-serif;background:var(--dark);color:#E8EDF2;min-height:100vh;}
-    .bebas{font-family:'Bebas Neue',cursive;}
+    :root{
+      --gold:#F59E0B;--gold2:#FCD34D;--red:#EF4444;--green:#22C55E;--blue:#3B82F6;
+      --bg:#06080C;--s1:#0C1018;--s2:#111720;--s3:#161E28;
+      --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:#D1D9E6;min-height:100vh;overflow-x:hidden;}
     .mono{font-family:'JetBrains Mono',monospace;}
-    .bg-base{background:radial-gradient(ellipse 70% 40% at 10% 10%,rgba(255,183,3,0.05) 0%,transparent 60%),linear-gradient(180deg,#080C10 0%,#0A0F16 100%);}
-    input,select{outline:none;}
-    input:focus,select:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(255,183,3,0.1);}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    .fade-up{animation:fadeUp 0.45s ease-out forwards;}
-
-    .sidebar{background:rgba(10,15,20,0.98);border-right:1px solid var(--border);}
-    .nav-item{transition:all 0.2s;border-radius:10px;cursor:pointer;border:1px solid transparent;}
+    .bebas{font-family:'Bebas Neue',cursive;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6;}
+    .orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+    .orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(245,158,11,0.06) 0%,transparent 70%);top:-200px;left:-100px;}
+    .orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 70%);bottom:-100px;right:-100px;}
+    .sidebar{background:linear-gradient(180deg,var(--s1) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;width:240px;display:flex;flex-direction:column;z-index:50;}
+    .sidebar-brand{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+    .brand-text{font-family:'Bebas Neue';font-size:28px;letter-spacing:.05em;background:linear-gradient(135deg,#fff 30%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .brand-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.15em;margin-top:2px;}
+    nav{padding:12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
     .nav-item:hover{background:rgba(255,255,255,0.04);}
-    .nav-item.active{background:rgba(255,183,3,0.08);border-color:rgba(255,183,3,0.15);}
+    .nav-item.active{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.15);}
     .nav-item.active .nav-label{color:var(--gold);}
-
-    .stat-card{background:var(--dark3);border:1px solid var(--border);border-radius:16px;}
-    .card-red{border-color:rgba(230,57,70,0.2);background:rgba(230,57,70,0.04);}
-    .card-green{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.04);}
-    .card-gold{border-color:rgba(255,183,3,0.2);background:rgba(255,183,3,0.04);}
-    .card-blue{border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.04);}
-
-    .btn-gold{background:linear-gradient(135deg,#B45309,#FFB703);color:#000;font-weight:700;transition:all 0.2s;border:none;}
-    .btn-gold:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,183,3,0.3);}
-    .btn-gold:disabled{opacity:0.4;cursor:not-allowed;}
-    .btn-red{background:linear-gradient(135deg,#991B1B,#E63946);color:#fff;font-weight:700;transition:all 0.2s;border:none;}
-    .btn-red:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(230,57,70,0.3);}
-    .btn-outline{background:transparent;border:1px solid var(--border);color:#94A3B8;transition:all 0.2s;}
-    .btn-outline:hover{border-color:rgba(255,255,255,0.15);color:#E8EDF2;}
-
-    .table-row{border-bottom:1px solid var(--border);transition:background 0.15s;}
-    .table-row:last-child{border-bottom:none;}
-    .table-row:hover{background:rgba(255,255,255,0.02);}
-
-    .badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:600;}
-    .badge-green{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
-    .badge-red{background:rgba(230,57,70,0.1);color:#F87171;border:1px solid rgba(230,57,70,0.2);}
-    .badge-yellow{background:rgba(255,183,3,0.1);color:#FCD34D;border:1px solid rgba(255,183,3,0.2);}
-    .badge-gray{background:rgba(255,255,255,0.05);color:#94A3B8;border:1px solid var(--border);}
-
-    .progress-track{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;}
-    .progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#E63946,#FF6B6B);transition:width 0.6s ease;}
-    .progress-fill.done{background:linear-gradient(90deg,#16A34A,#22C55E);}
-
-    /* Modal */
-    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
-    .modal-box{background:var(--dark3);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;}
-
-    /* Toast */
-    #toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
-    .toast{padding:12px 18px;border-radius:12px;font-size:13px;font-family:'JetBrains Mono',monospace;animation:fadeUp 0.3s ease-out;min-width:240px;}
-    .toast-success{background:rgba(21,128,61,0.9);border:1px solid rgba(34,197,94,0.3);color:#4ADE80;}
-    .toast-error{background:rgba(153,27,27,0.9);border:1px solid rgba(230,57,70,0.3);color:#F87171;}
-
-    ::-webkit-scrollbar{width:4px;}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+    .nav-item.active .nav-icon{color:var(--gold);}
+    .nav-icon{font-size:15px;width:20px;text-align:center;color:#475569;transition:color .2s;}
+    .nav-label{font-size:13px;font-weight:600;color:#64748B;transition:color .2s;}
+    .nav-divider{height:1px;background:var(--border);margin:8px 0;}
+    .sidebar-footer{padding:16px;border-top:1px solid var(--border);}
+    .user-avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#92400E,var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:16px;color:#000;flex-shrink:0;}
+    .main-wrap{margin-left:240px;min-height:100vh;position:relative;z-index:1;}
+    .content{padding:24px;}
+    .page-title{font-family:'Bebas Neue';font-size:34px;letter-spacing:.02em;background:linear-gradient(135deg,#fff,#94A3B8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .page-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-top:4px;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .4s ease-out forwards;}
+    @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
+    .live-pulse{animation:pulse2 2s infinite;}
+    .card{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+    .card-gold{border-color:rgba(245,158,11,0.18);background:rgba(245,158,11,0.03);}
+    .card-red{border-color:rgba(239,68,68,0.18);background:rgba(239,68,68,0.03);}
+    .card-green{border-color:rgba(34,197,94,0.18);background:rgba(34,197,94,0.03);}
+    .stat-widget{padding:20px 22px;}
+    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+    .stat-value{font-family:'Bebas Neue';font-size:44px;line-height:1;letter-spacing:.02em;}
+    .stat-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;margin-top:6px;}
+    .prog-track{height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;}
+    .prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--red),#F97316);transition:width .8s cubic-bezier(.4,0,.2,1);}
+    .prog-fill.done{background:linear-gradient(90deg,#16A34A,var(--green));}
+    .tbl{width:100%;border-collapse:collapse;}
+    .tbl thead tr{border-bottom:1px solid var(--border);}
+    .tbl th{padding:10px 16px;font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;font-weight:500;text-align:left;}
+    .tbl th.c,.tbl td.c{text-align:center;}
+    .tbl tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);transition:background .15s;}
+    .tbl tbody tr:last-child{border-bottom:none;}
+    .tbl tbody tr:hover{background:rgba(255,255,255,0.02);}
+    .tbl td{padding:12px 16px;font-size:13px;}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono';font-size:10px;font-weight:700;letter-spacing:.05em;}
+    .bg{background:rgba(255,255,255,0.05);color:#64748B;border:1px solid var(--border);}
+    .bgo{background:rgba(245,158,11,0.1);color:#FCD34D;border:1px solid rgba(245,158,11,0.2);}
+    .bgr{background:rgba(239,68,68,0.1);color:#F87171;border:1px solid rgba(239,68,68,0.2);}
+    .bgg{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
+    .bgb{background:rgba(59,130,246,0.1);color:#93C5FD;border:1px solid rgba(59,130,246,0.2);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'Syne';font-weight:700;border:none;cursor:pointer;transition:all .2s;border-radius:10px;font-size:13px;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-gold{background:linear-gradient(135deg,#92400E,#F59E0B);color:#000;padding:10px 18px;}
+    .btn-gold:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,0.3);}
+    .btn-red{background:linear-gradient(135deg,#7F1D1D,#EF4444);color:#fff;padding:10px 18px;}
+    .btn-red:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(239,68,68,0.3);}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#64748B;padding:10px 18px;}
+    .btn-ghost:hover:not(:disabled){border-color:var(--border2);color:#D1D9E6;}
+    .btn-icon{width:32px;height:32px;padding:0;border-radius:8px;}
+    .action-wrap{position:relative;display:inline-block;}
+    .action-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#94A3B8;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:18px;font-weight:700;user-select:none;}
+    .action-btn:hover{background:rgba(255,255,255,0.1);border-color:var(--border2);color:#fff;}
+    .action-menu{position:absolute;right:0;top:38px;background:var(--s3);border:1px solid var(--border2);border-radius:12px;min-width:168px;z-index:100;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.6);display:none;}
+    .action-menu.open{display:block;animation:fadeUp .15s ease-out;}
+    .action-menu-item{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:background .12s;border:none;width:100%;background:none;text-align:left;font-family:'Syne';}
+    .action-menu-item:hover{background:rgba(255,255,255,0.05);}
+    .ai-edit{color:#93C5FD;} .ai-reset{color:#FCD34D;} .ai-lock{color:#FB923C;} .ai-unlock{color:#4ADE80;} .ai-del{color:#F87171;}
+    .action-menu-div{height:1px;background:var(--border);margin:4px 0;}
+    .field{width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Syne';font-size:13px;color:#D1D9E6;transition:all .2s;}
+    .field:focus{outline:none;border-color:rgba(245,158,11,0.4);box-shadow:0 0 0 3px rgba(245,158,11,0.08);}
+    .field-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .modal-box{background:var(--s2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:440px;}
+    .modal-title{font-family:'Bebas Neue';font-size:26px;letter-spacing:.04em;margin-bottom:4px;}
+    .modal-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-bottom:22px;}
+    .field-err{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#F87171;margin-bottom:16px;}
+    #toast-wrap{position:fixed;top:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    .toast{padding:11px 16px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeUp .25s ease-out;min-width:220px;pointer-events:none;}
+    .toast-ok{background:rgba(21,128,61,0.95);border:1px solid rgba(34,197,94,0.3);color:#4ADE80;}
+    .toast-err{background:rgba(127,29,29,0.95);border:1px solid rgba(239,68,68,0.3);color:#F87171;}
+    .section-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+    .section-title{font-size:13px;font-weight:700;color:#D1D9E6;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+    .hidden{display:none!important;}
+    @media(max-width:1023px){.sidebar{transform:translateX(-100%);}.main-wrap{margin-left:0;}.mobile-bar{display:flex!important;}}
+    .mobile-bar{display:none;position:sticky;top:0;z-index:40;background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);overflow-x:auto;}
+    .m-btn{flex-shrink:0;padding:11px 14px;font-family:'JetBrains Mono';font-size:11px;color:#475569;cursor:pointer;border:none;background:none;transition:color .2s;white-space:nowrap;}
+    .m-btn.act{color:var(--gold);}
   </style>
 </head>
-<body class="bg-base">
-<div id="toast-container"></div>
+<body>
+<div id="toast-wrap"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
 <!-- LOGIN -->
-<div id="view-login" class="min-h-screen flex items-center justify-center px-4">
+<div id="view-login" class="min-h-screen flex items-center justify-center px-4 relative z-10">
   <div class="w-full max-w-sm fade-up">
-    <div class="text-center mb-8">
-      <a href="/" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">← Kembali</a>
-      <div class="bebas text-5xl mt-4 mb-1" style="background:linear-gradient(135deg,#fff,#FFB703);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
-      <p class="mono text-xs text-slate-600 tracking-wider">ADMIN CONTROL</p>
+    <div class="text-center mb-10">
+      <a href="/" class="mono text-xs" style="color:#334155;">← Kembali</a>
+      <div style="font-family:'Bebas Neue';font-size:54px;background:linear-gradient(135deg,#fff 30%,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.04em;margin:16px 0 4px;">STAFF ANG</div>
+      <div class="mono text-xs tracking-widest" style="color:#334155;">ADMIN CONTROL PANEL</div>
     </div>
-    <div class="stat-card p-7">
-      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
-      <div class="mb-5">
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Username</label>
-        <input id="login-username" type="text" placeholder="admin"
-          class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm mono transition-all"/>
+    <div class="card" style="padding:28px;">
+      <div id="login-error" class="field-err hidden" style="margin-bottom:18px;"></div>
+      <div style="margin-bottom:18px;"><label class="field-label">Username</label><input id="login-username" type="text" placeholder="admin" class="field"/></div>
+      <div style="margin-bottom:24px;">
+        <label class="field-label">Password</label>
+        <div style="position:relative;"><input id="login-password" type="password" placeholder="••••••••" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('login-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
       </div>
-      <div class="mb-6">
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-2">Password</label>
-        <div class="relative">
-          <input id="login-password" type="password" placeholder="••••••••"
-            class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm transition-all"/>
-          <button onclick="togglePwd('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">LIHAT</button>
-        </div>
-      </div>
-      <button id="login-btn" onclick="doLogin()" class="btn-gold w-full py-3.5 rounded-xl text-sm">Masuk Admin</button>
+      <button id="login-btn" onclick="doLogin()" class="btn btn-gold" style="width:100%;padding:13px;">Masuk sebagai Admin</button>
     </div>
-    <p class="mono text-xs text-slate-700 text-center mt-4">⚠ Akses dibatasi oleh IP Whitelist</p>
+    <p class="mono text-xs text-center" style="color:#334155;margin-top:14px;">Akses dibatasi IP Whitelist</p>
   </div>
 </div>
 
 <!-- APP -->
-<div id="view-app" class="hidden min-h-screen flex">
+<div id="view-app" class="hidden" style="min-height:100vh;position:relative;z-index:1;">
 
   <!-- Sidebar -->
-  <aside class="sidebar hidden lg:flex flex-col w-64 sticky top-0 h-screen">
-    <div class="p-5 border-b border-white/5">
-      <div class="bebas text-3xl" style="background:linear-gradient(135deg,#fff,#FFB703);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</div>
-      <p class="mono text-xs text-slate-600 mt-0.5">Admin Control</p>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-text">STAFF ANG</div>
+      <div class="brand-sub">ADMIN PANEL</div>
     </div>
-    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active px-4 py-3 flex items-center gap-3">
-        <span></span><span class="nav-label text-sm font-medium">Dashboard</span>
+    <nav>
+      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active">
+        <span class="nav-icon">◈</span><span class="nav-label">Dashboard</span>
       </div>
-      <div onclick="showPage('monitoring')" id="nav-monitoring" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span></span><span class="nav-label text-sm font-medium">Target Monitoring</span>
+      <div onclick="showPage('monitoring')" id="nav-monitoring" class="nav-item">
+        <span class="nav-icon">◎</span><span class="nav-label">Target Monitoring</span>
       </div>
-      <div onclick="showPage('permissions')" id="nav-permissions" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span></span><span class="nav-label text-sm font-medium">Log Permission</span>
+      <div onclick="showPage('permissions')" id="nav-permissions" class="nav-item">
+        <span class="nav-icon">◷</span><span class="nav-label">Log Permission</span>
       </div>
-      <div onclick="showPage('stafflist')" id="nav-stafflist" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span></span><span class="nav-label text-sm font-medium">Kelola Staff</span>
+      <div onclick="showPage('stafflist')" id="nav-stafflist" class="nav-item">
+        <span class="nav-icon">◫</span><span class="nav-label">Kelola Staff</span>
       </div>
-      <div onclick="showPage('ranking')" id="nav-ranking" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span></span><span class="nav-label text-sm font-medium">Rankings</span>
+      <div onclick="showPage('ranking')" id="nav-ranking" class="nav-item">
+        <span class="nav-icon">◆</span><span class="nav-label">Rankings</span>
       </div>
-      <div class="pt-2 mt-2 border-t border-white/5">
-        <div onclick="showPage('ipwhitelist')" id="nav-ipwhitelist" class="nav-item px-4 py-3 flex items-center gap-3">
-          <span></span><span class="nav-label text-sm font-medium">IP Whitelist</span>
-        </div>
+      <div class="nav-divider"></div>
+      <div onclick="showPage('ipwhitelist')" id="nav-ipwhitelist" class="nav-item">
+        <span class="nav-icon">◉</span><span class="nav-label">IP Whitelist</span>
       </div>
     </nav>
-    <div class="p-4 border-t border-white/5">
-      <p id="user-name" class="text-sm font-semibold text-yellow-400"></p>
-      <p class="mono text-xs text-slate-600 mb-3">Master Admin</p>
-      <button onclick="doLogout()" class="mono text-xs text-slate-600 hover:text-red-400 transition-colors">← Keluar</button>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div>
+          <p id="user-name" style="font-size:13px;font-weight:700;color:#F59E0B;"></p>
+          <p class="mono" style="font-size:10px;color:#475569;">Master Admin</p>
+        </div>
+      </div>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#475569;background:none;border:none;cursor:pointer;">⟵ Keluar</button>
     </div>
   </aside>
 
-  <!-- Main -->
-  <div class="flex-1 flex flex-col min-w-0">
-    <!-- Mobile header -->
-    <header class="lg:hidden sticky top-0 z-40 border-b border-white/5" style="background:rgba(8,12,16,0.97);backdrop-filter:blur(12px)">
-      <div class="px-4 h-14 flex items-center justify-between">
-        <span class="bebas text-2xl" style="background:linear-gradient(135deg,#fff,#FFB703);-webkit-background-clip:text;-webkit-text-fill-color:transparent">STAFF ANG</span>
-        <button onclick="doLogout()" class="mono text-xs text-red-400">Keluar</button>
-      </div>
-      <div class="flex border-t border-white/5 text-xs overflow-x-auto">
-        <button onclick="showPage('dashboard')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Overview</button>
-        <button onclick="showPage('monitoring')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Target</button>
-        <button onclick="showPage('permissions')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Log</button>
-        <button onclick="showPage('stafflist')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Staff</button>
-        <button onclick="showPage('ranking')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">Rank</button>
-        <button onclick="showPage('ipwhitelist')" class="flex-shrink-0 px-3 py-2.5 mono text-slate-400 hover:text-white">🛡️ IP</button>
-      </div>
-    </header>
+  <div class="main-wrap">
+    <!-- Mobile top -->
+    <div class="lg:hidden" style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40;">
+      <div style="font-family:'Bebas Neue';font-size:24px;background:linear-gradient(135deg,#fff,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">STAFF ANG</div>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#EF4444;background:none;border:none;cursor:pointer;">Keluar</button>
+    </div>
+    <div class="mobile-bar">
+      <button class="m-btn act" onclick="showPage('dashboard');setMA(this)">Overview</button>
+      <button class="m-btn" onclick="showPage('monitoring');setMA(this)">Target</button>
+      <button class="m-btn" onclick="showPage('permissions');setMA(this)">Log Izin</button>
+      <button class="m-btn" onclick="showPage('stafflist');setMA(this)">Staff</button>
+      <button class="m-btn" onclick="showPage('ranking');setMA(this)">Ranking</button>
+      <button class="m-btn" onclick="showPage('ipwhitelist');setMA(this)">IP</button>
+    </div>
 
-    <main class="flex-1 p-4 md:p-6 space-y-5">
+    <div class="content">
 
       <!-- DASHBOARD -->
-      <div id="page-dashboard" class="fade-up space-y-5">
-        <div class="flex items-center justify-between">
+      <div id="page-dashboard" class="fade-up">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
           <div>
-            <h1 class="bebas text-3xl">Overview Hari Ini</h1>
-            <p id="dash-date" class="mono text-xs text-slate-500 mt-0.5"></p>
+            <div class="page-title">OVERVIEW</div>
+            <div class="page-sub" id="dash-date"></div>
           </div>
-          <button onclick="loadDashboard()" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors flex items-center gap-1.5">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Refresh
-          </button>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="stat-card p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Total Staff</p><p id="d-total" class="bebas text-4xl text-white">0</p></div>
-          <div class="stat-card card-green p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Target Tercapai</p><p id="d-reached" class="bebas text-4xl text-green-400">0</p></div>
-          <div class="stat-card card-red p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Gagal Target</p><p id="d-failed" class="bebas text-4xl text-red-400">0</p></div>
-          <div class="stat-card card-gold p-5"><p class="mono text-xs text-slate-500 mb-2 uppercase tracking-wider">Belum Mulai</p><p id="d-pending" class="bebas text-4xl text-yellow-400">0</p></div>
-        </div>
-        <div class="stat-card overflow-hidden">
-          <div class="px-5 py-4 border-b border-white/5">
-            <h3 class="font-semibold text-sm">Status Staff — Hari Ini</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px #22C55E;" class="live-pulse"></div>
+            <span class="mono" style="font-size:11px;color:#22C55E;">LIVE</span>
+            <button onclick="loadDashboard()" class="btn btn-ghost btn-icon" style="margin-left:4px;">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead><tr class="border-b border-white/5">
-                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Staff</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Target</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Break</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Toilet</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Smoke</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Status</th>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;" class="lg:grid-cols-4">
+          <div class="card stat-widget"><div class="stat-label">Total Staff</div><div class="stat-value" style="color:#fff;" id="d-total">—</div><div class="stat-sub">terdaftar</div></div>
+          <div class="card card-green stat-widget"><div class="stat-label">Target Tercapai</div><div class="stat-value" style="color:#22C55E;" id="d-reached">—</div><div class="stat-sub">3 member valid</div></div>
+          <div class="card card-red stat-widget"><div class="stat-label">Dalam Proses</div><div class="stat-value" style="color:#EF4444;" id="d-failed">—</div><div class="stat-sub">belum selesai</div></div>
+          <div class="card card-gold stat-widget"><div class="stat-label">Belum Mulai</div><div class="stat-value" style="color:#F59E0B;" id="d-pending">—</div><div class="stat-sub">0 entri hari ini</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Status Staff Hari Ini</span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr>
+                <th>Staff</th><th class="c">Progress</th><th class="c">Break</th>
+                <th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th>
               </tr></thead>
-              <tbody id="dash-table"><tr><td colspan="6" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
+              <tbody id="dash-table"><tr><td colspan="7" style="padding:32px;text-align:center;" class="mono" style="font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <!-- MONITORING -->
-      <div id="page-monitoring" class="fade-up hidden space-y-5">
-        <h1 class="bebas text-3xl">Target Monitoring</h1>
-        <div class="stat-card overflow-hidden">
-          <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-            <h3 class="font-semibold text-sm">Detail Input Member Per Staff</h3>
-            <button onclick="loadMonitoring()" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">Refresh</button>
-          </div>
-          <div id="monitoring-list" class="p-5 space-y-4">
-            <p class="mono text-xs text-slate-600 text-center py-4">Memuat data...</p>
-          </div>
-        </div>
+      <div id="page-monitoring" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">TARGET MONITORING</div><div class="page-sub">Detail entri member per staff hari ini</div></div>
+        <div id="monitoring-list" style="display:flex;flex-direction:column;gap:14px;"></div>
       </div>
 
-      <!-- PERMISSIONS LOG -->
-      <div id="page-permissions" class="fade-up hidden space-y-5">
-        <div class="flex items-center justify-between">
-          <h1 class="bebas text-3xl">Log Permission</h1>
-          <button onclick="loadPermLogs()" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">Refresh</button>
+      <!-- PERMISSIONS -->
+      <div id="page-permissions" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">LOG PERMISSION</div><div class="page-sub">Riwayat izin harian seluruh staff</div></div>
+          <button onclick="loadPermLogs()" class="btn btn-ghost" style="font-size:12px;padding:8px 14px;">Refresh</button>
         </div>
-
-        <!-- Summary cards -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="stat-card p-4 text-center">
-            <p class="mono text-xs text-slate-500 mb-1 uppercase">Izin 1</p>
-            <p id="plog-count1" class="bebas text-3xl text-white">0</p>
-            <p class="mono text-xs text-slate-600">staff pakai</p>
-          </div>
-          <div class="stat-card p-4 text-center">
-            <p class="mono text-xs text-slate-500 mb-1 uppercase">Izin 2</p>
-            <p id="plog-count2" class="bebas text-3xl text-white">0</p>
-            <p class="mono text-xs text-slate-600">staff pakai</p>
-          </div>
-          <div class="stat-card p-4 text-center">
-            <p class="mono text-xs text-slate-500 mb-1 uppercase">Izin 3</p>
-            <p id="plog-count3" class="bebas text-3xl text-white">0</p>
-            <p class="mono text-xs text-slate-600">staff pakai</p>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Izin 1</div><div class="stat-value" style="font-size:36px;color:#fff;" id="plog-count1">0</div><div class="stat-sub">staff gunakan</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Izin 2</div><div class="stat-value" style="font-size:36px;color:#fff;" id="plog-count2">0</div><div class="stat-sub">staff gunakan</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Izin 3</div><div class="stat-value" style="font-size:36px;color:#fff;" id="plog-count3">0</div><div class="stat-sub">staff gunakan</div></div>
         </div>
-
-        <!-- Per staff summary -->
-        <div class="stat-card overflow-hidden">
-          <div class="px-5 py-4 border-b border-white/5">
-            <h3 class="font-semibold text-sm">Status Per Staff</h3>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead><tr class="border-b border-white/5">
-                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Nama Staff</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Izin 1</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Izin 2</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Izin 3</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Total</th>
-              </tr></thead>
-              <tbody id="perm-table"><tr><td colspan="5" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
-            </table>
-          </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="section-head"><span class="section-title">Status Per Staff</span></div>
+          <div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Nama Staff</th><th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Total</th></tr></thead>
+          <tbody id="perm-table"><tr><td colspan="5" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</td></tr></tbody></table></div>
         </div>
-
-        <!-- Detailed log -->
-        <div class="stat-card overflow-hidden">
-          <div class="px-5 py-4 border-b border-white/5">
-            <h3 class="font-semibold text-sm">Riwayat Detail</h3>
-          </div>
-          <div id="perm-detail-log" class="divide-y divide-white/5">
-            <p class="mono text-xs text-slate-600 text-center py-8">Memuat data...</p>
-          </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Riwayat Detail</span></div>
+          <div id="perm-detail-log"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
         </div>
       </div>
 
       <!-- STAFF LIST -->
-      <div id="page-stafflist" class="fade-up hidden space-y-5">
-        <div class="flex items-center justify-between">
-          <h1 class="bebas text-3xl">Kelola Staff</h1>
-          <button onclick="openAddStaff()" class="btn-gold px-5 py-2.5 rounded-xl text-sm">+ Tambah Staff</button>
+      <div id="page-stafflist" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">KELOLA STAFF</div><div class="page-sub">Manajemen akun staff</div></div>
+          <button onclick="openAddStaff()" class="btn btn-gold">+ Tambah Staff</button>
         </div>
-        <div class="stat-card overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead><tr class="border-b border-white/5">
-                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Nama</th>
-                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Username</th>
-                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">ID Karyawan</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Status</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase" colspan="4">Aksi</th>
-              </tr></thead>
-              <tbody id="staff-table"><tr><td colspan="8" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
+        <div class="card">
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr><th>Nama</th><th>Username</th><th>ID Karyawan</th><th class="c">Status</th><th class="c">Aksi</th></tr></thead>
+              <tbody id="staff-table"><tr><td colspan="5" style="padding:32px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <!-- RANKING -->
-      <div id="page-ranking" class="fade-up hidden space-y-5">
-        <h1 class="bebas text-3xl">Rankings Hari Ini</h1>
-        <div id="ranking-list" class="space-y-3">
-          <p class="mono text-xs text-slate-600 text-center py-8">Memuat data...</p>
-        </div>
+      <div id="page-ranking" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">RANKINGS</div><div class="page-sub">Performa staff hari ini</div></div>
+        <div class="card" id="ranking-list"></div>
       </div>
 
       <!-- IP WHITELIST -->
-      <div id="page-ipwhitelist" class="fade-up hidden space-y-5">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="bebas text-3xl">IP Whitelist</h1>
-            <p class="mono text-xs text-slate-500 mt-0.5">Hanya IP terdaftar yang bisa login admin</p>
-          </div>
-          <button onclick="whitelistMyIP()" class="btn-gold px-5 py-2.5 rounded-xl text-sm">+ Whitelist IP Saya</button>
-        </div>
-
-        <!-- Info Box -->
-        <div class="stat-card card-gold p-5">
-          <div class="flex items-start gap-3">
-            <span class="text-2xl"></span>
-            <div>
-              <p class="font-semibold text-sm text-yellow-400 mb-1">Cara Kerja IP Whitelist</p>
-              <p class="mono text-xs text-slate-500 leading-relaxed">
-                Database kosong = semua IP bisa login (mode setup).<br>
-                Setelah ada IP terdaftar = hanya IP itu yang bisa login admin.<br>
-                Tambahkan semua IP kantor terlebih dahulu sebelum mengaktifkan.
-              </p>
+      <div id="page-ipwhitelist" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">IP WHITELIST</div><div class="page-sub">Kelola akses IP untuk halaman admin</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="md:grid-cols-2">
+          <div class="card">
+            <div class="section-head"><span class="section-title">IP Anda Saat Ini</span><span class="badge bg" id="ip-count">— IP</span></div>
+            <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
+              <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+                <div><div class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">IP AKTIF ANDA</div><div id="my-ip" class="mono" style="font-size:14px;font-weight:700;color:#F59E0B;">—</div></div>
+                <button onclick="whitelistMyIP()" class="btn btn-gold" style="font-size:11px;padding:8px 12px;">+ Tambah IP Ini</button>
+              </div>
+              <div>
+                <label class="field-label">Tambah IP Manual</label>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <input id="new-ip" type="text" placeholder="192.168.1.100" class="field"/>
+                  <div style="display:flex;gap:8px;">
+                    <input id="new-ip-label" type="text" placeholder="Label (contoh: Kantor)" class="field" style="flex:1;"/>
+                    <button onclick="addIPManual()" class="btn btn-gold" style="font-size:11px;padding:10px 14px;white-space:nowrap;">Tambah</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- IP Saya -->
-        <div class="stat-card p-5 flex items-center justify-between">
-          <div>
-            <p class="mono text-xs text-slate-500 mb-1 uppercase tracking-wider">IP Publik Kamu Sekarang</p>
-            <p id="my-ip" class="mono text-lg font-bold text-white">Memuat...</p>
-          </div>
-          <button onclick="whitelistMyIP()" class="btn-outline px-4 py-2 rounded-xl text-sm mono">Tambah IP Ini</button>
-        </div>
-
-        <!-- Form Tambah Manual -->
-        <div class="stat-card p-5">
-          <h3 class="font-semibold text-sm mb-4">Tambah IP Manual</h3>
-          <div class="flex gap-3">
-            <input id="new-ip" type="text" placeholder="contoh: 103.21.45.123"
-              class="flex-1 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all" />
-            <input id="new-ip-label" type="text" placeholder="Label (contoh: Kantor Pusat)"
-              class="flex-1 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all" />
-            <button onclick="addIPManual()" class="btn-gold px-5 py-2.5 rounded-xl text-sm whitespace-nowrap">Tambah</button>
-          </div>
-        </div>
-
-        <!-- List -->
-        <div class="stat-card overflow-hidden">
-          <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-            <h3 class="font-semibold text-sm">IP Terdaftar</h3>
-            <span id="ip-count" class="mono text-xs text-slate-600">0 IP</span>
-          </div>
-          <div id="ip-list" class="divide-y divide-white/5">
-            <p class="mono text-xs text-slate-600 text-center py-8">Memuat data...</p>
-          </div>
-        </div>
-
-        <!-- Warning -->
-        <div class="stat-card card-red p-4">
-          <div class="flex items-start gap-3">
-            <span class="text-xl">!</span>
-            <div>
-              <p class="font-semibold text-sm text-red-400 mb-1">Perhatian</p>
-              <p class="mono text-xs text-slate-500 leading-relaxed">
-                Jangan hapus semua IP jika kamu tidak tahu IP publik kamu.<br>
-                Kalau terkunci, tambahkan IP baru lewat Render Shell atau MongoDB Atlas.
-              </p>
-            </div>
+          <div class="card">
+            <div class="section-head"><span class="section-title">Daftar IP Terdaftar</span></div>
+            <div id="ip-list"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
           </div>
         </div>
       </div>
 
-    </main>
-  </div>
-</div>
-
-<!-- Modal Tambah Staff -->
-<!-- Modal Tambah Staff -->
-<div id="modal-staff" class="modal-bg hidden">
-  <div class="modal-box">
-    <h2 class="bebas text-2xl mb-5 text-yellow-400">Tambah Staff Baru</h2>
-    <div id="modal-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
-    <div class="space-y-4">
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
-        <input id="s-name" type="text" placeholder="contoh: Ahmad Rizky" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
-      </div>
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
-        <input id="s-username" type="text" placeholder="contoh: ahmad01" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all"/>
-      </div>
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">ID Karyawan</label>
-        <input id="s-empid" type="text" placeholder="contoh: EMP001" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all"/>
-      </div>
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
-        <div class="relative">
-          <input id="s-password" type="password" placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
-          <button onclick="togglePwd('s-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">LIHAT</button>
-        </div>
-      </div>
-    </div>
-    <div class="flex gap-3 mt-6">
-      <button onclick="closeModal('modal-staff')" class="btn-outline flex-1 py-2.5 rounded-xl text-sm">Batal</button>
-      <button onclick="submitAddStaff()" class="btn-gold flex-1 py-2.5 rounded-xl text-sm">Buat Staff</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Edit Staff -->
-<div id="modal-edit" class="modal-bg hidden">
+<!-- MODAL: Tambah Staff -->
+<div id="modal-staff" class="modal-overlay hidden">
   <div class="modal-box">
-    <h2 class="bebas text-2xl mb-5 text-yellow-400">Edit Data Staff</h2>
-    <div id="modal-edit-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
+    <div class="modal-title" style="color:#F59E0B;">Tambah Staff Baru</div>
+    <div class="modal-sub">Buat akun staff baru</div>
+    <div id="modal-error" class="field-err hidden"></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Nama Lengkap</label><input id="s-name" type="text" placeholder="contoh: Ahmad Rizky" class="field"/></div>
+      <div><label class="field-label">Username</label><input id="s-username" type="text" placeholder="contoh: ahmad01" class="field mono"/></div>
+      <div><label class="field-label">ID Karyawan</label><input id="s-empid" type="text" placeholder="contoh: EMP001" class="field mono"/></div>
+      <div><label class="field-label">Password</label>
+        <div style="position:relative;"><input id="s-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('s-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-staff')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitAddStaff()" class="btn btn-gold" style="flex:1;">Buat Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Staff -->
+<div id="modal-edit" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title" style="color:#93C5FD;">Edit Data Staff</div>
+    <div id="modal-edit-sub" class="modal-sub"></div>
+    <div id="modal-edit-error" class="field-err hidden"></div>
     <input id="edit-id" type="hidden"/>
-    <div class="space-y-4">
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
-        <input id="edit-name" type="text" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
-      </div>
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
-        <input id="edit-username" type="text" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all"/>
-      </div>
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">ID Karyawan</label>
-        <input id="edit-empid" type="text" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mono transition-all"/>
-      </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Nama Lengkap</label><input id="edit-name" type="text" class="field"/></div>
+      <div><label class="field-label">Username</label><input id="edit-username" type="text" class="field mono"/></div>
+      <div><label class="field-label">ID Karyawan</label><input id="edit-empid" type="text" class="field mono"/></div>
     </div>
-    <div class="flex gap-3 mt-6">
-      <button onclick="closeModal('modal-edit')" class="btn-outline flex-1 py-2.5 rounded-xl text-sm">Batal</button>
-      <button onclick="submitEditStaff()" class="btn-gold flex-1 py-2.5 rounded-xl text-sm">Simpan</button>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-edit')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitEditStaff()" class="btn btn-gold" style="flex:1;">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Reset Password -->
-<div id="modal-reset" class="modal-bg hidden">
+<!-- MODAL: Reset Password -->
+<div id="modal-reset" class="modal-overlay hidden">
   <div class="modal-box">
-    <h2 class="bebas text-2xl mb-2 text-yellow-400">Reset Password</h2>
-    <p id="modal-reset-name" class="mono text-xs text-slate-500 mb-5"></p>
-    <div id="modal-reset-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800/30 text-red-400 text-sm mono"></div>
+    <div class="modal-title" style="color:#F59E0B;">Reset Password</div>
+    <div id="modal-reset-sub" class="modal-sub"></div>
+    <div id="modal-reset-error" class="field-err hidden"></div>
     <input id="reset-id" type="hidden"/>
-    <div class="space-y-4">
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Password Baru</label>
-        <div class="relative">
-          <input id="reset-password" type="password" placeholder="Min. 6 karakter" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
-          <button onclick="togglePwd('reset-password')" class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">LIHAT</button>
-        </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Password Baru</label>
+        <div style="position:relative;"><input id="reset-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('reset-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
       </div>
-      <div>
-        <label class="block mono text-xs text-slate-500 uppercase tracking-wider mb-1.5">Konfirmasi Password</label>
-        <input id="reset-confirm" type="password" placeholder="Ulangi password" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-sm transition-all"/>
-      </div>
+      <div><label class="field-label">Konfirmasi Password</label><input id="reset-confirm" type="password" placeholder="Ulangi password" class="field"/></div>
     </div>
-    <div class="flex gap-3 mt-6">
-      <button onclick="closeModal('modal-reset')" class="btn-outline flex-1 py-2.5 rounded-xl text-sm">Batal</button>
-      <button onclick="submitResetPassword()" class="btn-gold flex-1 py-2.5 rounded-xl text-sm">Reset Password</button>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-reset')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitResetPassword()" class="btn btn-gold" style="flex:1;">Reset Password</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Konfirmasi Hapus -->
-<div id="modal-delete" class="modal-bg hidden">
+<!-- MODAL: Hapus Staff -->
+<div id="modal-delete" class="modal-overlay hidden">
   <div class="modal-box">
-    <h2 class="bebas text-2xl mb-2 text-red-400">Hapus Akun Staff</h2>
-    <p id="modal-delete-name" class="mono text-xs text-slate-500 mb-5"></p>
-    <div class="stat-card card-red p-4 mb-5">
-      <p class="mono text-xs text-red-400">! Aksi ini permanen dan tidak bisa dibatalkan. Semua data staff ini akan terhapus.</p>
+    <div class="modal-title" style="color:#EF4444;">Hapus Akun Staff</div>
+    <div id="modal-delete-sub" class="modal-sub"></div>
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:10px;padding:14px;margin-bottom:22px;">
+      <p class="mono" style="font-size:11px;color:#F87171;">⚠ Aksi ini permanen. Semua data entri staff ikut terhapus.</p>
     </div>
     <input id="delete-id" type="hidden"/>
-    <div class="flex gap-3">
-      <button onclick="closeModal('modal-delete')" class="btn-outline flex-1 py-2.5 rounded-xl text-sm">Batal</button>
-      <button onclick="submitDeleteStaff()" class="btn-red flex-1 py-2.5 rounded-xl text-sm">Hapus Permanen</button>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeModal('modal-delete')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitDeleteStaff()" class="btn btn-red" style="flex:1;">Hapus Permanen</button>
     </div>
   </div>
 </div>
 
 <script src="/shared/api.js"></script>
 <script>
-// Helpers
 function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
-function showToast(msg,type='success'){
-  const c=document.getElementById('toast-container');
-  const t=document.createElement('div');
-  t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);
-  setTimeout(()=>t.remove(),3500);
+function showToast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.action-wrap'))document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
+});
+function toggleAM(id,e){
+  e.stopPropagation();
+  document.querySelectorAll('.action-menu').forEach(m=>{if(m.id!==id)m.classList.remove('open');});
+  document.getElementById(id).classList.toggle('open');
 }
 
-// Auth
 async function doLogin(){
   const username=document.getElementById('login-username').value.trim();
   const password=document.getElementById('login-password').value;
-  const btn=document.getElementById('login-btn');
-  const errEl=document.getElementById('login-error');
+  const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
   if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
   btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
   const data=await api.post('/auth/login/admin',{username,password});
   if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
-  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk Admin';}
+  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';}
 }
 function doLogout(){api.logout();}
-
 function initApp(user){
   document.getElementById('view-login').classList.add('hidden');
   document.getElementById('view-app').classList.remove('hidden');
   document.getElementById('user-name').textContent=user.name;
+  document.getElementById('user-avatar').textContent=user.name?user.name[0].toUpperCase():'A';
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   loadDashboard();
 }
 
 function showPage(page){
-  const pages=['dashboard','monitoring','permissions','stafflist','ranking','ipwhitelist'];
-  pages.forEach(p=>{
+  ['dashboard','monitoring','permissions','stafflist','ranking','ipwhitelist'].forEach(p=>{
     document.getElementById(`page-${p}`)?.classList.add('hidden');
     document.getElementById(`nav-${p}`)?.classList.remove('active');
   });
@@ -524,172 +445,139 @@ function showPage(page){
   else if(page==='ipwhitelist')loadIPWhitelist();
 }
 
-// Dashboard
 async function loadDashboard(){
-  const data=await api.get('/members/admin/all');
-  if(!data.success)return;
-  const staff=data.data;
-  const total=staff.length;
-  const reached=staff.filter(s=>s.targetReached).length;
-  const failed=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
-  const pending=staff.filter(s=>s.validCount===0).length;
-  document.getElementById('d-total').textContent=total;
-  document.getElementById('d-reached').textContent=reached;
-  document.getElementById('d-failed').textContent=failed;
-  document.getElementById('d-pending').textContent=pending;
-
-  const permsData=await api.get('/permissions/admin/logs');
-  const permsMap={};
-  if(permsData.success)permsData.data.forEach(p=>{permsMap[p.staffId]=p;});
-
+  const[mData,pData]=await Promise.all([api.get('/members/admin/all'),api.get('/permissions/admin/logs')]);
+  if(!mData.success)return;
+  const staff=mData.data;
+  document.getElementById('d-total').textContent=staff.length;
+  document.getElementById('d-reached').textContent=staff.filter(s=>s.targetReached).length;
+  document.getElementById('d-failed').textContent=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
+  document.getElementById('d-pending').textContent=staff.filter(s=>s.validCount===0).length;
+  const pm={};
+  if(pData.success)pData.data.forEach(p=>{
+    if(!pm[p.staffName])pm[p.staffName]={i1:false,i2:false,i3:false};
+    if(p.type==='toilet')pm[p.staffName].i1=true;
+    if(p.type==='smoke_1')pm[p.staffName].i2=true;
+    if(p.type==='smoke_2')pm[p.staffName].i3=true;
+  });
+  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
   document.getElementById('dash-table').innerHTML=staff.length===0
-    ?'<tr><td colspan="6" class="text-center py-8 mono text-xs text-slate-600">Belum ada data staff.</td></tr>'
+    ?'<tr><td colspan="7" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
     :staff.map(s=>{
-      const p=permsMap[s.staffId]||{};
-      const status=s.validCount===0
-        ?'<span class="badge badge-gray">Belum Mulai</span>'
-        :s.targetReached
-          ?'<span class="badge badge-green">Target ✓</span>'
-          :'<span class="badge badge-yellow">Dalam Proses</span>';
+      const p=pm[s.name]||{};
       const pct=Math.min(100,Math.round((s.validCount/3)*100));
-      return `<tr class="table-row">
-        <td class="px-5 py-3.5">
-          <p class="font-semibold text-sm">${s.name}</p>
-          <p class="mono text-xs text-slate-600">${s.employeeId}</p>
-        </td>
-        <td class="px-4 py-3.5 text-center">
-          <div class="flex flex-col items-center gap-1.5">
-            <span class="mono text-sm font-bold">${s.validCount}<span class="text-slate-600">/3</span></span>
-            <div class="progress-track w-20"><div class="progress-fill ${s.targetReached?'done':''}" style="width:${pct}%"></div></div>
-          </div>
-        </td>
-        <td class="px-4 py-3.5 text-center"><span class="mono text-sm ${s.targetReached?'text-green-400':'text-yellow-400'}">${s.breakHours}j</span></td>
-        <td class="px-4 py-3.5 text-center"><span class="${p.toiletUsed?'text-red-400':'text-slate-600'} text-lg">${p.toiletUsed?'✓':'—'}</span></td>
-        <td class="px-4 py-3.5 text-center"><span class="mono text-xs text-slate-400">${[p.smoke1Used,p.smoke2Used].filter(Boolean).length}/2</span></td>
-        <td class="px-4 py-3.5 text-center">${status}</td>
-      </tr>`;
+      const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
+      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
+        <td class="c" style="min-width:120px;"><div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#334155;">/3</span></div><div class="prog-track" style="width:100px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div></td>
+        <td class="c"><span style="font-family:'Bebas Neue';font-size:18px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
+        <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
+        <td class="c">${st}</td></tr>`;
     }).join('');
 }
 
-// Monitoring
 async function loadMonitoring(){
   const data=await api.get('/members/admin/all');
   if(!data.success)return;
-  document.getElementById('monitoring-list').innerHTML=data.data.length===0
-    ?'<p class="mono text-xs text-slate-600 text-center py-4">Belum ada data.</p>'
-    :data.data.map(s=>`
-      <div class="stat-card p-4 mb-3">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <span class="font-semibold">${s.name}</span>
-            <span class="mono text-xs text-slate-600 ml-2">${s.employeeId}</span>
-          </div>
-          <span class="badge ${s.targetReached?'badge-green':s.validCount>0?'badge-yellow':'badge-gray'}">${s.targetReached?'Target ✓':s.validCount>0?'Proses':'Belum'}</span>
+  const el=document.getElementById('monitoring-list');
+  if(!data.data.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</div>';return;}
+  el.innerHTML=data.data.map(s=>{
+    const pct=Math.min(100,Math.round((s.validCount/3)*100));
+    const mems=s.members&&s.members.length?s.members.map((m,i)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:9px;padding:9px 13px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span class="mono" style="font-size:10px;color:#334155;">#${i+1}</span>
+          <span class="mono" style="font-size:13px;font-weight:700;">${m.memberId}</span>
         </div>
-        <div class="progress-track mb-2"><div class="progress-fill ${s.targetReached?'done':''}" style="width:${Math.round((s.validCount/3)*100)}%"></div></div>
-        <p class="mono text-xs text-slate-600 mb-3">${s.validCount}/3 member valid · Break ${s.breakHours} jam</p>
-        ${s.members&&s.members.length>0?`<div class="space-y-1.5">${s.members.map((m,i)=>`
-          <div class="flex items-center justify-between bg-white/3 rounded-lg px-3 py-2">
-            <span class="mono text-xs text-slate-500">#${i+1} ${m.memberId}</span>
-            <div class="flex items-center gap-2">
-              <span class="mono text-xs text-green-400">${formatCurrency(m.deposit)}</span>
-              <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${m.isValid?'bg-green-900/50 text-green-400':'bg-red-900/50 text-red-400'}">${m.isValid?'✓':'✕'}</span>
-            </div>
-          </div>`).join('')}</div>`:'<p class="mono text-xs text-slate-700">Belum ada entri.</p>'}
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span class="mono" style="font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
+          <span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span>
+        </div>
+      </div>`).join('')
+      :'<p class="mono" style="font-size:11px;color:#334155;padding:4px 0;">Belum ada entri.</p>';
+    return `<div class="card">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></div>
+        <span class="badge ${s.targetReached?'bgg':s.validCount>0?'bgo':'bg'}">${s.targetReached?'TARGET ✓':s.validCount>0?'PROSES':'BELUM'}</span>
       </div>
-    `).join('');
+      <div style="padding:14px 18px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span class="mono" style="font-size:11px;color:#475569;">${s.validCount}/3 member · Break ${s.breakHours} jam</span>
+          <span class="mono" style="font-size:11px;color:#475569;">${pct}%</span>
+        </div>
+        <div class="prog-track" style="margin-bottom:12px;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;">${mems}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// Permission Logs
 async function loadPermLogs(){
   const data=await api.get('/permissions/admin/logs');
   if(!data.success)return;
   const logs=data.data;
-
-  const typeMap={'toilet':0,'smoke_1':0,'smoke_2':0};
-  logs.forEach(l=>{ if(typeMap[l.type]!==undefined) typeMap[l.type]++; });
-  document.getElementById('plog-count1').textContent=typeMap['toilet'];
-  document.getElementById('plog-count2').textContent=typeMap['smoke_1'];
-  document.getElementById('plog-count3').textContent=typeMap['smoke_2'];
-
-  const staffMap={};
+  const tc={'toilet':0,'smoke_1':0,'smoke_2':0};
+  logs.forEach(l=>{if(tc[l.type]!==undefined)tc[l.type]++;});
+  document.getElementById('plog-count1').textContent=tc['toilet'];
+  document.getElementById('plog-count2').textContent=tc['smoke_1'];
+  document.getElementById('plog-count3').textContent=tc['smoke_2'];
+  const sm={};
   logs.forEach(l=>{
-    const key=l.staffName||l.username||'Unknown';
-    if(!staffMap[key]) staffMap[key]={name:l.staffName||'—',empId:l.employeeId||'—',izin1:null,izin2:null,izin3:null};
-    if(l.type==='toilet') staffMap[key].izin1=l.usedAt;
-    if(l.type==='smoke_1') staffMap[key].izin2=l.usedAt;
-    if(l.type==='smoke_2') staffMap[key].izin3=l.usedAt;
+    const k=l.staffName||l.username||'?';
+    if(!sm[k])sm[k]={name:l.staffName||'—',empId:l.employeeId||'—',i1:null,i2:null,i3:null};
+    if(l.type==='toilet')sm[k].i1=l.usedAt;
+    if(l.type==='smoke_1')sm[k].i2=l.usedAt;
+    if(l.type==='smoke_2')sm[k].i3=l.usedAt;
   });
-
-  const staffRows=Object.values(staffMap);
-  const fmt=(t)=>t?'<span class="badge badge-green">'+new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'</span>':'<span class="text-slate-700 mono text-xs">—</span>';
-
-  document.getElementById('perm-table').innerHTML=staffRows.length===0
-    ?'<tr><td colspan="5" class="text-center py-8 mono text-xs text-slate-600">Belum ada izin digunakan hari ini.</td></tr>'
-    :staffRows.map(s=>{
-      const total=[s.izin1,s.izin2,s.izin3].filter(Boolean).length;
-      return '<tr class="table-row">'
-        +'<td class="px-5 py-3.5"><p class="font-semibold text-sm">'+s.name+'</p><p class="mono text-xs text-slate-600">'+s.empId+'</p></td>'
-        +'<td class="px-4 py-3.5 text-center">'+fmt(s.izin1)+'</td>'
-        +'<td class="px-4 py-3.5 text-center">'+fmt(s.izin2)+'</td>'
-        +'<td class="px-4 py-3.5 text-center">'+fmt(s.izin3)+'</td>'
-        +'<td class="px-4 py-3.5 text-center"><span class="badge '+(total===3?'badge-green':total>0?'badge-yellow':'badge-gray')+'">'+total+'/3</span></td>'
-        +'</tr>';
+  const fmt=t=>t?`<span class="badge bgg">${new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>`:'<span style="color:#1E293B;">—</span>';
+  const rows=Object.values(sm);
+  document.getElementById('perm-table').innerHTML=rows.length===0
+    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada izin hari ini.</td></tr>'
+    :rows.map(s=>{
+      const tot=[s.i1,s.i2,s.i3].filter(Boolean).length;
+      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.empId}</p></td>
+        <td class="c">${fmt(s.i1)}</td><td class="c">${fmt(s.i2)}</td><td class="c">${fmt(s.i3)}</td>
+        <td class="c"><span class="badge ${tot===3?'bgr':tot>0?'bgo':'bg'}">${tot}/3</span></td></tr>`;
     }).join('');
-
-  const labelMap={'toilet':'Izin 1','smoke_1':'Izin 2','smoke_2':'Izin 3'};
+  const lm={'toilet':'Izin 1','smoke_1':'Izin 2','smoke_2':'Izin 3'};
   document.getElementById('perm-detail-log').innerHTML=logs.length===0
-    ?'<p class="mono text-xs text-slate-600 text-center py-8">Belum ada data.</p>'
-    :logs.map(l=>'<div class="flex items-center justify-between px-5 py-3 hover:bg-white/2 transition-colors">'
-        +'<div class="flex items-center gap-3">'
-        +'<span class="w-7 h-7 rounded-lg bg-yellow-900/30 border border-yellow-800/20 flex items-center justify-center mono text-xs text-yellow-400 font-bold">'+(l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3')+'</span>'
-        +'<div><p class="text-sm font-semibold">'+(l.staffName||'—')+'</p>'
-        +'<p class="mono text-xs text-slate-600">'+(labelMap[l.type]||l.type)+' · '+(l.employeeId||'—')+'</p></div>'
-        +'</div>'
-        +'<span class="mono text-xs text-slate-500">'+new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'</span>'
-        +'</div>'
-    ).join('');
+    ?'<p style="padding:28px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</p>'
+    :logs.map(l=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:28px;height:28px;border-radius:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:15px;color:#F59E0B;">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</div>
+          <div><p style="font-size:13px;font-weight:700;">${l.staffName||'—'}</p><p class="mono" style="font-size:10px;color:#475569;">${lm[l.type]} · ${l.employeeId||'—'}</p></div>
+        </div>
+        <span class="mono" style="font-size:11px;color:#475569;">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+      </div>`).join('');
 }
 
-// Staff List
 async function loadStaffList(){
   const data=await api.get('/staff');
   if(!data.success)return;
-  const staffList=data.data.filter(s=>s.role==='staff');
-  document.getElementById('staff-table').innerHTML=staffList.length===0
-    ?'<tr><td colspan="8" class="text-center py-8 mono text-xs text-slate-600">Belum ada staff. Tambah staff baru.</td></tr>'
-    :staffList.map(s=>`<tr class="table-row">
-      <td class="px-5 py-3.5">
-        <p class="font-semibold text-sm">${s.name}</p>
-      </td>
-      <td class="px-5 py-3.5"><span class="mono text-sm text-slate-400">${s.username}</span></td>
-      <td class="px-5 py-3.5"><span class="mono text-xs text-yellow-400">${s.employeeId}</span></td>
-      <td class="px-4 py-3.5 text-center">
-        <span class="badge ${s.isActive?'badge-green':'badge-red'}">${s.isActive?'Aktif':'Nonaktif'}</span>
-      </td>
-      <td class="px-3 py-3.5 text-center">
-        <button onclick="openEditStaff('${s._id}','${s.name}','${s.username}','${s.employeeId}')"
-          class="mono text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1 rounded-lg hover:bg-blue-950/30">
-          Edit
-        </button>
-      </td>
-      <td class="px-3 py-3.5 text-center">
-        <button onclick="openResetPassword('${s._id}','${s.name}')"
-          class="mono text-xs text-yellow-400 hover:text-yellow-300 transition-colors px-2 py-1 rounded-lg hover:bg-yellow-950/30">
-          Reset Sandi
-        </button>
-      </td>
-      <td class="px-3 py-3.5 text-center">
-        <button onclick="toggleStaff('${s._id}',${s.isActive})"
-          class="mono text-xs ${s.isActive?'text-orange-400 hover:text-orange-300':'text-green-400 hover:text-green-300'} transition-colors px-2 py-1 rounded-lg hover:bg-slate-800/50">
-          ${s.isActive?'Kunci':'Buka Kunci'}
-        </button>
-      </td>
-      <td class="px-3 py-3.5 text-center">
-        <button onclick="openDeleteStaff('${s._id}','${s.name}')"
-          class="mono text-xs text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded-lg hover:bg-red-950/30">
-          Hapus
-        </button>
+  const list=data.data.filter(s=>s.role==='staff');
+  const colors=['#7C3AED','#0369A1','#065F46','#9D174D','#92400E','#1D4ED8','#047857','#B45309'];
+  document.getElementById('staff-table').innerHTML=list.length===0
+    ?'<tr><td colspan="5" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
+    :list.map((s,i)=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:9px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:#fff;flex-shrink:0;">${s.name?s.name[0].toUpperCase():'?'}</div>
+        <p style="font-weight:700;font-size:13px;">${s.name}</p>
+      </div></td>
+      <td><span class="mono" style="font-size:12px;color:#64748B;">${s.username}</span></td>
+      <td><span class="mono" style="font-size:11px;color:#F59E0B;">${s.employeeId}</span></td>
+      <td class="c"><span class="badge ${s.isActive?'bgg':'bgr'}">${s.isActive?'AKTIF':'KUNCI'}</span></td>
+      <td class="c">
+        <div class="action-wrap">
+          <div class="action-btn" onclick="toggleAM('am-${s._id}',event)">⋯</div>
+          <div class="action-menu" id="am-${s._id}">
+            <button class="action-menu-item ai-edit" onclick="openEditStaff('${s._id}','${s.name}','${s.username}','${s.employeeId}')">✎ Edit Data</button>
+            <button class="action-menu-item ai-reset" onclick="openResetPassword('${s._id}','${s.name}')">⟳ Reset Sandi</button>
+            <div class="action-menu-div"></div>
+            <button class="action-menu-item ${s.isActive?'ai-lock':'ai-unlock'}" onclick="doToggleStaff('${s._id}',${s.isActive})">${s.isActive?'⊠ Kunci Akun':'⊙ Buka Kunci'}</button>
+            <div class="action-menu-div"></div>
+            <button class="action-menu-item ai-del" onclick="openDeleteStaff('${s._id}','${s.name}')">✕ Hapus Akun</button>
+          </div>
+        </div>
       </td>
     </tr>`).join('');
 }
@@ -707,18 +595,18 @@ async function submitAddStaff(){
   const errEl=document.getElementById('modal-error');
   if(!name||!username||!employeeId||!password){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
   const data=await api.post('/staff',{name,username,employeeId,password,role:'staff'});
-  if(data.success){closeModal('modal-staff');showToast(`Staff ${name} berhasil ditambahkan!`);loadStaffList();}
+  if(data.success){closeModal('modal-staff');showToast(`Staff ${name} ditambahkan!`);loadStaffList();}
   else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
 }
-
-// Edit Staff
 function openEditStaff(id,name,username,employeeId){
   document.getElementById('edit-id').value=id;
   document.getElementById('edit-name').value=name;
   document.getElementById('edit-username').value=username;
   document.getElementById('edit-empid').value=employeeId;
+  document.getElementById('modal-edit-sub').textContent='Edit data: '+name;
   document.getElementById('modal-edit-error').classList.add('hidden');
   document.getElementById('modal-edit').classList.remove('hidden');
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
 }
 async function submitEditStaff(){
   const id=document.getElementById('edit-id').value;
@@ -728,18 +616,17 @@ async function submitEditStaff(){
   const errEl=document.getElementById('modal-edit-error');
   if(!name||!username||!employeeId){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
   const data=await api.put(`/staff/${id}`,{name,username,employeeId});
-  if(data.success){closeModal('modal-edit');showToast(`Data ${name} berhasil diupdate!`);loadStaffList();}
+  if(data.success){closeModal('modal-edit');showToast(`Data ${name} diupdate!`);loadStaffList();}
   else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
 }
-
-// Reset Password
 function openResetPassword(id,name){
   document.getElementById('reset-id').value=id;
-  document.getElementById('modal-reset-name').textContent='Staff: '+name;
+  document.getElementById('modal-reset-sub').textContent='Reset password: '+name;
   document.getElementById('modal-reset-error').classList.add('hidden');
   document.getElementById('reset-password').value='';
   document.getElementById('reset-confirm').value='';
   document.getElementById('modal-reset').classList.remove('hidden');
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
 }
 async function submitResetPassword(){
   const id=document.getElementById('reset-id').value;
@@ -747,117 +634,87 @@ async function submitResetPassword(){
   const confirm=document.getElementById('reset-confirm').value;
   const errEl=document.getElementById('modal-reset-error');
   if(!password||password.length<6){errEl.textContent='Password minimal 6 karakter.';errEl.classList.remove('hidden');return;}
-  if(password!==confirm){errEl.textContent='Konfirmasi password tidak cocok.';errEl.classList.remove('hidden');return;}
+  if(password!==confirm){errEl.textContent='Konfirmasi tidak cocok.';errEl.classList.remove('hidden');return;}
   const data=await api.put(`/staff/${id}`,{password});
   if(data.success){closeModal('modal-reset');showToast('Password berhasil direset!');}
   else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
 }
-
-// Lock/Unlock Staff
-async function toggleStaff(id,isActive){
-  const aksi=isActive?'kunci':'buka kunci';
-  if(!confirm(`${isActive?'Kunci':'Buka kunci'} akun staff ini?`))return;
+async function doToggleStaff(id,isActive){
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
   const data=await api.put(`/staff/${id}`,{isActive:!isActive});
-  if(data.success){showToast(`Akun berhasil di${aksi}.`);loadStaffList();}
-  else showToast(data.message,'error');
+  if(data.success){showToast(`Akun berhasil ${isActive?'dikunci':'dibuka kunci'}.`);loadStaffList();}
+  else showToast(data.message,'err');
 }
-
-// Delete Staff
 function openDeleteStaff(id,name){
   document.getElementById('delete-id').value=id;
-  document.getElementById('modal-delete-name').textContent='Akan menghapus: '+name;
+  document.getElementById('modal-delete-sub').textContent='Akan menghapus: '+name;
   document.getElementById('modal-delete').classList.remove('hidden');
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
 }
 async function submitDeleteStaff(){
   const id=document.getElementById('delete-id').value;
   const data=await api.delete(`/staff/${id}`);
-  if(data.success){closeModal('modal-delete');showToast('Akun staff berhasil dihapus.');loadStaffList();}
-  else showToast(data.message||'Gagal menghapus.','error');
+  if(data.success){closeModal('modal-delete');showToast('Akun staff dihapus.');loadStaffList();}
+  else showToast(data.message||'Gagal.','err');
 }
 
-// Ranking
 async function loadRanking(){
   const data=await api.get('/staff/ranking/today');
   if(!data.success)return;
-  const medals=['1','2','3'];
-  document.getElementById('ranking-list').innerHTML=data.data.length===0
-    ?'<p class="mono text-xs text-slate-600 text-center py-8">Belum ada data hari ini.</p>'
-    :data.data.map((s,i)=>`
-      <div class="stat-card flex items-center gap-4 px-5 py-4 ${i<3?'card-gold':''}" style="${i===0?'border-color:rgba(255,183,3,0.3)':''}">
-        <span class="text-3xl w-10 text-center">${`#${i+1}`}</span>
-        <div class="flex-1">
-          <p class="font-semibold">${s.name}</p>
-          <p class="mono text-xs text-slate-600">${s.employeeId}</p>
-        </div>
-        <div class="text-right">
-          <p class="bebas text-2xl ${s.targetReached?'text-green-400':'text-slate-400'}">${s.validCount}<span class="text-slate-600">/3</span></p>
-          <p class="mono text-xs text-slate-600">Break ${s.breakHours}j</p>
-        </div>
-        <span class="badge ${s.targetReached?'badge-green':'badge-gray'}">${s.targetReached?'Target':'Proses'}</span>
+  const el=document.getElementById('ranking-list');
+  if(!data.data.length){el.innerHTML='<p style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</p>';return;}
+  el.innerHTML=data.data.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='none'">
+      <div style="font-family:'Bebas Neue';font-size:24px;width:36px;text-align:center;color:${i<3?'#F59E0B':'#334155'};">#${i+1}</div>
+      <div style="flex:1;"><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></div>
+      <div style="text-align:right;margin-right:12px;">
+        <p style="font-family:'Bebas Neue';font-size:22px;color:${s.targetReached?'#22C55E':'#64748B'};">${s.validCount}<span style="color:#1E293B;font-size:16px;">/3</span></p>
+        <p class="mono" style="font-size:10px;color:#475569;">Break ${s.breakHours}j</p>
       </div>
-    `).join('');
+      <span class="badge ${s.targetReached?'bgg':'bg'}">${s.targetReached?'TARGET ✓':'PROSES'}</span>
+    </div>`).join('');
 }
 
-// IP WHITELIST
 async function loadIPWhitelist(){
-  // Get my IP
   const myIPData=await api.get('/ip-whitelist/myip');
-  if(myIPData.success)document.getElementById("my-ip").textContent=myIPData.ip||myIPData.data?.ip||"—";
-
-  // Get list
+  if(myIPData.success)document.getElementById('my-ip').textContent=myIPData.ip||myIPData.data?.ip||'—';
   const data=await api.get('/ip-whitelist');
   if(!data.success)return;
-  const list=data.data;
-  document.getElementById('ip-count').textContent=`${list.length} IP`;
-
-  document.getElementById('ip-list').innerHTML=list.length===0
-    ?'<div class="px-5 py-8 text-center"><p class="mono text-xs text-green-400 mb-1"> Mode Setup Aktif</p><p class="mono text-xs text-slate-600">Database kosong = semua IP bisa login. Tambahkan IP kantor untuk mengaktifkan pembatasan.</p></div>'
-    :list.map(ip=>`
-      <div class="flex items-center justify-between px-5 py-4 hover:bg-white/2 transition-colors">
-        <div class="flex items-center gap-3">
-          <div class="w-2 h-2 rounded-full ${ip.isActive?'bg-green-400':'bg-slate-600'}"></div>
-          <div>
-            <p class="mono text-sm font-bold">${ip.ip}</p>
-            <p class="mono text-xs text-slate-600">${ip.label||'—'} · Ditambah ${new Date(ip.createdAt).toLocaleDateString('id-ID')}</p>
-          </div>
+  document.getElementById('ip-count').textContent=`${data.data.length} IP`;
+  document.getElementById('ip-list').innerHTML=data.data.length===0
+    ?'<div style="padding:28px;text-align:center;"><p class="mono" style="font-size:11px;color:#22C55E;margin-bottom:6px;">Mode Setup Aktif</p><p class="mono" style="font-size:10px;color:#475569;">Semua IP bisa masuk. Tambah IP untuk batasi akses.</p></div>'
+    :data.data.map(ip=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:${ip.isActive?'#22C55E':'#334155'};${ip.isActive?'box-shadow:0 0 5px #22C55E;':''}"></div>
+          <div><p class="mono" style="font-size:13px;font-weight:700;">${ip.ip}</p><p class="mono" style="font-size:10px;color:#475569;">${ip.label||'—'} · ${new Date(ip.createdAt).toLocaleDateString('id-ID')}</p></div>
         </div>
-        <button onclick="deleteIP('${ip._id}','${ip.ip}')" class="mono text-xs text-red-400 hover:text-red-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-950/30">Hapus</button>
-      </div>
-    `).join('');
+        <button onclick="deleteIP('${ip._id}','${ip.ip}')" class="btn btn-ghost" style="font-size:11px;padding:6px 12px;color:#EF4444;border-color:rgba(239,68,68,0.2);">Hapus</button>
+      </div>`).join('');
 }
-
 async function whitelistMyIP(){
-  const myIPData=await api.get('/ip-whitelist/myip');
-  if(!myIPData.success){showToast('Gagal mendapatkan IP.','error');return;}
-  const ip=myIPData.ip||myIPData.data?.ip;
-  const label=prompt(`Tambah IP ${ip} dengan label:`) || 'IP Saya';
-  if(label===null)return;
-  const data=await api.post('/ip-whitelist',{ip,label});
-  if(data.success){showToast(`IP ${ip} berhasil ditambahkan!`);loadIPWhitelist();}
-  else showToast(data.message||'Gagal.','error');
+  const d=await api.get('/ip-whitelist/myip');
+  if(!d.success){showToast('Gagal get IP.','err');return;}
+  const ip=d.ip||d.data?.ip;
+  const label=prompt(`Label untuk IP ${ip}:`)||'IP Saya';
+  if(!label)return;
+  const r=await api.post('/ip-whitelist',{ip,label});
+  if(r.success){showToast(`IP ${ip} ditambahkan!`);loadIPWhitelist();}else showToast(r.message||'Gagal.','err');
 }
-
 async function addIPManual(){
   const ip=document.getElementById('new-ip').value.trim();
   const label=document.getElementById('new-ip-label').value.trim()||'Manual';
-  if(!ip){showToast('Masukkan IP address.','error');return;}
-  const data=await api.post('/ip-whitelist',{ip,label});
-  if(data.success){
-    showToast(`IP ${ip} ditambahkan!`);
-    document.getElementById('new-ip').value='';
-    document.getElementById('new-ip-label').value='';
-    loadIPWhitelist();
-  }else showToast(data.message||'Gagal.','error');
+  if(!ip){showToast('Masukkan IP.','err');return;}
+  const r=await api.post('/ip-whitelist',{ip,label});
+  if(r.success){showToast(`IP ${ip} ditambahkan!`);document.getElementById('new-ip').value='';document.getElementById('new-ip-label').value='';loadIPWhitelist();}
+  else showToast(r.message||'Gagal.','err');
 }
-
 async function deleteIP(id,ip){
-  if(!confirm(`Hapus IP ${ip}?\n\nPastikan kamu masih bisa login setelahnya!`))return;
-  const data=await api.delete(`/ip-whitelist/${id}`);
-  if(data.success){showToast(`IP ${ip} dihapus.`);loadIPWhitelist();}
-  else showToast(data.message||'Gagal.','error');
+  if(!confirm(`Hapus IP ${ip}?`))return;
+  const r=await api.delete(`/ip-whitelist/${id}`);
+  if(r.success){showToast(`IP ${ip} dihapus.`);loadIPWhitelist();}else showToast(r.message,'err');
 }
 
-// Init
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
 window.addEventListener('DOMContentLoaded',()=>{
   const token=api.getToken();const user=api.getUser();
