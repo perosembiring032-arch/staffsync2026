@@ -489,8 +489,17 @@ async function doClockIn(){
   const btn=document.getElementById('btn-clockin');
   btn.disabled=true;btn.textContent='Mencatat...';
   const data=await api.post('/attendance/clockin',{});
-  if(data.success){showToast(`Clock-in! Status: ${data.data.status}`);loadDashboard();}
-  else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock In';}
+  if(data.success){
+    showToast(`Clock-in berhasil! Status: ${data.data.status}`);
+    loadDashboard();
+  } else if(data.alreadyDone){
+    showToast('Sudah clock-in hari ini.','err');
+    loadDashboard();
+  } else {
+    showToast(data.message||'Gagal clock-in','err');
+    btn.disabled=false;
+    btn.textContent='Clock In';
+  }
 }
 async function doClockOut(){
   const btn=document.getElementById('btn-clockout');

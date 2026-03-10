@@ -6,119 +6,91 @@ const api = {
 
   setToken(token) {
     this.token = token;
-    if (token) {
-      localStorage.setItem('staffsync_token', token);
-    } else {
-      localStorage.removeItem('staffsync_token');
-    }
+    if (token) localStorage.setItem('staffang_token', token);
+    else localStorage.removeItem('staffang_token');
   },
 
   getToken() {
-    if (!this.token) {
-      this.token = localStorage.getItem('staffsync_token');
-    }
+    if (!this.token) this.token = localStorage.getItem('staffang_token');
     return this.token;
   },
 
   getUser() {
-    const u = localStorage.getItem('staffsync_user');
+    const u = localStorage.getItem('staffang_user');
     return u ? JSON.parse(u) : null;
   },
 
   setUser(user) {
-    if (user) {
-      localStorage.setItem('staffsync_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('staffsync_user');
-    }
+    if (user) localStorage.setItem('staffang_user', JSON.stringify(user));
+    else localStorage.removeItem('staffang_user');
   },
 
-  logout() {
+  logout(redirectTo) {
     this.setToken(null);
     this.setUser(null);
-    window.location.href = '/';
+    // Redirect ke halaman login yang sesuai
+    const path = window.location.pathname;
+    if (redirectTo) {
+      window.location.href = redirectTo;
+    } else if (path.includes('/admin/')) {
+      window.location.href = '/admin/index.html';
+    } else if (path.includes('/staff/')) {
+      window.location.href = '/staff/index.html';
+    } else {
+      window.location.href = '/';
+    }
   },
 
   async request(method, path, body = null) {
-    const token = this.getToken();
-    const opts = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    };
-    if (body) opts.body = JSON.stringify(body);
-
-    const res = await fetch(`${API_BASE}${path}`, opts);
-    const data = await res.json();
-
-    if (res.status === 401) {
-      this.logout();
-      return data;
+    try {
+      const token = this.getToken();
+      const opts = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: 'Bearer ' + token } : {}),
+        },
+      };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(API_BASE + path, opts);
+      const data = await res.json();
+      if (res.status === 401) { this.logout(); return { ...data, _status: 401 }; }
+      return { ...data, _status: res.status };
+    } catch (err) {
+      console.error('API Error:', err);
+      return { success: false, message: 'Gagal terhubung ke server.' };
     }
-
-    return { ...data, _status: res.status };
   },
 
-  get: (path) => api.request('GET', path),
-  post: (path, body) => api.request('POST', path, body),
-  put: (path, body) => api.request('PUT', path, body),
-  delete: (path) => api.request('DELETE', path),
+  async get(path) { return this.request('GET', path); },
+  async post(path, body) { return this.request('POST', path, body); },
+  async put(path, body) { return this.request('PUT', path, body); },
+  async delete(path) { return this.request('DELETE', path); },
 };
 
-// Toast notification system
 const toast = {
-  show(message, type = 'info', duration = 3500) {
-    const container = document.getElementById('toast-container') || this._createContainer();
+  show(message, type, duration) {
+    type = type || 'info'; duration = duration || 3500;
+    let c = document.getElementById('toast-container');
+    if (!c) { c = document.createElement('div'); c.id = 'toast-container'; c.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;'; document.body.appendChild(c); }
     const el = document.createElement('div');
-
-    const colors = {
-      success: 'bg-teal-900/90 border-teal-500/50 text-teal-100',
-      error: 'bg-red-900/90 border-red-500/50 text-red-100',
-      warning: 'bg-amber-900/90 border-amber-500/50 text-amber-100',
-      info: 'bg-slate-800/90 border-slate-600/50 text-slate-100',
-    };
-
-    const icons = {
-      success: '✓',
-      error: '✕',
-      warning: '⚠',
-      info: 'ℹ',
-    };
-
-    el.className = `flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur text-sm font-medium shadow-xl transition-all duration-300 translate-y-2 opacity-0 ${colors[type]}`;
-    el.innerHTML = `<span class="text-base">${icons[type]}</span><span>${message}</span>`;
-
-    container.appendChild(el);
-
-    requestAnimationFrame(() => {
-      el.classList.remove('translate-y-2', 'opacity-0');
-    });
-
-    setTimeout(() => {
-      el.classList.add('translate-y-2', 'opacity-0');
-      setTimeout(() => el.remove(), 300);
-    }, duration);
+    const colors = { success:'background:rgba(21,128,61,0.95);border:1px solid rgba(34,197,94,0.3);color:#4ADE80', error:'background:rgba(153,27,27,0.95);border:1px solid rgba(230,57,70,0.3);color:#F87171', warning:'background:rgba(120,53,15,0.95);border:1px solid rgba(255,183,3,0.3);color:#FCD34D', info:'background:rgba(15,23,42,0.95);border:1px solid rgba(255,255,255,0.1);color:#94A3B8' };
+    const icons = { success:'✓', error:'✕', warning:'⚠', info:'ℹ' };
+    el.style.cssText = (colors[type]||colors.info) + ';padding:12px 18px;border-radius:12px;font-size:13px;font-family:monospace;min-width:200px;display:flex;align-items:center;gap:8px;';
+    el.innerHTML = '<span>' + (icons[type]||'ℹ') + '</span><span>' + message + '</span>';
+    c.appendChild(el);
+    setTimeout(function(){ el.remove(); }, duration);
   },
-
-  _createContainer() {
-    const c = document.createElement('div');
-    c.id = 'toast-container';
-    c.className = 'fixed bottom-6 right-6 z-50 flex flex-col gap-2';
-    document.body.appendChild(c);
-    return c;
-  },
-
-  success: (msg) => toast.show(msg, 'success'),
-  error: (msg) => toast.show(msg, 'error'),
-  warning: (msg) => toast.show(msg, 'warning'),
-  info: (msg) => toast.show(msg, 'info'),
+  success: function(msg){ toast.show(msg,'success'); },
+  error: function(msg){ toast.show(msg,'error'); },
+  warning: function(msg){ toast.show(msg,'warning'); },
+  info: function(msg){ toast.show(msg,'info'); },
 };
 
-// Format currency
-const formatCurrency = (n) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+function formatCurrency(n) {
+  return new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits:0 }).format(n);
+}
 
-const formatDate = (d) =>
-  new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+function formatDate(d) {
+  return new Date(d).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}

@@ -48,7 +48,7 @@ router.post('/login/admin', ipWhitelist, async (req, res) => {
     const token = jwt.sign(
       { id: admin._id, role: admin.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
     res.json({
@@ -107,7 +107,7 @@ router.post('/login/staff', ipWhitelist, async (req, res) => {
     const token = jwt.sign(
       { id: staff._id, role: staff.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
     res.json({
