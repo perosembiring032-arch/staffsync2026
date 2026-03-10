@@ -15,14 +15,15 @@ connectDB();
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  windowMs: 15 * 60 * 1000,
+  max: 500, // 500 requests per 15 menit per IP
   message: { success: false, message: 'Too many requests. Try again later.' },
+  skip: (req) => req.path === '/api/health',
 });
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50, // 50 login attempts per 15 menit
   message: { success: false, message: 'Too many login attempts. Try again in 15 minutes.' },
 });
 

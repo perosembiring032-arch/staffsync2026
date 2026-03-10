@@ -521,8 +521,8 @@ async function doLogin(){
   else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';}
 }
 function doLogout(){
-  localStorage.removeItem('staffang_token');
-  localStorage.removeItem('staffang_user');
+  localStorage.removeItem('staffang_admin_token');
+  localStorage.removeItem('staffang_admin_user');
   api.token=null;
   window.location.href='/admin/index.html';
 }
@@ -946,12 +946,14 @@ async function deleteAnn(id){
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
 window.addEventListener('DOMContentLoaded',()=>{
+  // Selalu hapus token staff saat buka admin page
+  localStorage.removeItem('staffang_staff_token');
+  localStorage.removeItem('staffang_staff_user');
   const token=api.getToken();const user=api.getUser();
   if(token&&user&&user.role==='admin'){initApp(user);}
-  else if(token&&user&&user.role!=='admin'){
-    // Token ada tapi bukan admin - clear dan tampil login
-    localStorage.removeItem('staffang_token');
-    localStorage.removeItem('staffang_user');
+  else{
+    localStorage.removeItem('staffang_admin_token');
+    localStorage.removeItem('staffang_admin_user');
     api.token=null;
   }
 });
