@@ -240,42 +240,68 @@
 
       <!-- PERMISSION -->
       <div id="page-permission" class="fade-up hidden space-y-5">
-        <div>
-          <h1 class="bebas text-3xl text-white">Izin Harian</h1>
-          <p class="mono text-xs text-slate-500 mt-0.5">10 menit per izin · Reset tengah malam</p>
+        <div class="flex items-start justify-between">
+          <div>
+            <h1 class="bebas text-3xl text-white">Izin Harian</h1>
+            <p class="mono text-xs text-slate-500 mt-0.5">3 izin × 10 menit = 30 menit total · Reset tengah malam</p>
+          </div>
+          <div id="perm-break-badge" class="stat-card px-4 py-2 text-center" style="min-width:110px">
+            <p class="mono text-xs text-slate-500 mb-0.5">Break Hari Ini</p>
+            <p id="perm-break-val" class="bebas text-2xl text-yellow-400">-</p>
+          </div>
         </div>
-        <div class="grid md:grid-cols-3 gap-4 mb-5">
-          <!-- Toilet -->
+
+        <!-- Info break rules -->
+        <div class="stat-card p-4 flex flex-wrap gap-4">
+          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-600"></span><span class="mono text-xs text-slate-500">0 member = <span class="text-red-400">No break</span></span></div>
+          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-400"></span><span class="mono text-xs text-slate-500">1-2 member valid = <span class="text-white">Break 2 jam</span></span></div>
+          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span><span class="mono text-xs text-slate-500">3 member valid = <span class="text-white">Break 2 jam</span></span></div>
+        </div>
+
+        <!-- 3 Izin Cards -->
+        <div class="grid md:grid-cols-3 gap-4">
+          <!-- Izin 1 -->
           <div id="perm-card-toilet" class="stat-card p-6 text-center">
-            <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-950/50 border border-blue-800/20 flex items-center justify-center text-3xl">🚽</div>
-            <h3 class="font-bold mb-1">Toilet</h3>
-            <p class="mono text-xs text-slate-600 mb-4">10 menit</p>
+            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-red-950/40 border border-red-800/20 flex items-center justify-center">
+              <span class="bebas text-3xl text-red-400">1</span>
+            </div>
+            <h3 class="font-bold mb-1">Izin 1</h3>
+            <p class="mono text-xs text-slate-600 mb-1">10 menit</p>
+            <p id="perm-time-toilet" class="mono text-xs text-slate-700 mb-3">—</p>
             <p id="perm-status-toilet" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
-            <button id="perm-btn-toilet" onclick="usePermission('toilet')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-blue-900/50 hover:bg-blue-800/60 border border-blue-700/30 rounded-xl text-blue-300">
-              Gunakan
+            <button id="perm-btn-toilet" onclick="usePermission('toilet')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300">
+              Gunakan Izin 1
             </button>
           </div>
-          <!-- Smoking 1 -->
+          <!-- Izin 2 -->
           <div id="perm-card-smoke1" class="stat-card p-6 text-center">
-            <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-orange-950/50 border border-orange-800/20 flex items-center justify-center text-3xl">🚬</div>
-            <h3 class="font-bold mb-1">Smoking 1</h3>
-            <p class="mono text-xs text-slate-600 mb-4">10 menit</p>
+            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-red-950/40 border border-red-800/20 flex items-center justify-center">
+              <span class="bebas text-3xl text-red-400">2</span>
+            </div>
+            <h3 class="font-bold mb-1">Izin 2</h3>
+            <p class="mono text-xs text-slate-600 mb-1">10 menit</p>
+            <p id="perm-time-smoke1" class="mono text-xs text-slate-700 mb-3">—</p>
             <p id="perm-status-smoke1" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
-            <button id="perm-btn-smoke1" onclick="usePermission('smoke_1')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-orange-900/50 hover:bg-orange-800/60 border border-orange-700/30 rounded-xl text-orange-300">
-              Gunakan
+            <button id="perm-btn-smoke1" onclick="usePermission('smoke_1')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300">
+              Gunakan Izin 2
             </button>
           </div>
-          <!-- Smoking 2 -->
+          <!-- Izin 3 -->
           <div id="perm-card-smoke2" class="stat-card p-6 text-center">
-            <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-orange-950/50 border border-orange-800/20 flex items-center justify-center text-3xl">🚬</div>
-            <h3 class="font-bold mb-1">Smoking 2</h3>
-            <p class="mono text-xs text-slate-600 mb-4">10 menit</p>
+            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-red-950/40 border border-red-800/20 flex items-center justify-center">
+              <span class="bebas text-3xl text-red-400">3</span>
+            </div>
+            <h3 class="font-bold mb-1">Izin 3</h3>
+            <p class="mono text-xs text-slate-600 mb-1">10 menit</p>
+            <p id="perm-time-smoke2" class="mono text-xs text-slate-700 mb-3">—</p>
             <p id="perm-status-smoke2" class="mono text-xs text-green-400 mb-4">✓ Tersedia</p>
-            <button id="perm-btn-smoke2" onclick="usePermission('smoke_2')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-orange-900/50 hover:bg-orange-800/60 border border-orange-700/30 rounded-xl text-orange-300">
-              Gunakan
+            <button id="perm-btn-smoke2" onclick="usePermission('smoke_2')" class="btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300">
+              Gunakan Izin 3
             </button>
           </div>
         </div>
+
+        <!-- Log -->
         <div class="stat-card p-5">
           <h3 class="font-semibold text-sm mb-4">Log Izin Hari Ini</h3>
           <div id="perm-log" class="space-y-2">
@@ -402,40 +428,85 @@ async function submitMember() {
 }
 
 async function loadPermissions() {
-  const data=await api.get('/permissions/today');
-  if(!data.success)return;
-  const{toiletUsed,smoke1Used,smoke2Used,logs}=data.data;
-  updatePermBtn('toilet',toiletUsed);updatePermBtn('smoke1',smoke1Used);updatePermBtn('smoke2',smoke2Used);
+  const [permData, memberData] = await Promise.all([
+    api.get('/permissions/today'),
+    api.get('/members/today')
+  ]);
+  if(!permData.success) return;
+
+  const{toiletUsed,smoke1Used,smoke2Used,logs}=permData.data;
+  const validCount = memberData.success ? memberData.data.validCount : 0;
+
+  // Update break badge
+  const breakEl = document.getElementById('perm-break-val');
+  const badgeEl = document.getElementById('perm-break-badge');
+  if(validCount === 0){
+    breakEl.textContent = 'NO BREAK';
+    breakEl.className = 'bebas text-xl text-red-400';
+    badgeEl.style.borderColor = 'rgba(230,57,70,0.3)';
+  } else {
+    breakEl.textContent = '2 JAM';
+    breakEl.className = 'bebas text-2xl text-green-400';
+    badgeEl.style.borderColor = 'rgba(34,197,94,0.3)';
+  }
+
+  // Get used times from logs
+  const timeMap = {};
+  if(logs) logs.forEach(l => { if(!timeMap[l.type]) timeMap[l.type] = l.usedAt; });
+
+  updatePermBtn('toilet', toiletUsed, 'toilet', timeMap['toilet']);
+  updatePermBtn('smoke1', smoke1Used, 'smoke_1', timeMap['smoke_1']);
+  updatePermBtn('smoke2', smoke2Used, 'smoke_2', timeMap['smoke_2']);
+
   const logEl=document.getElementById('perm-log');
-  if(!logs||logs.length===0){logEl.innerHTML='<p class="mono text-xs text-slate-600 text-center py-4">Belum ada izin digunakan hari ini.</p>';}
-  else{logEl.innerHTML=logs.map(l=>`
-    <div class="member-item flex items-center justify-between px-4 py-3">
-      <div class="flex items-center gap-3"><span>${l.type==='toilet'?'🚽':'🚬'}</span><span class="text-sm font-medium capitalize">${l.type.replace('_',' ')}</span></div>
-      <span class="mono text-xs text-slate-500">${new Date(l.usedAt).toLocaleTimeString('id-ID')}</span>
-    </div>
-  `).join('');}
+  const labelMap = {toilet:'Izin 1', smoke_1:'Izin 2', smoke_2:'Izin 3'};
+  if(!logs||logs.length===0){
+    logEl.innerHTML='<p class="mono text-xs text-slate-600 text-center py-4">Belum ada izin digunakan hari ini.</p>';
+  } else {
+    logEl.innerHTML=logs.map(l=>`
+      <div class="member-item flex items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-red-900/40 border border-red-800/20 flex items-center justify-center bebas text-red-400">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</span>
+          <span class="text-sm font-medium">${labelMap[l.type]||l.type}</span>
+        </div>
+        <span class="mono text-xs text-slate-500">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+      </div>
+    `).join('');
+  }
 }
 
-function updatePermBtn(key,used) {
+function updatePermBtn(key, used, type, usedAt) {
   const btn=document.getElementById(`perm-btn-${key}`);
   const status=document.getElementById(`perm-status-${key}`);
   const card=document.getElementById(`perm-card-${key}`);
+  const timeEl=document.getElementById(`perm-time-${key}`);
+  const labelNum = key==='toilet'?'1':key==='smoke1'?'2':'3';
   if(used){
-    btn.disabled=true;btn.textContent='Sudah Digunakan ✓';
+    btn.disabled=true;
+    btn.textContent=`Izin ${labelNum} Dipakai ✓`;
     btn.className='btn-perm w-full py-2.5 text-sm font-semibold bg-slate-800/50 border border-slate-700/30 rounded-xl text-slate-500';
-    status.textContent='⏱ Sudah dipakai';status.className='mono text-xs text-slate-600 mb-4';
+    status.textContent='⏱ Sudah dipakai';
+    status.className='mono text-xs text-slate-600 mb-4';
+    if(timeEl && usedAt) timeEl.textContent='Dipakai '+new Date(usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
     card.style.opacity='0.5';
-  }else{
-    btn.disabled=false;status.textContent='✓ Tersedia';status.className='mono text-xs text-green-400 mb-4';card.style.opacity='1';
+  } else {
+    btn.disabled=false;
+    btn.textContent=`Gunakan Izin ${labelNum}`;
+    btn.className='btn-perm w-full py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-800/50 border border-red-700/30 rounded-xl text-red-300';
+    status.textContent='✓ Tersedia';
+    status.className='mono text-xs text-green-400 mb-4';
+    if(timeEl) timeEl.textContent='—';
+    card.style.opacity='1';
   }
 }
 
 async function usePermission(type) {
   const keyMap={toilet:'toilet',smoke_1:'smoke1',smoke_2:'smoke2'};
+  const labelMap={toilet:'Izin 1',smoke_1:'Izin 2',smoke_2:'Izin 3'};
   const btn=document.getElementById(`perm-btn-${keyMap[type]}`);
   btn.disabled=true;btn.textContent='Mencatat…';
   const data=await api.post('/permissions/use',{type});
-  if(data.success){toast.success(`Izin ${type.replace('_',' ')} dicatat!`);loadPermissions();}
+  if(data.success){toast.success(`${labelMap[type]} berhasil dicatat!`);loadPermissions();}
   else{toast.error(data.message);btn.disabled=false;}
 }
 
