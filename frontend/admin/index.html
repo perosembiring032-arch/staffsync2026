@@ -109,23 +109,23 @@
     </div>
     <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
       <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active px-4 py-3 flex items-center gap-3">
-        <span>📊</span><span class="nav-label text-sm font-medium">Dashboard</span>
+        <span></span><span class="nav-label text-sm font-medium">Dashboard</span>
       </div>
       <div onclick="showPage('monitoring')" id="nav-monitoring" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span>🎯</span><span class="nav-label text-sm font-medium">Target Monitoring</span>
+        <span></span><span class="nav-label text-sm font-medium">Target Monitoring</span>
       </div>
       <div onclick="showPage('permissions')" id="nav-permissions" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span>📋</span><span class="nav-label text-sm font-medium">Log Permission</span>
+        <span></span><span class="nav-label text-sm font-medium">Log Permission</span>
       </div>
       <div onclick="showPage('stafflist')" id="nav-stafflist" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span>👥</span><span class="nav-label text-sm font-medium">Kelola Staff</span>
+        <span></span><span class="nav-label text-sm font-medium">Kelola Staff</span>
       </div>
       <div onclick="showPage('ranking')" id="nav-ranking" class="nav-item px-4 py-3 flex items-center gap-3">
-        <span>🏆</span><span class="nav-label text-sm font-medium">Rankings</span>
+        <span></span><span class="nav-label text-sm font-medium">Rankings</span>
       </div>
       <div class="pt-2 mt-2 border-t border-white/5">
         <div onclick="showPage('ipwhitelist')" id="nav-ipwhitelist" class="nav-item px-4 py-3 flex items-center gap-3">
-          <span>🛡️</span><span class="nav-label text-sm font-medium">IP Whitelist</span>
+          <span></span><span class="nav-label text-sm font-medium">IP Whitelist</span>
         </div>
       </div>
     </nav>
@@ -272,7 +272,7 @@
         <!-- Info Box -->
         <div class="stat-card card-gold p-5">
           <div class="flex items-start gap-3">
-            <span class="text-2xl">⚡</span>
+            <span class="text-2xl"></span>
             <div>
               <p class="font-semibold text-sm text-yellow-400 mb-1">Cara Kerja IP Whitelist</p>
               <p class="mono text-xs text-slate-500 leading-relaxed">
@@ -319,7 +319,7 @@
         <!-- Warning -->
         <div class="stat-card card-red p-4">
           <div class="flex items-start gap-3">
-            <span class="text-xl">⚠️</span>
+            <span class="text-xl">!</span>
             <div>
               <p class="font-semibold text-sm text-red-400 mb-1">Perhatian</p>
               <p class="mono text-xs text-slate-500 leading-relaxed">
@@ -448,7 +448,7 @@ async function loadDashboard(){
       const pct=Math.min(100,Math.round((s.validCount/3)*100));
       return `<tr class="table-row">
         <td class="px-5 py-3.5">
-          <p class="font-semibold text-sm">${s.staffName}</p>
+          <p class="font-semibold text-sm">${s.name}</p>
           <p class="mono text-xs text-slate-600">${s.employeeId}</p>
         </td>
         <td class="px-4 py-3.5 text-center">
@@ -475,7 +475,7 @@ async function loadMonitoring(){
       <div class="stat-card p-4 mb-3">
         <div class="flex items-center justify-between mb-3">
           <div>
-            <span class="font-semibold">${s.staffName}</span>
+            <span class="font-semibold">${s.name}</span>
             <span class="mono text-xs text-slate-600 ml-2">${s.employeeId}</span>
           </div>
           <span class="badge ${s.targetReached?'badge-green':s.validCount>0?'badge-yellow':'badge-gray'}">${s.targetReached?'Target ✓':s.validCount>0?'Proses':'Belum'}</span>
@@ -501,7 +501,7 @@ async function loadPermLogs(){
   document.getElementById('perm-table').innerHTML=data.data.length===0
     ?'<tr><td colspan="4" class="text-center py-8 mono text-xs text-slate-600">Belum ada data.</td></tr>'
     :data.data.map(p=>`<tr class="table-row">
-      <td class="px-5 py-3.5"><p class="font-semibold text-sm">${p.staffName||'—'}</p></td>
+      <td class="px-5 py-3.5"><p class="font-semibold text-sm">${p.name||'—'}</p></td>
       <td class="px-4 py-3.5 text-center"><span class="${p.toiletUsed?'text-blue-400':'text-slate-700'}">${p.toiletUsed?'✓ '+new Date(p.toiletTime||Date.now()).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—'}</span></td>
       <td class="px-4 py-3.5 text-center"><span class="${p.smoke1Used?'text-orange-400':'text-slate-700'}">${p.smoke1Used?'✓':'—'}</span></td>
       <td class="px-4 py-3.5 text-center"><span class="${p.smoke2Used?'text-orange-400':'text-slate-700'}">${p.smoke2Used?'✓':'—'}</span></td>
@@ -551,12 +551,12 @@ async function toggleStaff(id,isActive){
 async function loadRanking(){
   const data=await api.get('/staff/ranking/today');
   if(!data.success)return;
-  const medals=['🥇','🥈','🥉'];
+  const medals=['1','2','3'];
   document.getElementById('ranking-list').innerHTML=data.data.length===0
     ?'<p class="mono text-xs text-slate-600 text-center py-8">Belum ada data hari ini.</p>'
     :data.data.map((s,i)=>`
       <div class="stat-card flex items-center gap-4 px-5 py-4 ${i<3?'card-gold':''}" style="${i===0?'border-color:rgba(255,183,3,0.3)':''}">
-        <span class="text-3xl w-10 text-center">${medals[i]||`#${i+1}`}</span>
+        <span class="text-3xl w-10 text-center">${`#${i+1}`}</span>
         <div class="flex-1">
           <p class="font-semibold">${s.name}</p>
           <p class="mono text-xs text-slate-600">${s.employeeId}</p>
@@ -565,7 +565,7 @@ async function loadRanking(){
           <p class="bebas text-2xl ${s.targetReached?'text-green-400':'text-slate-400'}">${s.validCount}<span class="text-slate-600">/3</span></p>
           <p class="mono text-xs text-slate-600">Break ${s.breakHours}j</p>
         </div>
-        <span class="badge ${s.targetReached?'badge-green':'badge-gray'}">${s.targetReached?'✓ Target':'Proses'}</span>
+        <span class="badge ${s.targetReached?'badge-green':'badge-gray'}">${s.targetReached?'Target':'Proses'}</span>
       </div>
     `).join('');
 }
@@ -583,7 +583,7 @@ async function loadIPWhitelist(){
   document.getElementById('ip-count').textContent=`${list.length} IP`;
 
   document.getElementById('ip-list').innerHTML=list.length===0
-    ?'<div class="px-5 py-8 text-center"><p class="mono text-xs text-green-400 mb-1">⚡ Mode Setup Aktif</p><p class="mono text-xs text-slate-600">Database kosong = semua IP bisa login. Tambahkan IP kantor untuk mengaktifkan pembatasan.</p></div>'
+    ?'<div class="px-5 py-8 text-center"><p class="mono text-xs text-green-400 mb-1"> Mode Setup Aktif</p><p class="mono text-xs text-slate-600">Database kosong = semua IP bisa login. Tambahkan IP kantor untuk mengaktifkan pembatasan.</p></div>'
     :list.map(ip=>`
       <div class="flex items-center justify-between px-5 py-4 hover:bg-white/2 transition-colors">
         <div class="flex items-center gap-3">
