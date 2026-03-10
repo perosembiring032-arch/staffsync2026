@@ -474,12 +474,13 @@ async function loadDashboard(){
   if(anns.success&&anns.data.length){
     const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
     annEl.innerHTML=anns.data.slice(0,3).map(a=>`
-      <div style="padding:8px 0;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-          <span style="width:6px;height:6px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
           <span style="font-size:12px;font-weight:700;color:#D1D9E6;">${a.title}</span>
+          <span style="font-size:10px;font-family:monospace;color:${colors[a.priority]};margin-left:auto;text-transform:uppercase;">${a.priority}</span>
         </div>
-        <p style="font-size:11px;color:#64748B;line-height:1.5;padding-left:12px;">${a.content.length>80?a.content.slice(0,80)+'...':a.content}</p>
+        <p style="font-size:12px;color:#94A3B8;line-height:1.7;white-space:pre-line;">${a.content}</p>
       </div>`).join('');
   }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">Tidak ada pengumuman.</p>';}
 }
