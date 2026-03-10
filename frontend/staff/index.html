@@ -358,8 +358,8 @@ async function doLogin(){
   else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
 }
 function doLogout(){
-  localStorage.removeItem('staffang_staff_token');
-  localStorage.removeItem('staffang_staff_user');
+  localStorage.removeItem('staffang_token');
+  localStorage.removeItem('staffang_user');
   api.token=null;
   window.location.href='/staff/index.html';
 }
@@ -705,14 +705,17 @@ async function doStopTimer(){
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
 window.addEventListener('DOMContentLoaded',()=>{
-  // Selalu hapus token admin saat buka staff page
-  localStorage.removeItem('staffang_admin_token');
-  localStorage.removeItem('staffang_admin_user');
-  const token=api.getToken();const user=api.getUser();
-  if(token&&user&&user.role==='staff'){initApp(user);}
+  function getRole(token){
+    try{const p=JSON.parse(atob(token.split('.')[1]));return p.role||null;}catch{return null;}
+  }
+  const token=localStorage.getItem('staffang_token');
+  const userStr=localStorage.getItem('staffang_user');
+  const user=userStr?JSON.parse(userStr):null;
+  const role=token?getRole(token):null;
+  if(token&&user&&role==='staff'){api.token=token;initApp(user);}
   else{
-    localStorage.removeItem('staffang_staff_token');
-    localStorage.removeItem('staffang_staff_user');
+    localStorage.removeItem('staffang_token');
+    localStorage.removeItem('staffang_user');
     api.token=null;
   }
 });

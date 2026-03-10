@@ -28,10 +28,10 @@ const loginLimiter = rateLimit({
 });
 
 // Middleware
+// Same-server deployment: frontend dan backend satu origin - CORS tidak diperlukan
+// Tapi tetap aktifkan untuk flexibility
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.ALLOWED_ORIGIN || 'https://staffsync.site', 'https://staffsync2026.onrender.com']
-    : '*',
+  origin: true, // allow all origins - aman karena IP whitelist yang guard akses
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

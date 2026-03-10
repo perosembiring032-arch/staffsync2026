@@ -516,13 +516,22 @@ async function doLogin(){
   const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
   if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
   btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
+  // Clear token lama sebelum login baru
+  localStorage.removeItem('staffang_token');
+  localStorage.removeItem('staffang_user');
+  api.token=null;
   const data=await api.post('/auth/login/admin',{username,password});
-  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
-  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';}
+  if(data.success){
+    if(!data.user||data.user.role!=='admin'){
+      errEl.textContent='Akun ini bukan admin.';errEl.classList.remove('hidden');
+      btn.disabled=false;btn.textContent='Masuk sebagai Admin';return;
+    }
+    api.setToken(data.token);api.setUser(data.user);initApp(data.user);
+  }else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';}
 }
 function doLogout(){
-  localStorage.removeItem('staffang_admin_token');
-  localStorage.removeItem('staffang_admin_user');
+  localStorage.removeItem('staffang_token');
+  localStorage.removeItem('staffang_user');
   api.token=null;
   window.location.href='/admin/index.html';
 }
@@ -946,14 +955,19 @@ async function deleteAnn(id){
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
 window.addEventListener('DOMContentLoaded',()=>{
-  // Selalu hapus token staff saat buka admin page
-  localStorage.removeItem('staffang_staff_token');
-  localStorage.removeItem('staffang_staff_user');
-  const token=api.getToken();const user=api.getUser();
-  if(token&&user&&user.role==='admin'){initApp(user);}
+  // Decode JWT lokal untuk cek role tanpa API call
+  function getRole(token){
+    try{const p=JSON.parse(atob(token.split('.')[1]));return p.role||null;}catch{return null;}
+  }
+  const token=localStorage.getItem('staffang_token');
+  const userStr=localStorage.getItem('staffang_user');
+  const user=userStr?JSON.parse(userStr):null;
+  const role=token?getRole(token):null;
+  if(token&&user&&role==='admin'){api.token=token;initApp(user);}
   else{
-    localStorage.removeItem('staffang_admin_token');
-    localStorage.removeItem('staffang_admin_user');
+    // Bukan admin atau tidak ada token - clear dan tampilkan login
+    localStorage.removeItem('staffang_token');
+    localStorage.removeItem('staffang_user');
     api.token=null;
   }
 });
