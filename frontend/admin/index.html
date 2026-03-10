@@ -210,21 +210,56 @@
 
       <!-- PERMISSIONS LOG -->
       <div id="page-permissions" class="fade-up hidden space-y-5">
-        <h1 class="bebas text-3xl">Log Permission</h1>
+        <div class="flex items-center justify-between">
+          <h1 class="bebas text-3xl">Log Permission</h1>
+          <button onclick="loadPermLogs()" class="mono text-xs text-slate-600 hover:text-yellow-400 transition-colors">Refresh</button>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="stat-card p-4 text-center">
+            <p class="mono text-xs text-slate-500 mb-1 uppercase">Izin 1</p>
+            <p id="plog-count1" class="bebas text-3xl text-white">0</p>
+            <p class="mono text-xs text-slate-600">staff pakai</p>
+          </div>
+          <div class="stat-card p-4 text-center">
+            <p class="mono text-xs text-slate-500 mb-1 uppercase">Izin 2</p>
+            <p id="plog-count2" class="bebas text-3xl text-white">0</p>
+            <p class="mono text-xs text-slate-600">staff pakai</p>
+          </div>
+          <div class="stat-card p-4 text-center">
+            <p class="mono text-xs text-slate-500 mb-1 uppercase">Izin 3</p>
+            <p id="plog-count3" class="bebas text-3xl text-white">0</p>
+            <p class="mono text-xs text-slate-600">staff pakai</p>
+          </div>
+        </div>
+
+        <!-- Per staff summary -->
         <div class="stat-card overflow-hidden">
           <div class="px-5 py-4 border-b border-white/5">
-            <h3 class="font-semibold text-sm">Riwayat Izin Hari Ini</h3>
+            <h3 class="font-semibold text-sm">Status Per Staff</h3>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead><tr class="border-b border-white/5">
-                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Staff</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Toilet</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Smoke 1</th>
-                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Smoke 2</th>
+                <th class="text-left px-5 py-3 mono text-xs text-slate-600 uppercase">Nama Staff</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Izin 1</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Izin 2</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Izin 3</th>
+                <th class="text-center px-4 py-3 mono text-xs text-slate-600 uppercase">Total</th>
               </tr></thead>
-              <tbody id="perm-table"><tr><td colspan="4" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
+              <tbody id="perm-table"><tr><td colspan="5" class="text-center py-8 mono text-xs text-slate-600">Memuat data...</td></tr></tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- Detailed log -->
+        <div class="stat-card overflow-hidden">
+          <div class="px-5 py-4 border-b border-white/5">
+            <h3 class="font-semibold text-sm">Riwayat Detail</h3>
+          </div>
+          <div id="perm-detail-log" class="divide-y divide-white/5">
+            <p class="mono text-xs text-slate-600 text-center py-8">Memuat data...</p>
           </div>
         </div>
       </div>
@@ -569,14 +604,51 @@ async function loadMonitoring(){
 async function loadPermLogs(){
   const data=await api.get('/permissions/admin/logs');
   if(!data.success)return;
-  document.getElementById('perm-table').innerHTML=data.data.length===0
-    ?'<tr><td colspan="4" class="text-center py-8 mono text-xs text-slate-600">Belum ada data.</td></tr>'
-    :data.data.map(p=>`<tr class="table-row">
-      <td class="px-5 py-3.5"><p class="font-semibold text-sm">${p.name||'—'}</p></td>
-      <td class="px-4 py-3.5 text-center"><span class="${p.toiletUsed?'text-blue-400':'text-slate-700'}">${p.toiletUsed?'✓ '+new Date(p.toiletTime||Date.now()).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—'}</span></td>
-      <td class="px-4 py-3.5 text-center"><span class="${p.smoke1Used?'text-orange-400':'text-slate-700'}">${p.smoke1Used?'✓':'—'}</span></td>
-      <td class="px-4 py-3.5 text-center"><span class="${p.smoke2Used?'text-orange-400':'text-slate-700'}">${p.smoke2Used?'✓':'—'}</span></td>
-    </tr>`).join('');
+  const logs=data.data;
+
+  const typeMap={'toilet':0,'smoke_1':0,'smoke_2':0};
+  logs.forEach(l=>{ if(typeMap[l.type]!==undefined) typeMap[l.type]++; });
+  document.getElementById('plog-count1').textContent=typeMap['toilet'];
+  document.getElementById('plog-count2').textContent=typeMap['smoke_1'];
+  document.getElementById('plog-count3').textContent=typeMap['smoke_2'];
+
+  const staffMap={};
+  logs.forEach(l=>{
+    const key=l.staffName||l.username||'Unknown';
+    if(!staffMap[key]) staffMap[key]={name:l.staffName||'—',empId:l.employeeId||'—',izin1:null,izin2:null,izin3:null};
+    if(l.type==='toilet') staffMap[key].izin1=l.usedAt;
+    if(l.type==='smoke_1') staffMap[key].izin2=l.usedAt;
+    if(l.type==='smoke_2') staffMap[key].izin3=l.usedAt;
+  });
+
+  const staffRows=Object.values(staffMap);
+  const fmt=(t)=>t?'<span class="badge badge-green">'+new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'</span>':'<span class="text-slate-700 mono text-xs">—</span>';
+
+  document.getElementById('perm-table').innerHTML=staffRows.length===0
+    ?'<tr><td colspan="5" class="text-center py-8 mono text-xs text-slate-600">Belum ada izin digunakan hari ini.</td></tr>'
+    :staffRows.map(s=>{
+      const total=[s.izin1,s.izin2,s.izin3].filter(Boolean).length;
+      return '<tr class="table-row">'
+        +'<td class="px-5 py-3.5"><p class="font-semibold text-sm">'+s.name+'</p><p class="mono text-xs text-slate-600">'+s.empId+'</p></td>'
+        +'<td class="px-4 py-3.5 text-center">'+fmt(s.izin1)+'</td>'
+        +'<td class="px-4 py-3.5 text-center">'+fmt(s.izin2)+'</td>'
+        +'<td class="px-4 py-3.5 text-center">'+fmt(s.izin3)+'</td>'
+        +'<td class="px-4 py-3.5 text-center"><span class="badge '+(total===3?'badge-green':total>0?'badge-yellow':'badge-gray')+'">'+total+'/3</span></td>'
+        +'</tr>';
+    }).join('');
+
+  const labelMap={'toilet':'Izin 1','smoke_1':'Izin 2','smoke_2':'Izin 3'};
+  document.getElementById('perm-detail-log').innerHTML=logs.length===0
+    ?'<p class="mono text-xs text-slate-600 text-center py-8">Belum ada data.</p>'
+    :logs.map(l=>'<div class="flex items-center justify-between px-5 py-3 hover:bg-white/2 transition-colors">'
+        +'<div class="flex items-center gap-3">'
+        +'<span class="w-7 h-7 rounded-lg bg-yellow-900/30 border border-yellow-800/20 flex items-center justify-center mono text-xs text-yellow-400 font-bold">'+(l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3')+'</span>'
+        +'<div><p class="text-sm font-semibold">'+(l.staffName||'—')+'</p>'
+        +'<p class="mono text-xs text-slate-600">'+(labelMap[l.type]||l.type)+' · '+(l.employeeId||'—')+'</p></div>'
+        +'</div>'
+        +'<span class="mono text-xs text-slate-500">'+new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'</span>'
+        +'</div>'
+    ).join('');
 }
 
 // Staff List
