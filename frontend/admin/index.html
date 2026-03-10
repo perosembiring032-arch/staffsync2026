@@ -516,14 +516,10 @@ async function doLogin(){
   const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
   if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
   btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
-localStorage.removeItem('staffang_token');
-  localStorage.removeItem('staffang_user');
-  api.token=null;
   const data=await api.post('/auth/login/admin',{username,password});
-  if(data.success){
-    if(data.user.role!=='admin'){errEl.textContent='Bukan akun admin.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';return;}
-    api.setToken(data.token);api.setUser(data.user);initApp(data.user);
-  }
+  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
+  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';}
+}
 function doLogout(){
   localStorage.removeItem('staffang_token');
   localStorage.removeItem('staffang_user');
