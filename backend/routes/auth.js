@@ -70,7 +70,7 @@ router.post('/login/admin', ipWhitelist, async (req, res) => {
 });
 
 // POST /api/auth/login/staff
-router.post('/login/staff', async (req, res) => {
+router.post('/login/staff', ipWhitelist, async (req, res) => {
   try {
     const { username, password } = req.body;
 

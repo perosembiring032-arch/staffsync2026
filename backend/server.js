@@ -28,9 +28,12 @@ const loginLimiter = rateLimit({
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : '*',
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.ALLOWED_ORIGIN || 'https://staffsync.site', 'https://staffsync2026.onrender.com']
+    : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
 app.use(express.json({ limit: '10kb' }));
@@ -82,5 +85,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
-// v6-20260310230936
