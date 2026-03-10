@@ -193,7 +193,7 @@
             </div>
             <div style="display:flex;gap:8px;">
               <button id="btn-clockin" onclick="doClockIn()" class="btn" style="flex:1;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:10px;font-size:12px;">Clock In</button>
-              <button id="btn-clockout" onclick="doClockOut()" class="btn btn-ghost" style="flex:1;padding:10px;font-size:12px;" disabled>Clock Out</button>
+              <button id="btn-clockout" onclick="doClockOut()" class="btn btn-ghost" style="flex:1;padding:10px;font-size:12px;opacity:0.4;" id="btn-clockout" disabled>Clock Out</button>
             </div>
           </div>
           <!-- Pengumuman preview -->
@@ -357,7 +357,12 @@ async function doLogin(){
   if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
   else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
 }
-function doLogout(){api.logout();}
+function doLogout(){
+  localStorage.removeItem('staffang_token');
+  localStorage.removeItem('staffang_user');
+  api.token=null;
+  window.location.href='/staff/index.html';
+}
 
 function showToast(msg,type='ok'){
   const w=document.getElementById('toast-wrap');const t=document.createElement('div');
@@ -436,23 +441,32 @@ async function loadDashboard(){
     </div>`).join('')}}</div>`;}
 
   // Absensi widget
+  const ciBtn=document.getElementById('btn-clockin');
+  const coBtn=document.getElementById('btn-clockout');
   if(att.success){
     const a=att.data;
     const fmt=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
     document.getElementById('ci-time').textContent=fmt(a.clockIn);
     document.getElementById('co-time').textContent=fmt(a.clockOut);
     const badge=document.getElementById('att-badge');
-    const ciBtn=document.getElementById('btn-clockin');
-    const coBtn=document.getElementById('btn-clockout');
-    if(!a.clockIn){badge.textContent='BELUM';badge.className='badge bg';ciBtn.disabled=false;coBtn.disabled=true;}
-    else if(!a.clockOut){
+    if(!a.clockIn){
+      badge.textContent='BELUM';badge.className='badge bg';
+      ciBtn.disabled=false;ciBtn.style.opacity='1';
+      coBtn.disabled=true;coBtn.style.opacity='0.4';
+    } else if(!a.clockOut){
       badge.textContent=a.status.toUpperCase();
       badge.className=`badge ${a.status==='terlambat'?'bgo':'bgg'}`;
-      ciBtn.disabled=true;coBtn.disabled=false;
-    }else{
+      ciBtn.disabled=true;ciBtn.style.opacity='0.4';
+      coBtn.disabled=false;coBtn.style.opacity='1';
+    } else {
       badge.textContent='SELESAI';badge.className='badge bgg';
-      ciBtn.disabled=true;coBtn.disabled=true;
+      ciBtn.disabled=true;ciBtn.style.opacity='0.4';
+      coBtn.disabled=true;coBtn.style.opacity='0.4';
     }
+  } else {
+    // Attendance API error - tetap enable Clock In
+    ciBtn.disabled=false;ciBtn.style.opacity='1';
+    coBtn.disabled=true;coBtn.style.opacity='0.4';
   }
 
   // Pengumuman preview
@@ -692,7 +706,12 @@ async function doStopTimer(){
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
 window.addEventListener('DOMContentLoaded',()=>{
   const token=api.getToken();const user=api.getUser();
-  if(token&&user&&user.role==='staff')initApp(user);
+  if(token&&user&&user.role==='staff'){initApp(user);}
+  else if(token&&user){
+    localStorage.removeItem('staffang_token');
+    localStorage.removeItem('staffang_user');
+    api.token=null;
+  }
 });
 
 </script>
