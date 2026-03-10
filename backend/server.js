@@ -46,6 +46,7 @@ app.use('/api/auth', loginLimiter, require('./routes/auth'));
 app.use('/api/members', require('./routes/members'));
 app.use('/api/permissions', require('./routes/permissions'));
 app.use('/api/staff', require('./routes/staff'));
+app.use('/api/ip-whitelist', require('./routes/ipWhitelist'));
 
 // Health check
 app.get('/api/health', (req, res) => {
