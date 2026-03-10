@@ -574,7 +574,7 @@ async function loadRanking(){
 async function loadIPWhitelist(){
   // Get my IP
   const myIPData=await api.get('/ip-whitelist/myip');
-  if(myIPData.success)document.getElementById('my-ip').textContent=myIPData.data.ip;
+  if(myIPData.success)document.getElementById("my-ip").textContent=myIPData.ip||myIPData.data?.ip||"—";
 
   // Get list
   const data=await api.get('/ip-whitelist');
@@ -601,7 +601,7 @@ async function loadIPWhitelist(){
 async function whitelistMyIP(){
   const myIPData=await api.get('/ip-whitelist/myip');
   if(!myIPData.success){showToast('Gagal mendapatkan IP.','error');return;}
-  const ip=myIPData.data.ip;
+  const ip=myIPData.ip||myIPData.data?.ip;
   const label=prompt(`Tambah IP ${ip} dengan label:`) || 'IP Saya';
   if(label===null)return;
   const data=await api.post('/ip-whitelist',{ip,label});
