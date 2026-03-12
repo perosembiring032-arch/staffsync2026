@@ -405,10 +405,16 @@
         <div style="position:relative;"><input id="s-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
         <button onclick="togglePwd('s-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;">LIHAT</button></div>
       </div>
+      <div><label class="field-label">Role Akun</label>
+        <select id="s-role" class="field" style="cursor:pointer;background:#0F172A;color:#F1F5F9;" onchange="document.getElementById('btn-buat-staff').textContent=this.value==='admin'?'Buat Admin':'Buat Staff'">
+          <option value="staff">👤 Staff</option>
+          <option value="admin">👑 Admin / Master</option>
+        </select>
+      </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px;">
       <button onclick="closeModal('modal-staff')" class="btn btn-ghost" style="flex:1;">Batal</button>
-      <button onclick="submitAddStaff()" class="btn btn-gold" style="flex:1;">Buat Staff</button>
+      <button onclick="submitAddStaff()" class="btn btn-gold" style="flex:1;" id="btn-buat-staff">Buat Staff</button>
     </div>
   </div>
 </div>
