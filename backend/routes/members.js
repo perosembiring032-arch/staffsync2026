@@ -11,7 +11,8 @@ const getToday = () => new Date().toISOString().split('T')[0];
 
 const updateBreakStatus = async (staffId, date, validCount) => {
   const targetReached = validCount >= DAILY_TARGET;
-  const breakHours = targetReached ? 2 : 1;
+  // 0 member=no break, 1-2=1 jam, 3+=2 jam
+  const breakHours = validCount === 0 ? 0 : validCount < DAILY_TARGET ? 1 : 2;
 
   await BreakStatus.findOneAndUpdate(
     { staffId, date },
@@ -103,7 +104,7 @@ router.post('/input', authMiddleware, staffOnly, async (req, res) => {
         isValid: true,
         validCount,
         targetReached: record.targetReached,
-        breakHours: record.targetReached ? 2 : 1,
+        breakHours: record.validCount===0?0:record.validCount<DAILY_TARGET?1:2,
       },
     });
   } catch (error) {
@@ -125,7 +126,7 @@ router.get('/today', authMiddleware, staffOnly, async (req, res) => {
           members: [],
           validCount: 0,
           targetReached: false,
-          breakHours: 1,
+          breakHours: 0,
           remaining: DAILY_TARGET,
         },
       });
@@ -139,7 +140,7 @@ router.get('/today', authMiddleware, staffOnly, async (req, res) => {
         members: record.members,
         validCount: record.validCount,
         targetReached: record.targetReached,
-        breakHours: breakStatus?.breakHours || 1,
+        breakHours: breakStatus?.breakHours??0,
         remaining: Math.max(0, DAILY_TARGET - record.validCount),
       },
     });

@@ -172,7 +172,26 @@
             <div class="page-title">OVERVIEW</div>
             <div class="page-sub" id="today-date"></div>
           </div>
-          <button onclick="loadDashboard()" class="btn btn-ghost" style="padding:8px 14px;font-size:12px;">Refresh</button>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <!-- Panel Ketentuan Poin -->
+            <div style="background:linear-gradient(135deg,#0f1923,#1a2535);border:1px solid #2d3f55;border-radius:12px;padding:10px 16px;min-width:280px;">
+              <div style="font-family:'Courier New',monospace;font-size:10px;color:#F59E0B;font-weight:700;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                <span style="width:6px;height:6px;background:#F59E0B;border-radius:50%;display:inline-block;"></span>
+                KETENTUAN POIN
+              </div>
+              <div style="display:grid;grid-template-columns:1fr auto;gap:3px 12px;align-items:center;">
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">⏰ Telat masuk office (>10.20)</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#EF4444;font-weight:700;text-align:right;">- 50 poin</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">☕ Telat masuk break</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#F59E0B;font-weight:700;text-align:right;">- 10 poin</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">😴 Tidur di office</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#EF4444;font-weight:700;text-align:right;">- 50 poin</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">🚫 Tidak masuk tanpa keterangan</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#EF4444;font-weight:700;text-align:right;">- 50 poin</span>
+              </div>
+            </div>
+            <button onclick="loadDashboard()" class="btn btn-ghost" style="padding:8px 14px;font-size:12px;">Refresh</button>
+          </div>
         </div>
 
         <!-- Absensi + Pengumuman row -->
@@ -231,6 +250,34 @@
       <!-- INPUT MEMBER -->
       <div id="page-input" class="fade-up hidden">
         <div style="margin-bottom:24px;"><div class="page-title">INPUT MEMBER</div><div class="page-sub">Masukkan ID member dan jumlah deposit</div></div>
+        <!-- Panel aturan break -->
+        <div style="background:linear-gradient(135deg,#0f1923,#1a2535);border:1px solid #2d3f55;border-radius:14px;padding:16px 20px;margin-bottom:18px;">
+          <div style="font-family:'Courier New',monospace;font-size:10px;color:#22C55E;font-weight:700;letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <span style="width:7px;height:7px;background:#22C55E;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>
+            ATURAN BREAK HARIAN
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:140px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px 14px;text-align:center;">
+              <div style="font-family:'Courier New',monospace;font-size:22px;font-weight:900;color:#EF4444;line-height:1;">0</div>
+              <div style="font-family:'Courier New',monospace;font-size:9px;color:#94A3B8;margin:4px 0 2px;">MEMBER VALID</div>
+              <div style="font-size:11px;font-weight:700;color:#EF4444;">NO BREAK ⛔</div>
+            </div>
+            <div style="flex:1;min-width:140px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 14px;text-align:center;">
+              <div style="font-family:'Courier New',monospace;font-size:22px;font-weight:900;color:#F59E0B;line-height:1;">1-2</div>
+              <div style="font-family:'Courier New',monospace;font-size:9px;color:#94A3B8;margin:4px 0 2px;">MEMBER VALID</div>
+              <div style="font-size:11px;font-weight:700;color:#F59E0B;">BREAK 1 JAM ⏱</div>
+            </div>
+            <div style="flex:1;min-width:140px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:12px 14px;text-align:center;">
+              <div style="font-family:'Courier New',monospace;font-size:22px;font-weight:900;color:#22C55E;line-height:1;">3</div>
+              <div style="font-family:'Courier New',monospace;font-size:9px;color:#94A3B8;margin:4px 0 2px;">MEMBER VALID</div>
+              <div style="font-size:11px;font-weight:700;color:#22C55E;">BREAK 2 JAM ✅</div>
+            </div>
+          </div>
+          <div style="font-family:'Courier New',monospace;font-size:10px;color:#64748B;margin-top:10px;text-align:center;">
+            ● Deposit minimum <span style="color:#22C55E;">Rp 50.000</span> per member untuk dihitung valid
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="md:grid-cols-2">
           <div class="card" style="padding:24px;">
             <div id="input-error" class="field-err hidden"></div>
