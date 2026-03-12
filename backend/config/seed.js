@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const connectDB = require('./database');
 const Staff = require('../models/Staff');
+const IpWhitelist = require('../models/IpWhitelist');
 
 const seedDatabase = async () => {
   await connectDB();
@@ -14,15 +15,18 @@ const seedDatabase = async () => {
 
   const staffMembers = [];
 
-  // Create master admin
+  // Create 5 master admin
   const adminPassword = await bcrypt.hash('Admin@123456', 12);
-  staffMembers.push({
-    name: 'Master Admin',
-    username: 'admin',
-    password: adminPassword,
-    role: 'admin',
-    employeeId: 'ADM001',
-  });
+  const admins = [
+    { name: 'Master Admin 1', username: 'admin',  employeeId: 'ADM001' },
+    { name: 'Master Admin 2', username: 'admin2', employeeId: 'ADM002' },
+    { name: 'Master Admin 3', username: 'admin3', employeeId: 'ADM003' },
+    { name: 'Master Admin 4', username: 'admin4', employeeId: 'ADM004' },
+    { name: 'Master Admin 5', username: 'admin5', employeeId: 'ADM005' },
+  ];
+  for (const a of admins) {
+    staffMembers.push({ ...a, password: adminPassword, role: 'admin' });
+  }
 
   // Create 47 staff members
   const staffNames = [
@@ -51,6 +55,12 @@ const seedDatabase = async () => {
   }
 
   await Staff.insertMany(staffMembers);
+
+  // Seed default IP whitelist
+  await IpWhitelist.deleteMany({});
+  await IpWhitelist.insertMany([
+    { ip: '127.0.0.1', label: 'Localhost (default)', isActive: true },
+  ]);
 
   console.log('✅ Database seeded successfully!');
   console.log('👤 Admin: username=admin, password=Admin@123456');

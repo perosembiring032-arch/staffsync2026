@@ -48,15 +48,7 @@ router.post('/input', authMiddleware, staffOnly, async (req, res) => {
     if (!record) {
       record = new MemberInput({ staffId, date: today, members: [] });
     }
-
-    // Check max 3 members
-    if (record.members.length >= DAILY_TARGET) {
-      return res.status(400).json({
-        success: false,
-        message: `Maximum ${DAILY_TARGET} members per day already reached.`,
-      });
-    }
-
+    // Tidak ada batas jumlah member per hari
     // Check duplicate member ID
     const isDuplicate = record.members.some(
       m => m.memberId.toLowerCase() === memberId.trim().toLowerCase()

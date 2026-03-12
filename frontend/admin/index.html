@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>STAFF ANG — Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
     :root{
@@ -24,22 +25,22 @@
     .sidebar{background:linear-gradient(180deg,var(--s1) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;width:240px;display:flex;flex-direction:column;z-index:50;}
     .sidebar-brand{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
     .brand-text{font-family:'Bebas Neue';font-size:28px;letter-spacing:.05em;background:linear-gradient(135deg,#fff 30%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-    .brand-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.15em;margin-top:2px;}
+    .brand-sub{font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;letter-spacing:.15em;margin-top:2px;}
     nav{padding:12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
     .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
     .nav-item:hover{background:rgba(255,255,255,0.04);}
     .nav-item.active{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.15);}
     .nav-item.active .nav-label{color:var(--gold);}
     .nav-item.active .nav-icon{color:var(--gold);}
-    .nav-icon{font-size:15px;width:20px;text-align:center;color:#475569;transition:color .2s;}
-    .nav-label{font-size:13px;font-weight:600;color:#64748B;transition:color .2s;}
+    .nav-icon{font-size:15px;width:20px;text-align:center;color:#94A3B8;transition:color .2s;}
+    .nav-label{font-size:13px;font-weight:600;color:#94A3B8;transition:color .2s;}
     .nav-divider{height:1px;background:var(--border);margin:8px 0;}
     .sidebar-footer{padding:16px;border-top:1px solid var(--border);}
     .user-avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#92400E,var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:16px;color:#000;flex-shrink:0;}
     .main-wrap{margin-left:240px;min-height:100vh;position:relative;z-index:1;}
     .content{padding:24px;}
     .page-title{font-family:'Bebas Neue';font-size:34px;letter-spacing:.02em;background:linear-gradient(135deg,#fff,#94A3B8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-    .page-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-top:4px;}
+    .page-sub{font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;margin-top:4px;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .fade-up{animation:fadeUp .4s ease-out forwards;}
     @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
@@ -49,22 +50,22 @@
     .card-red{border-color:rgba(239,68,68,0.18);background:rgba(239,68,68,0.03);}
     .card-green{border-color:rgba(34,197,94,0.18);background:rgba(34,197,94,0.03);}
     .stat-widget{padding:20px 22px;}
-    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
     .stat-value{font-family:'Bebas Neue';font-size:44px;line-height:1;letter-spacing:.02em;}
-    .stat-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;margin-top:6px;}
+    .stat-sub{font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;margin-top:6px;}
     .prog-track{height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;}
     .prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--red),#F97316);transition:width .8s cubic-bezier(.4,0,.2,1);}
     .prog-fill.done{background:linear-gradient(90deg,#16A34A,var(--green));}
     .tbl{width:100%;border-collapse:collapse;}
     .tbl thead tr{border-bottom:1px solid var(--border);}
-    .tbl th{padding:10px 16px;font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;font-weight:500;text-align:left;}
+    .tbl th{padding:10px 16px;font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;letter-spacing:.1em;text-transform:uppercase;font-weight:500;text-align:left;}
     .tbl th.c,.tbl td.c{text-align:center;}
     .tbl tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);transition:background .15s;}
     .tbl tbody tr:last-child{border-bottom:none;}
     .tbl tbody tr:hover{background:rgba(255,255,255,0.02);}
     .tbl td{padding:12px 16px;font-size:13px;}
     .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono';font-size:10px;font-weight:700;letter-spacing:.05em;}
-    .bg{background:rgba(255,255,255,0.05);color:#64748B;border:1px solid var(--border);}
+    .bg{background:rgba(255,255,255,0.05);color:#94A3B8;border:1px solid var(--border);}
     .bgo{background:rgba(245,158,11,0.1);color:#FCD34D;border:1px solid rgba(245,158,11,0.2);}
     .bgr{background:rgba(239,68,68,0.1);color:#F87171;border:1px solid rgba(239,68,68,0.2);}
     .bgg{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
@@ -75,7 +76,7 @@
     .btn-gold:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,0.3);}
     .btn-red{background:linear-gradient(135deg,#7F1D1D,#EF4444);color:#fff;padding:10px 18px;}
     .btn-red:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(239,68,68,0.3);}
-    .btn-ghost{background:transparent;border:1px solid var(--border);color:#64748B;padding:10px 18px;}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#94A3B8;padding:10px 18px;}
     .btn-ghost:hover:not(:disabled){border-color:var(--border2);color:#D1D9E6;}
     .btn-icon{width:32px;height:32px;padding:0;border-radius:8px;}
     .action-wrap{position:relative;display:inline-block;}
@@ -89,11 +90,11 @@
     .action-menu-div{height:1px;background:var(--border);margin:4px 0;}
     .field{width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Syne';font-size:13px;color:#D1D9E6;transition:all .2s;}
     .field:focus{outline:none;border-color:rgba(245,158,11,0.4);box-shadow:0 0 0 3px rgba(245,158,11,0.08);}
-    .field-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
+    .field-label{font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
     .modal-box{background:var(--s2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:440px;}
     .modal-title{font-family:'Bebas Neue';font-size:26px;letter-spacing:.04em;margin-bottom:4px;}
-    .modal-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-bottom:22px;}
+    .modal-sub{font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;margin-bottom:22px;}
     .field-err{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#F87171;margin-bottom:16px;}
     #toast-wrap{position:fixed;top:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
     .toast{padding:11px 16px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeUp .25s ease-out;min-width:220px;pointer-events:none;}
@@ -105,7 +106,7 @@
     .hidden{display:none!important;}
     @media(max-width:1023px){.sidebar{transform:translateX(-100%);}.main-wrap{margin-left:0;}.mobile-bar{display:flex!important;}}
     .mobile-bar{display:none;position:sticky;top:0;z-index:40;background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);overflow-x:auto;}
-    .m-btn{flex-shrink:0;padding:11px 14px;font-family:'JetBrains Mono';font-size:11px;color:#475569;cursor:pointer;border:none;background:none;transition:color .2s;white-space:nowrap;}
+    .m-btn{flex-shrink:0;padding:11px 14px;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;cursor:pointer;border:none;background:none;transition:color .2s;white-space:nowrap;}
     .m-btn.act{color:var(--gold);}
   </style>
 </head>
@@ -118,9 +119,9 @@
 <div id="view-login" class="min-h-screen flex items-center justify-center px-4 relative z-10">
   <div class="w-full max-w-sm fade-up">
     <div class="text-center mb-10">
-      <a href="/" class="mono text-xs" style="color:#334155;">← Kembali</a>
+      <a href="/" class="mono text-xs" style="color:#94A3B8;">← Kembali</a>
       <div style="font-family:'Bebas Neue';font-size:54px;background:linear-gradient(135deg,#fff 30%,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.04em;margin:16px 0 4px;">STAFF ANG</div>
-      <div class="mono text-xs tracking-widest" style="color:#334155;">ADMIN CONTROL PANEL</div>
+      <div class="mono text-xs tracking-widest" style="color:#94A3B8;">ADMIN CONTROL PANEL</div>
     </div>
     <div class="card" style="padding:28px;">
       <div id="login-error" class="field-err hidden" style="margin-bottom:18px;"></div>
@@ -128,11 +129,11 @@
       <div style="margin-bottom:24px;">
         <label class="field-label">Password</label>
         <div style="position:relative;"><input id="login-password" type="password" placeholder="••••••••" class="field" style="padding-right:64px;"/>
-        <button onclick="togglePwd('login-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+        <button onclick="togglePwd('login-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;">LIHAT</button></div>
       </div>
       <button id="login-btn" onclick="doLogin()" class="btn btn-gold" style="width:100%;padding:13px;">Masuk sebagai Admin</button>
     </div>
-    <p class="mono text-xs text-center" style="color:#334155;margin-top:14px;">Akses dibatasi IP Whitelist</p>
+    <p class="mono text-xs text-center" style="color:#94A3B8;margin-top:14px;">Akses dibatasi IP Whitelist</p>
   </div>
 </div>
 
@@ -180,10 +181,10 @@
         <div class="user-avatar" id="user-avatar">A</div>
         <div>
           <p id="user-name" style="font-size:13px;font-weight:700;color:#F59E0B;"></p>
-          <p class="mono" style="font-size:10px;color:#475569;">Master Admin</p>
+          <p class="mono" style="font-size:10px;color:#94A3B8;">Master Admin</p>
         </div>
       </div>
-      <button onclick="doLogout()" class="mono text-xs" style="color:#475569;background:none;border:none;cursor:pointer;">⟵ Keluar</button>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#94A3B8;background:none;border:none;cursor:pointer;">⟵ Keluar</button>
     </div>
   </aside>
 
@@ -236,7 +237,7 @@
                 <th>Staff</th><th class="c">Progress</th><th class="c">Break</th>
                 <th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th>
               </tr></thead>
-              <tbody id="dash-table"><tr><td colspan="7" style="padding:32px;text-align:center;" class="mono" style="font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
+              <tbody id="dash-table"><tr><td colspan="7" style="padding:32px;text-align:center;" class="mono" style="font-size:11px;color:#94A3B8;">Memuat data...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -244,7 +245,14 @@
 
       <!-- MONITORING -->
       <div id="page-monitoring" class="fade-up hidden">
-        <div style="margin-bottom:24px;"><div class="page-title">TARGET MONITORING</div><div class="page-sub">Detail entri member per staff hari ini</div></div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">TARGET MONITORING</div><div class="page-sub">Detail entri member per staff hari ini</div></div>
+          <div style="display:flex;gap:10px;">
+            <button onclick="exportExcelAll()" class="btn" style="background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:10px 18px;font-size:12px;">
+              ⬇ Export Semua (Excel)
+            </button>
+          </div>
+        </div>
         <div id="monitoring-list" style="display:flex;flex-direction:column;gap:14px;"></div>
       </div>
 
@@ -262,11 +270,11 @@
         <div class="card" style="margin-bottom:14px;">
           <div class="section-head"><span class="section-title">Status Per Staff</span></div>
           <div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Nama Staff</th><th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Total</th></tr></thead>
-          <tbody id="perm-table"><tr><td colspan="5" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</td></tr></tbody></table></div>
+          <tbody id="perm-table"><tr><td colspan="5" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Memuat...</td></tr></tbody></table></div>
         </div>
         <div class="card">
           <div class="section-head"><span class="section-title">Riwayat Detail</span></div>
-          <div id="perm-detail-log"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
+          <div id="perm-detail-log"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Memuat...</p></div>
         </div>
       </div>
 
@@ -280,7 +288,7 @@
           <div style="overflow-x:auto;">
             <table class="tbl">
               <thead><tr><th>Nama</th><th>Username</th><th>ID Karyawan</th><th class="c">Status</th><th class="c">Aksi</th></tr></thead>
-              <tbody id="staff-table"><tr><td colspan="5" style="padding:32px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
+              <tbody id="staff-table"><tr><td colspan="5" style="padding:32px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Memuat data...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -308,7 +316,7 @@
           <div style="overflow-x:auto;">
             <table class="tbl">
               <thead><tr><th>Staff</th><th class="c">Clock In</th><th class="c">Clock Out</th><th class="c">Durasi</th><th class="c">Status</th></tr></thead>
-              <tbody id="absensi-table"><tr><td colspan="5" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</td></tr></tbody>
+              <tbody id="absensi-table"><tr><td colspan="5" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Memuat...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -332,7 +340,7 @@
           <div style="overflow-x:auto;">
             <table class="tbl">
               <thead><tr><th>Staff</th><th class="c">Member Valid</th><th class="c">Break</th><th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th></tr></thead>
-              <tbody id="histori-table"><tr><td colspan="7" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Pilih tanggal di atas.</td></tr></tbody>
+              <tbody id="histori-table"><tr><td colspan="7" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Pilih tanggal di atas.</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -345,7 +353,7 @@
           <button onclick="openAddAnn()" class="btn btn-gold">+ Buat Pengumuman</button>
         </div>
         <div id="ann-list" style="display:flex;flex-direction:column;gap:12px;">
-          <p style="text-align:center;padding:32px;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p>
+          <p style="text-align:center;padding:32px;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Memuat...</p>
         </div>
       </div>
 
@@ -357,7 +365,7 @@
             <div class="section-head"><span class="section-title">IP Anda Saat Ini</span><span class="badge bg" id="ip-count">— IP</span></div>
             <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
               <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-                <div><div class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">IP AKTIF ANDA</div><div id="my-ip" class="mono" style="font-size:14px;font-weight:700;color:#F59E0B;">—</div></div>
+                <div><div class="mono" style="font-size:10px;color:#94A3B8;margin-bottom:4px;">IP AKTIF ANDA</div><div id="my-ip" class="mono" style="font-size:14px;font-weight:700;color:#F59E0B;">—</div></div>
                 <button onclick="whitelistMyIP()" class="btn btn-gold" style="font-size:11px;padding:8px 12px;">+ Tambah IP Ini</button>
               </div>
               <div>
@@ -374,7 +382,7 @@
           </div>
           <div class="card">
             <div class="section-head"><span class="section-title">Daftar IP Terdaftar</span></div>
-            <div id="ip-list"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
+            <div id="ip-list"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">Memuat...</p></div>
           </div>
         </div>
       </div>
@@ -386,8 +394,8 @@
 <!-- MODAL: Tambah Staff -->
 <div id="modal-staff" class="modal-overlay hidden">
   <div class="modal-box">
-    <div class="modal-title" style="color:#F59E0B;">Tambah Staff Baru</div>
-    <div class="modal-sub">Buat akun staff baru</div>
+    <div class="modal-title" style="color:#F59E0B;">Tambah Staff / Admin Baru</div>
+    <div class="modal-sub">Buat akun staff atau admin baru</div>
     <div id="modal-error" class="field-err hidden"></div>
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div><label class="field-label">Nama Lengkap</label><input id="s-name" type="text" placeholder="contoh: Ahmad Rizky" class="field"/></div>
@@ -395,7 +403,7 @@
       <div><label class="field-label">ID Karyawan</label><input id="s-empid" type="text" placeholder="contoh: EMP001" class="field mono"/></div>
       <div><label class="field-label">Password</label>
         <div style="position:relative;"><input id="s-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
-        <button onclick="togglePwd('s-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+        <button onclick="togglePwd('s-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;">LIHAT</button></div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px;">
@@ -434,7 +442,7 @@
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div><label class="field-label">Password Baru</label>
         <div style="position:relative;"><input id="reset-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
-        <button onclick="togglePwd('reset-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+        <button onclick="togglePwd('reset-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;">LIHAT</button></div>
       </div>
       <div><label class="field-label">Konfirmasi Password</label><input id="reset-confirm" type="password" placeholder="Ulangi password" class="field"/></div>
     </div>
@@ -577,15 +585,15 @@ async function loadDashboard(){
     if(p.type==='smoke_1')pm[p.staffName].i2=true;
     if(p.type==='smoke_2')pm[p.staffName].i3=true;
   });
-  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
+  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#475569;">—</span>';
   document.getElementById('dash-table').innerHTML=staff.length===0
-    ?'<tr><td colspan="7" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
+    ?'<tr><td colspan="7" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#94A3B8;">Belum ada staff.</td></tr>'
     :staff.map(s=>{
       const p=pm[s.name]||{};
       const pct=Math.min(100,Math.round((s.validCount/3)*100));
       const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
-      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
-        <td class="c" style="min-width:120px;"><div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#334155;">/3</span></div><div class="prog-track" style="width:100px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div></td>
+      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${s.employeeId}</p></td>
+        <td class="c" style="min-width:120px;"><div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#94A3B8;">/3</span></div><div class="prog-track" style="width:100px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div></td>
         <td class="c"><span style="font-family:'Bebas Neue';font-size:18px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
         <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
         <td class="c">${st}</td></tr>`;
@@ -596,37 +604,51 @@ async function loadMonitoring(){
   const data=await api.get('/members/admin/all');
   if(!data.success)return;
   const el=document.getElementById('monitoring-list');
-  if(!data.data.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</div>';return;}
+  if(!data.data.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#94A3B8;">Belum ada data.</div>';return;}
   el.innerHTML=data.data.map(s=>{
     const pct=Math.min(100,Math.round((s.validCount/3)*100));
     const mems=s.members&&s.members.length?s.members.map((m,i)=>`
-      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:9px;padding:9px 13px;">
-        <div style="display:flex;align-items:center;gap:9px;">
-          <span class="mono" style="font-size:10px;color:#334155;">#${i+1}</span>
-          <span class="mono" style="font-size:13px;font-weight:700;">${m.memberId}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 12px;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;">#${i+1}</span>
+          <span style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:#E2E8F0;">${m.memberId}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:9px;">
-          <span class="mono" style="font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'JetBrains Mono';font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
           <span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span>
         </div>
-      </div>`).join('')
-      :'<p class="mono" style="font-size:11px;color:#334155;padding:4px 0;">Belum ada entri.</p>';
-    return `<div class="card">
-      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-        <div><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></div>
-        <span class="badge ${s.targetReached?'bgg':s.validCount>0?'bgo':'bg'}">${s.targetReached?'TARGET ✓':s.validCount>0?'PROSES':'BELUM'}</span>
-      </div>
-      <div style="padding:14px 18px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span class="mono" style="font-size:11px;color:#475569;">${s.validCount}/3 member · Break ${s.breakHours} jam</span>
-          <span class="mono" style="font-size:11px;color:#475569;">${pct}%</span>
+      </div>`).join(''):'<p style="font-family:\'JetBrains Mono\';font-size:11px;color:#64748B;padding:8px 0;">Belum ada entri.</p>';
+    const bh=s.breakHours||0;
+    const bhLabel=bh===0?'<span style="color:#EF4444;">NO BREAK</span>':bh===1?'<span style="color:#F59E0B;">1 JAM</span>':'<span style="color:#22C55E;">2 JAM</span>';
+    return `<div class="card" style="padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#7F1D1D,#EF4444);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:18px;color:#fff;">${s.name[0]}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#F1F5F9;">${s.name}</div>
+            <div style="font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;">${s.employeeId}</div>
+          </div>
         </div>
-        <div class="prog-track" style="margin-bottom:12px;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div>
-        <div style="display:flex;flex-direction:column;gap:6px;">${mems}</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="text-align:right;">
+            <div style="font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;margin-bottom:3px;">Member Valid</div>
+            <div style="font-family:'Bebas Neue';font-size:22px;color:#fff;">${s.validCount}<span style="font-size:14px;color:#475569;">/∞</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;margin-bottom:3px;">Break</div>
+            <div style="font-family:'Bebas Neue';font-size:18px;">${bhLabel}</div>
+          </div>
+          <button onclick="exportExcelStaff('${s.staffId}','${s.name}')" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ADE80;font-family:'JetBrains Mono';font-size:10px;padding:6px 12px;border-radius:8px;cursor:pointer;">⬇ Excel</button>
+        </div>
       </div>
+      <div style="height:5px;background:rgba(255,255,255,0.05);border-radius:100px;margin-bottom:14px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${s.targetReached?'linear-gradient(90deg,#16A34A,#22C55E)':'linear-gradient(90deg,#EF4444,#F97316)'};border-radius:100px;transition:width 1s;"></div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:12px;">${mems}</div>
     </div>`;
   }).join('');
 }
+
 
 async function loadPermLogs(){
   const data=await api.get('/permissions/admin/logs');
@@ -645,26 +667,26 @@ async function loadPermLogs(){
     if(l.type==='smoke_1')sm[k].i2=l.usedAt;
     if(l.type==='smoke_2')sm[k].i3=l.usedAt;
   });
-  const fmt=t=>t?`<span class="badge bgg">${new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>`:'<span style="color:#1E293B;">—</span>';
+  const fmt=t=>t?`<span class="badge bgg">${new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>`:'<span style="color:#475569;">—</span>';
   const rows=Object.values(sm);
   document.getElementById('perm-table').innerHTML=rows.length===0
-    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada izin hari ini.</td></tr>'
+    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#94A3B8;">Belum ada izin hari ini.</td></tr>'
     :rows.map(s=>{
       const tot=[s.i1,s.i2,s.i3].filter(Boolean).length;
-      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.empId}</p></td>
+      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${s.empId}</p></td>
         <td class="c">${fmt(s.i1)}</td><td class="c">${fmt(s.i2)}</td><td class="c">${fmt(s.i3)}</td>
         <td class="c"><span class="badge ${tot===3?'bgr':tot>0?'bgo':'bg'}">${tot}/3</span></td></tr>`;
     }).join('');
   const lm={'toilet':'Izin 1','smoke_1':'Izin 2','smoke_2':'Izin 3'};
   document.getElementById('perm-detail-log').innerHTML=logs.length===0
-    ?'<p style="padding:28px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</p>'
+    ?'<p style="padding:28px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#94A3B8;">Belum ada data.</p>'
     :logs.map(l=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:28px;height:28px;border-radius:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:15px;color:#F59E0B;">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</div>
-          <div><p style="font-size:13px;font-weight:700;">${l.staffName||'—'}</p><p class="mono" style="font-size:10px;color:#475569;">${lm[l.type]} · ${l.employeeId||'—'}</p></div>
+          <div><p style="font-size:13px;font-weight:700;">${l.staffName||'—'}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${lm[l.type]} · ${l.employeeId||'—'}</p></div>
         </div>
-        <span class="mono" style="font-size:11px;color:#475569;">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+        <span class="mono" style="font-size:11px;color:#94A3B8;">${new Date(l.usedAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
       </div>`).join('');
 }
 
@@ -674,13 +696,13 @@ async function loadStaffList(){
   const list=data.data.filter(s=>s.role==='staff');
   const colors=['#7C3AED','#0369A1','#065F46','#9D174D','#92400E','#1D4ED8','#047857','#B45309'];
   document.getElementById('staff-table').innerHTML=list.length===0
-    ?'<tr><td colspan="5" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
+    ?'<tr><td colspan="5" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#94A3B8;">Belum ada staff.</td></tr>'
     :list.map((s,i)=>`<tr>
       <td><div style="display:flex;align-items:center;gap:10px;">
         <div style="width:34px;height:34px;border-radius:9px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:#fff;flex-shrink:0;">${s.name?s.name[0].toUpperCase():'?'}</div>
         <p style="font-weight:700;font-size:13px;">${s.name}</p>
       </div></td>
-      <td><span class="mono" style="font-size:12px;color:#64748B;">${s.username}</span></td>
+      <td><span class="mono" style="font-size:12px;color:#94A3B8;">${s.username}</span></td>
       <td><span class="mono" style="font-size:11px;color:#F59E0B;">${s.employeeId}</span></td>
       <td class="c"><span class="badge ${s.isActive?'bgg':'bgr'}">${s.isActive?'AKTIF':'KUNCI'}</span></td>
       <td class="c">
@@ -703,6 +725,7 @@ function openAddStaff(){
   document.getElementById('modal-staff').classList.remove('hidden');
   document.getElementById('modal-error').classList.add('hidden');
   ['s-name','s-username','s-empid','s-password'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-role').value='staff';
 }
 async function submitAddStaff(){
   const name=document.getElementById('s-name').value.trim();
@@ -711,7 +734,8 @@ async function submitAddStaff(){
   const password=document.getElementById('s-password').value;
   const errEl=document.getElementById('modal-error');
   if(!name||!username||!employeeId||!password){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
-  const data=await api.post('/staff',{name,username,employeeId,password,role:'staff'});
+  const role=document.getElementById('s-role').value||'staff';
+  const data=await api.post('/staff',{name,username,employeeId,password,role});
   if(data.success){closeModal('modal-staff');showToast(`Staff ${name} ditambahkan!`);loadStaffList();}
   else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
 }
@@ -779,14 +803,14 @@ async function loadRanking(){
   const data=await api.get('/staff/ranking/today');
   if(!data.success)return;
   const el=document.getElementById('ranking-list');
-  if(!data.data.length){el.innerHTML='<p style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</p>';return;}
+  if(!data.data.length){el.innerHTML='<p style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#94A3B8;">Belum ada data.</p>';return;}
   el.innerHTML=data.data.map((s,i)=>`
     <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='none'">
       <div style="font-family:'Bebas Neue';font-size:24px;width:36px;text-align:center;color:${i<3?'#F59E0B':'#334155'};">#${i+1}</div>
-      <div style="flex:1;"><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></div>
+      <div style="flex:1;"><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${s.employeeId}</p></div>
       <div style="text-align:right;margin-right:12px;">
-        <p style="font-family:'Bebas Neue';font-size:22px;color:${s.targetReached?'#22C55E':'#64748B'};">${s.validCount}<span style="color:#1E293B;font-size:16px;">/3</span></p>
-        <p class="mono" style="font-size:10px;color:#475569;">Break ${s.breakHours}j</p>
+        <p style="font-family:'Bebas Neue';font-size:22px;color:${s.targetReached?'#22C55E':'#64748B'};">${s.validCount}<span style="color:#475569;font-size:16px;">/3</span></p>
+        <p class="mono" style="font-size:10px;color:#94A3B8;">Break ${s.breakHours}j</p>
       </div>
       <span class="badge ${s.targetReached?'bgg':'bg'}">${s.targetReached?'TARGET ✓':'PROSES'}</span>
     </div>`).join('');
@@ -799,12 +823,12 @@ async function loadIPWhitelist(){
   if(!data.success)return;
   document.getElementById('ip-count').textContent=`${data.data.length} IP`;
   document.getElementById('ip-list').innerHTML=data.data.length===0
-    ?'<div style="padding:28px;text-align:center;"><p class="mono" style="font-size:11px;color:#22C55E;margin-bottom:6px;">Mode Setup Aktif</p><p class="mono" style="font-size:10px;color:#475569;">Semua IP bisa masuk. Tambah IP untuk batasi akses.</p></div>'
+    ?'<div style="padding:28px;text-align:center;"><p class="mono" style="font-size:11px;color:#22C55E;margin-bottom:6px;">Mode Setup Aktif</p><p class="mono" style="font-size:10px;color:#94A3B8;">Semua IP bisa masuk. Tambah IP untuk batasi akses.</p></div>'
     :data.data.map(ip=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="width:7px;height:7px;border-radius:50%;background:${ip.isActive?'#22C55E':'#334155'};${ip.isActive?'box-shadow:0 0 5px #22C55E;':''}"></div>
-          <div><p class="mono" style="font-size:13px;font-weight:700;">${ip.ip}</p><p class="mono" style="font-size:10px;color:#475569;">${ip.label||'—'} · ${new Date(ip.createdAt).toLocaleDateString('id-ID')}</p></div>
+          <div><p class="mono" style="font-size:13px;font-weight:700;">${ip.ip}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${ip.label||'—'} · ${new Date(ip.createdAt).toLocaleDateString('id-ID')}</p></div>
         </div>
         <button onclick="deleteIP('${ip._id}','${ip.ip}')" class="btn btn-ghost" style="font-size:11px;padding:6px 12px;color:#EF4444;border-color:rgba(239,68,68,0.2);">Hapus</button>
       </div>`).join('');
@@ -851,12 +875,12 @@ async function loadAbsensi(){
     return `${h}j ${m}m`;
   };
   document.getElementById('absensi-table').innerHTML=list.length===0
-    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#475569;">Tidak ada staff aktif.</td></tr>'
+    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#94A3B8;">Tidak ada staff aktif.</td></tr>'
     :list.map(s=>`<tr>
-      <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
+      <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${s.employeeId}</p></td>
       <td class="c"><span class="mono" style="font-size:12px;color:${s.clockIn?'#4ADE80':'#334155'};">${fmtTime(s.clockIn)}</span></td>
       <td class="c"><span class="mono" style="font-size:12px;color:#94A3B8;">${fmtTime(s.clockOut)}</span></td>
-      <td class="c"><span class="mono" style="font-size:12px;color:#64748B;">${fmtDur(s.clockIn,s.clockOut)}</span></td>
+      <td class="c"><span class="mono" style="font-size:12px;color:#94A3B8;">${fmtDur(s.clockIn,s.clockOut)}</span></td>
       <td class="c"><span class="badge ${s.status==='hadir'?'bgg':s.status==='terlambat'?'bgo':'bgr'}">${s.status.toUpperCase()}</span></td>
     </tr>`).join('');
 }
@@ -885,16 +909,16 @@ async function loadHistori(){
   document.getElementById('hist-pending').textContent=staff.filter(s=>s.validCount===0).length;
   const pm={};
   if(pData.success)pData.summary?.forEach(s=>{if(s.staffName)pm[s.staffName]={i1:s.toiletUsed,i2:s.smoke1Used,i3:s.smoke2Used};});
-  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
+  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#475569;">—</span>';
   document.getElementById('histori-table').innerHTML=staff.length===0
-    ?'<tr><td colspan="7" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#475569;">Tidak ada data untuk tanggal ini.</td></tr>'
+    ?'<tr><td colspan="7" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#94A3B8;">Tidak ada data untuk tanggal ini.</td></tr>'
     :staff.map(s=>{
       const p=pm[s.name]||{};
       const pct=Math.min(100,Math.round((s.validCount/3)*100));
       const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
       return `<tr>
-        <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
-        <td class="c"><span class="mono" style="font-size:12px;font-weight:700;">${s.validCount}<span style="color:#334155;">/3</span></span></td>
+        <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#94A3B8;">${s.employeeId}</p></td>
+        <td class="c"><span class="mono" style="font-size:12px;font-weight:700;">${s.validCount}<span style="color:#94A3B8;">/3</span></span></td>
         <td class="c"><span style="font-family:'Bebas Neue';font-size:17px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
         <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
         <td class="c">${st}</td>
@@ -909,7 +933,7 @@ async function loadAnnouncements(){
   const list=data.data;
   const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
   const el=document.getElementById('ann-list');
-  if(!list.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;"><p class="mono" style="font-size:11px;color:#475569;">Belum ada pengumuman aktif.</p></div>';return;}
+  if(!list.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;"><p class="mono" style="font-size:11px;color:#94A3B8;">Belum ada pengumuman aktif.</p></div>';return;}
   el.innerHTML=list.map(a=>`
     <div class="card" style="border-color:${colors[a.priority]}30;">
       <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
@@ -923,8 +947,8 @@ async function loadAnnouncements(){
         <button onclick="deleteAnn('${a._id}')" class="btn btn-ghost" style="font-size:11px;padding:6px 10px;color:#EF4444;border-color:rgba(239,68,68,0.2);flex-shrink:0;">Hapus</button>
       </div>
       <div style="padding:10px 18px;display:flex;align-items:center;gap:16px;">
-        <span class="mono" style="font-size:10px;color:#475569;">Dibuat: ${new Date(a.createdAt).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
-        ${a.expiresAt?`<span class="mono" style="font-size:10px;color:#475569;">Kadaluarsa: ${new Date(a.expiresAt).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`:''}
+        <span class="mono" style="font-size:10px;color:#94A3B8;">Dibuat: ${new Date(a.createdAt).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+        ${a.expiresAt?`<span class="mono" style="font-size:10px;color:#94A3B8;">Kadaluarsa: ${new Date(a.expiresAt).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`:''}
       </div>
     </div>`).join('');
 }
@@ -971,6 +995,86 @@ window.addEventListener('DOMContentLoaded',()=>{
     api.token=null;
   }
 });
+
+
+// ═══════════════ EXPORT EXCEL ═══════════════
+async function exportExcelAll(){
+  const data = await api.get('/members/admin/all');
+  if(!data.success){ showToast('Gagal ambil data','err'); return; }
+  
+  const wb = XLSX.utils.book_new();
+  
+  // Sheet 1: Ringkasan semua staff
+  const summaryRows = [['No','Nama Staff','Employee ID','Member Valid','Target','Break','Izin Dipakai']];
+  data.data.forEach((s,i)=>{
+    const bh = s.breakHours||0;
+    const breakLabel = bh===0?'No Break':bh===1?'1 Jam':'2 Jam';
+    const izin = [s.toiletUsed,s.smoke1Used,s.smoke2Used].filter(Boolean).length;
+    summaryRows.push([i+1, s.name, s.employeeId, s.validCount, s.targetReached?'Tercapai':'Belum', breakLabel, `${izin}/3`]);
+  });
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  wsSummary['!cols'] = [{wch:5},{wch:20},{wch:12},{wch:14},{wch:12},{wch:12},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
+
+  // Sheet per staff - semua member ID
+  data.data.forEach(s=>{
+    if(s.members && s.members.length){
+      const rows = [['No','User ID / Member ID','Deposit (Rp)','Status','Tanggal']];
+      const today = new Date().toLocaleDateString('id-ID');
+      s.members.forEach((m,i)=>{
+        rows.push([i+1, m.memberId, m.deposit, m.isValid?'VALID':'TOLAK', today]);
+      });
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [{wch:5},{wch:20},{wch:16},{wch:10},{wch:14}];
+      // Sheet name max 31 chars
+      const sheetName = s.name.substring(0,28);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    }
+  });
+
+  const today = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, `StaffANG_Semua_${today}.xlsx`);
+  showToast('Export semua staff berhasil!');
+}
+
+async function exportExcelStaff(staffId, staffName){
+  const data = await api.get('/members/admin/all');
+  if(!data.success){ showToast('Gagal ambil data','err'); return; }
+  
+  const staff = data.data.find(s => s.staffId == staffId || s.staffId === staffId);
+  if(!staff){ showToast('Data staff tidak ditemukan','err'); return; }
+  
+  const wb = XLSX.utils.book_new();
+  const rows = [
+    ['Nama Staff', staff.name],
+    ['Employee ID', staff.employeeId],
+    ['Member Valid', staff.validCount],
+    ['Target', staff.targetReached?'Tercapai':'Belum'],
+    ['Break', staff.breakHours===0?'No Break':staff.breakHours===1?'1 Jam':'2 Jam'],
+    ['Tanggal', new Date().toLocaleDateString('id-ID')],
+    [],
+    ['No','User ID / Member ID','Deposit (Rp)','Status'],
+  ];
+  
+  if(staff.members && staff.members.length){
+    staff.members.forEach((m,i)=>{
+      rows.push([i+1, m.memberId, m.deposit, m.isValid?'VALID':'TOLAK']);
+    });
+  } else {
+    rows.push(['', 'Belum ada entri member', '', '']);
+  }
+  
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:18},{wch:22},{wch:16},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Data Member');
+  
+  const today = new Date().toISOString().split('T')[0];
+  const safeName = staffName.replace(/[^a-zA-Z0-9]/g,'_');
+  XLSX.writeFile(wb, `StaffANG_${safeName}_${today}.xlsx`);
+  showToast(`Export ${staffName} berhasil!`);
+}
+// ════════════════════════════════════════════
+
 </script>
 </body>
 </html>
