@@ -5,7 +5,7 @@ const BreakStatus = require('../models/BreakStatus');
 const { authMiddleware, staffOnly, adminOnly } = require('../middleware/auth');
 
 const DAILY_TARGET = 3;
-const MIN_DEPOSIT = 50000;
+const MIN_DEPOSIT = 1000;
 
 const getToday = () => new Date().toISOString().split('T')[0];
 
@@ -61,14 +61,6 @@ router.post('/input', authMiddleware, staffOnly, async (req, res) => {
     }
 
     const isValid = depositNum >= MIN_DEPOSIT;
-    if (!isValid) {
-      return res.status(400).json({
-        success: false,
-        message: `Deposit must be at least ${MIN_DEPOSIT.toLocaleString()}. Entry rejected.`,
-        minDeposit: MIN_DEPOSIT,
-        yourDeposit: depositNum,
-      });
-    }
 
     // Add member
     record.members.push({
@@ -179,6 +171,7 @@ router.get('/admin/all', authMiddleware, adminOnly, async (req, res) => {
         toiletUsed: perm?.toiletUsed || false,
         smoke1Used: perm?.smoke1Used || false,
         smoke2Used: perm?.smoke2Used || false,
+        members: input?.members || [],
       };
     });
 
