@@ -520,7 +520,7 @@ async function submitMember(){
   errEl.classList.add('hidden');succEl.classList.add('hidden');
   if(!memberId||!deposit){errEl.textContent='Isi semua field.';errEl.classList.remove('hidden');return;}
   btn.disabled=true;btn.textContent='Menyimpan…';
-  const data=await api.post('/members/input',{memberId,deposit:Number(deposit)});
+  const data=await api.post('/members/add',{memberId,deposit:Number(deposit)});
   if(data.success){
     succEl.textContent=`✓ Member ${memberId} berhasil! (${formatCurrency(data.data.deposit)})`;
     succEl.classList.remove('hidden');

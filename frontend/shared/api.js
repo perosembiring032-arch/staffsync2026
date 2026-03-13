@@ -1,4 +1,4 @@
-// Shared API utility
+﻿// Shared API utility
 const API_BASE = '/api';
 
 const api = {
@@ -28,7 +28,6 @@ const api = {
   logout(redirectTo) {
     this.setToken(null);
     this.setUser(null);
-    // Redirect ke halaman login yang sesuai
     const path = window.location.pathname;
     if (redirectTo) {
       window.location.href = redirectTo;
@@ -66,25 +65,6 @@ const api = {
   async post(path, body) { return this.request('POST', path, body); },
   async put(path, body) { return this.request('PUT', path, body); },
   async delete(path) { return this.request('DELETE', path); },
-};
-
-const toast = {
-  show(message, type, duration) {
-    type = type || 'info'; duration = duration || 3500;
-    let c = document.getElementById('toast-container');
-    if (!c) { c = document.createElement('div'); c.id = 'toast-container'; c.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;'; document.body.appendChild(c); }
-    const el = document.createElement('div');
-    const colors = { success:'background:rgba(21,128,61,0.95);border:1px solid rgba(34,197,94,0.3);color:#4ADE80', error:'background:rgba(153,27,27,0.95);border:1px solid rgba(230,57,70,0.3);color:#F87171', warning:'background:rgba(120,53,15,0.95);border:1px solid rgba(255,183,3,0.3);color:#FCD34D', info:'background:rgba(15,23,42,0.95);border:1px solid rgba(255,255,255,0.1);color:#94A3B8' };
-    const icons = { success:'✓', error:'✕', warning:'⚠', info:'ℹ' };
-    el.style.cssText = (colors[type]||colors.info) + ';padding:12px 18px;border-radius:12px;font-size:13px;font-family:monospace;min-width:200px;display:flex;align-items:center;gap:8px;';
-    el.innerHTML = '<span>' + (icons[type]||'ℹ') + '</span><span>' + message + '</span>';
-    c.appendChild(el);
-    setTimeout(function(){ el.remove(); }, duration);
-  },
-  success: function(msg){ toast.show(msg,'success'); },
-  error: function(msg){ toast.show(msg,'error'); },
-  warning: function(msg){ toast.show(msg,'warning'); },
-  info: function(msg){ toast.show(msg,'info'); },
 };
 
 function formatCurrency(n) {
