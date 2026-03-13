@@ -614,7 +614,7 @@ async function loadDashboard() {
 }
 
 async function loadMonitoring() {
-  const data = await api.get('/members/admin/today');
+  const data = await api.get('/members/admin/all');
   if (!data.success) return;
   const el = document.getElementById('monitoring-list');
   if (!data.data.length) {
@@ -744,8 +744,8 @@ async function loadStaffList(){
     ?'<tr><td colspan="5" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
     :list.map((s,i)=>`<tr>
       <td><div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:34px;height:34px;border-radius:9px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:#fff;flex-shrink:0;">${s.name?s.name[0].toUpperCase():'?'}</div>
-        <p style="font-weight:700;font-size:13px;">${s.fullName||'—'}</p>
+        <div style="width:34px;height:34px;border-radius:9px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:#fff;flex-shrink:0;">${(s.fullName||s.name||s.username||'?')[0].toUpperCase()}</div>
+        <p style="font-weight:700;font-size:13px;">${s.fullName||s.name||s.username||'—'}</p>
       </div></td>
       <td><span class="mono" style="font-size:12px;color:#64748B;">${s.username}</span></td>
       <td><span class="mono" style="font-size:11px;color:#F59E0B;">${s.employeeId}</span></td>
@@ -754,12 +754,12 @@ async function loadStaffList(){
         <div class="action-wrap">
           <div class="action-btn" onclick="toggleAM('am-${s._id}',event)">⋯</div>
           <div class="action-menu" id="am-${s._id}">
-            <button class="action-menu-item ai-edit" onclick="openEditStaff('${s._id}','${s.fullName}','${s.username}','${s.employeeId}')">✎ Edit Data</button>
-            <button class="action-menu-item ai-reset" onclick="openResetPassword('${s._id}','${s.name}')">⟳ Reset Sandi</button>
+            <button class="action-menu-item ai-edit" onclick="openEditStaff('${s._id}','${s.fullName||s.name||s.username}','${s.username}','${s.employeeId}')">✎ Edit Data</button>
+            <button class="action-menu-item ai-reset" onclick="openResetPassword('${s._id}','${s.fullName||s.name||s.username}')">⟳ Reset Sandi</button>
             <div class="action-menu-div"></div>
             <button class="action-menu-item ${s.isActive?'ai-lock':'ai-unlock'}" onclick="doToggleStaff('${s._id}',${s.isActive})">${s.isActive?'⊠ Kunci Akun':'⊙ Buka Kunci'}</button>
             <div class="action-menu-div"></div>
-            <button class="action-menu-item ai-del" onclick="openDeleteStaff('${s._id}','${s.fullName}')">✕ Hapus Akun</button>
+            <button class="action-menu-item ai-del" onclick="openDeleteStaff('${s._id}','${s.fullName||s.name||s.username}')">✕ Hapus Akun</button>
           </div>
         </div>
       </td>
@@ -1086,7 +1086,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 // ── EXCEL EXPORT ──
 async function exportExcelStaff(staffId, staffName) {
-  const data = await api.get('/members/admin/today');
+  const data = await api.get('/members/admin/all');
   if (!data.success) { showToast('Gagal ambil data', 'err'); return; }
   const entry = data.data.find(m => {
     const sid = m.staffId?._id || m.staffId;
