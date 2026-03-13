@@ -402,7 +402,7 @@ async function loadDashboard(){
     api.get('/announcements'),
   ]);
   if(!members.success)return;
-  const{validCount,targetReached,breakHours,members:list}=members.data;
+  const{validCount,targetMet,targetReached:_tr,breakAllowed,members:list}=members.data; const targetReached=targetMet||_tr||false;
   const perm=perms.success?perms.data:{};
 
   // Stats
@@ -412,10 +412,15 @@ async function loadDashboard(){
   if(validCount===0){tEl.textContent='BELUM';tEl.style.color='#334155';tCard.style.borderColor='var(--border)';}
   else if(targetReached){tEl.textContent='TERCAPAI';tEl.style.color='#22C55E';tCard.style.borderColor='rgba(34,197,94,0.2)';}
   else{tEl.textContent='PROSES';tEl.style.color='#F59E0B';tCard.style.borderColor='rgba(245,158,11,0.2)';}
-  if(breakHours===0){document.getElementById('stat-break').textContent='NO BREAK';document.getElementById('stat-break').style.color='#EF4444';}
-  else{document.getElementById('stat-break').textContent=`${breakHours} JAM`;document.getElementById('stat-break').style.color=breakHours>=2?'#22C55E':'#F59E0B';}
-  const usedPerms=[perm.toiletUsed,perm.smoke1Used,perm.smoke2Used].filter(Boolean).length;
-  document.getElementById('stat-perms').innerHTML=`${usedPerms}<span style="color:#1E293B;font-size:28px;">/3</span>`;
+  const bh = Number(breakAllowed||0);
+  const bEl = document.getElementById('stat-break');
+  if(bh===0){bEl.textContent='NO BREAK';bEl.style.color='#EF4444';}
+  else{bEl.textContent=bh+' JAM';bEl.style.color=bh>=2?'#22C55E':'#F59E0B';}
+  // Izin sistem baru - tampilkan total waktu terpakai
+  const usedMin = Math.floor((perm.totalUsedSeconds||0)/60);
+  const remMin  = Math.floor((perm.remainingSeconds!=null ? perm.remainingSeconds : 1800)/60);
+  const permEl  = document.getElementById('stat-perms');
+  if(permEl) permEl.innerHTML = usedMin>0 ? usedMin+'m<span style="color:#1E293B;font-size:16px;">/30m</span>' : '<span style="color:#334155;">0m</span>';
 
   // Progress
   const pct=Math.round((validCount/3)*100);
@@ -502,13 +507,78 @@ async function doClockOut(){
 }
 
 // ── Input Member ──────────────────────────────────────────────
-async function loadInputStatus(){
-  const data=await api.get('/members/today');
-  if(data.success){
-    const{validCount,targetReached}=data.data;
-    document.getElementById('input-status-text').innerHTML=`Entri valid: <span style="color:#fff;">${validCount}/3</span><br>Target: <span style="color:${targetReached?'#22C55E':'#F59E0B'};">${targetReached?'Tercapai ✓':'Belum'}</span><br>Sisa: <span style="color:#fff;">${Math.max(0,3-validCount)} member lagi</span>`;
-    if(validCount>=3){document.getElementById('input-btn').disabled=true;document.getElementById('input-btn').textContent='Batas Harian Tercapai';}
-    else{document.getElementById('input-btn').disabled=false;document.getElementById('input-btn').textContent='Submit Entri';}
+async function loadInputStatus() {
+  const data = await api.get('/members/today');
+  if (!data.success) return;
+  const { validCount, targetMet: tm2, targetReached: _tr2, breakAllowed, members: list } = data.data; const targetReached = tm2 || _tr2 || false;
+
+  // Update status text
+  document.getElementById('input-status-text').innerHTML =
+    'Entri valid: <span style="color:#fff;">' + validCount + '/3</span><br>' +
+    'Target: <span style="color:' + (targetReached ? '#22C55E' : '#F59E0B') + ';">' + (targetReached ? 'Tercapai ✓' : 'Belum') + '</span><br>' +
+    'Sisa: <span style="color:#fff;">' + Math.max(0, 3 - validCount) + ' member lagi</span>';
+
+  // Update tombol submit
+  const btn = document.getElementById('input-btn');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'Submit Entri';
+  }
+
+  // Update break stat di dashboard langsung
+  const bh = Number(breakAllowed || 0);
+  const bEl = document.getElementById('stat-break');
+  if (bEl) {
+    if (bh === 0) { bEl.textContent = 'NO BREAK'; bEl.style.color = '#EF4444'; }
+    else { bEl.textContent = bh + ' JAM'; bEl.style.color = bh >= 2 ? '#22C55E' : '#F59E0B'; }
+  }
+
+  // Update progress bar
+  const pct = Math.round((validCount / 3) * 100);
+  const bar = document.getElementById('progress-bar');
+  if (bar) {
+    bar.style.width = pct + '%';
+    if (targetReached) bar.classList.add('done'); else bar.classList.remove('done');
+  }
+  const pl = document.getElementById('progress-label');
+  if (pl) pl.textContent = validCount + ' / 3 member';
+  const ph = document.getElementById('progress-hint');
+  if (ph) ph.textContent = targetReached
+    ? 'Target tercapai! Break penuh 2 jam.'
+    : (3 - validCount) + ' member lagi untuk mencapai target.';
+
+  // Update member list di dashboard
+  const listEl = document.getElementById('member-list');
+  if (listEl && list) {
+    if (!list.length) {
+      listEl.innerHTML = '<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p>';
+    } else {
+      listEl.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        list.map((m, i) => '<div class="member-row">' +
+          '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<span class="mono" style="font-size:10px;color:#334155;">#' + (i+1) + '</span>' +
+            '<span class="mono" style="font-size:13px;font-weight:700;">' + m.memberId + '</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<span class="mono" style="font-size:12px;color:#4ADE80;">' + formatCurrency(m.deposit) + '</span>' +
+            '<span class="badge ' + (m.isValid ? 'bgg' : 'bgr') + '">' + (m.isValid ? 'VALID' : 'TOLAK') + '</span>' +
+            '<button onclick="openEditMember(' + i + ','' + m.memberId + '',' + m.deposit + ')" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60A5FA;font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border-radius:6px;cursor:pointer;">&#9998; EDIT</button>' +
+          '</div>' +
+        '</div>').join('') +
+      '</div>';
+    }
+  }
+
+  // Update stat-members
+  const smEl = document.getElementById('stat-members');
+  if (smEl) smEl.innerHTML = validCount + '<span style="color:#1E293B;font-size:28px;">/3</span>';
+
+  // Update stat-target
+  const tEl = document.getElementById('stat-target');
+  if (tEl) {
+    if (validCount === 0) { tEl.textContent = 'BELUM'; tEl.style.color = '#334155'; }
+    else if (targetReached) { tEl.textContent = 'TERCAPAI'; tEl.style.color = '#22C55E'; }
+    else { tEl.textContent = 'PROSES'; tEl.style.color = '#F59E0B'; }
   }
 }
 async function submitMember(){

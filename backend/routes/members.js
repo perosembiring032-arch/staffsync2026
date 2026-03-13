@@ -17,7 +17,7 @@ router.get('/today', auth, staffOnly, async (req, res) => {
     let breakAllowed = '0';
     if (validCount >= 3) breakAllowed = '2';
     else if (validCount >= 1) breakAllowed = '1';
-    res.json({ success: true, data: { members, validCount, totalDeposit, breakAllowed, targetMet: validCount >= 3 } });
+    res.json({ success: true, data: { members, validCount, totalDeposit, breakAllowed, targetMet: validCount >= 3, targetReached: validCount >= 3 } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -99,8 +99,8 @@ router.get('/admin/all', auth, adminOnly, async (req, res) => {
       const totalDeposit = members.reduce((s, m) => s + m.deposit, 0);
       return {
         staffId: inp.staffId?._id,
-        name: inp.staffId?.fullName || '—',
-        fullName: inp.staffId?.fullName || '—',
+        name: inp.staffId?.fullName || inp.staffId?.username || '—',
+        fullName: inp.staffId?.fullName || inp.staffId?.username || '—',
         employeeId: inp.staffId?.employeeId || '—',
         username: inp.staffId?.username || '—',
         members,

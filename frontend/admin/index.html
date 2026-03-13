@@ -600,7 +600,7 @@ async function loadDashboard() {
             ? '<span class="mono" style="font-size:11px;color:#94A3B8;">' + fmtT(perm.used) + '</span>'
             : '<span style="color:#334155;">—</span>';
         return `<tr>
-          <td><p style="font-weight:700;font-size:13px;">${s.fullName || s.name || '—'}</p>
+          <td><p style="font-weight:700;font-size:13px;">${s.fullName || s.name || s.username || '—'}</p>
               <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p></td>
           <td class="c" style="min-width:120px;">
             <div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#334155;">/3</span></div>
@@ -622,7 +622,7 @@ async function loadMonitoring() {
     return;
   }
   el.innerHTML = data.data.map(s => {
-    const staffName = s.staffId?.fullName || s.staffName || '—';
+    const staffName = s.staffId?.fullName || s.staffId?.username || s.staffName || s.name || s.username || '—';
     const staffEmpId = s.staffId?.employeeId || s.employeeId || '—';
     const staffId   = s.staffId?._id || s.staffId || '';
     const members   = s.members || [];
@@ -858,7 +858,7 @@ async function loadRanking() {
     <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
       <div style="font-size:${i<3?'22px':'14px'};min-width:28px;text-align:center;">${i < 3 ? medals[i] : '#' + (i+1)}</div>
       <div style="flex:1;">
-        <p style="font-weight:700;font-size:14px;">${s.fullName || '—'}</p>
+        <p style="font-weight:700;font-size:14px;">${s.fullName || s.username || '—'}</p>
         <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p>
       </div>
       <div style="text-align:right;">
@@ -945,7 +945,7 @@ async function loadAbsensi() {
             ? '<span class="badge bgg">Sudah Pulang</span>'
             : '<span class="badge bgo">Hadir</span>';
         return `<tr>
-          <td><p style="font-weight:700;font-size:13px;">${s.fullName || '—'}</p>
+          <td><p style="font-weight:700;font-size:13px;">${s.fullName || s.username || '—'}</p>
               <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p></td>
           <td class="c"><span class="mono" style="font-size:13px;color:#4ADE80;">${fmtTime(s.clockIn)}</span></td>
           <td class="c"><span class="mono" style="font-size:13px;color:#60A5FA;">${fmtTime(s.clockOut)}</span></td>
@@ -1007,7 +1007,7 @@ async function loadHistori() {
           </div>`).join('');
         return `<tr>
           <td>
-            <p style="font-weight:700;font-size:13px;">${s.fullName || s.name || '—'}</p>
+            <p style="font-weight:700;font-size:13px;">${s.fullName || s.name || s.username || '—'}</p>
             <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p>
           </td>
           <td class="c">

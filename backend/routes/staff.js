@@ -25,7 +25,7 @@ router.get('/ranking/today', auth, adminOnly, async (req, res) => {
       const totalDeposit = members.reduce((s, m) => s + m.deposit, 0);
       return {
         staffId: inp.staffId?._id,
-        fullName: inp.staffId?.fullName || '—',
+        fullName: inp.staffId?.fullName || inp.staffId?.username || '—',
         employeeId: inp.staffId?.employeeId || '—',
         username: inp.staffId?.username || '—',
         validCount,
