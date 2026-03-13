@@ -1,257 +1,99 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
+const { auth, staffOnly, adminOnly } = require('../middleware/auth');
 const MemberInput = require('../models/MemberInput');
-const BreakStatus = require('../models/BreakStatus');
-const { authMiddleware, staffOnly, adminOnly } = require('../middleware/auth');
 
-const DAILY_TARGET = 3;
 const MIN_DEPOSIT = 10000;
+const VALID_DEPOSIT = 50000;
 
 const getToday = () => new Date().toISOString().split('T')[0];
 
-const updateBreakStatus = async (staffId, date, validCount) => {
-  const targetReached = validCount >= DAILY_TARGET;
-  // 0 member=no break, 1-2=1 jam, 3+=2 jam
-  const breakHours = validCount === 0 ? 0 : validCount < DAILY_TARGET ? 1 : 2;
-
-  await BreakStatus.findOneAndUpdate(
-    { staffId, date },
-    { targetReached, breakHours },
-    { upsert: true, new: true }
-  );
-};
-
-// POST /api/members/input - Staff adds a member
-router.post('/input', authMiddleware, staffOnly, async (req, res) => {
+// GET today's input (staff)
+router.get('/today', auth, staffOnly, async (req, res) => {
   try {
-    const { memberId, deposit } = req.body;
-    const staffId = req.user._id;
-    const today = getToday();
-
-    // Validation
-    if (!memberId || memberId.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Member ID is required.' });
-    }
-
-    if (!deposit && deposit !== 0) {
-      return res.status(400).json({ success: false, message: 'Deposit amount is required.' });
-    }
-
-    const depositNum = Number(deposit);
-    if (isNaN(depositNum) || !Number.isFinite(depositNum)) {
-      return res.status(400).json({ success: false, message: 'Deposit must be a valid number.' });
-    }
-
-    // Find or create today's record
-    let record = await MemberInput.findOne({ staffId, date: today });
-
-    if (!record) {
-      record = new MemberInput({ staffId, date: today, members: [] });
-    }
-    // Tidak ada batas jumlah member per hari
-    // Check duplicate member ID
-    const isDuplicate = record.members.some(
-      m => m.memberId.toLowerCase() === memberId.trim().toLowerCase()
-    );
-    if (isDuplicate) {
-      return res.status(400).json({
-        success: false,
-        message: 'Member ID already entered today.',
-      });
-    }
-
-    const isValid = depositNum >= MIN_DEPOSIT;
-
-    // Add member
-    record.members.push({
-      memberId: memberId.trim(),
-      deposit: depositNum,
-      isValid: true,
-    });
-
-    // Recalculate valid count
-    const validCount = record.members.filter(m => m.isValid).length;
-    record.validCount = validCount;
-    record.targetReached = validCount >= DAILY_TARGET;
-
-    await record.save();
-
-    // Update break status
-    await updateBreakStatus(staffId, today, validCount);
-
-    res.json({
-      success: true,
-      message: 'Member added successfully.',
-      data: {
-        memberId: memberId.trim(),
-        deposit: depositNum,
-        isValid: true,
-        validCount,
-        targetReached: record.targetReached,
-        breakHours: record.validCount===0?0:record.validCount<DAILY_TARGET?1:2,
-      },
-    });
-  } catch (error) {
-    console.error('Input error:', error);
-    res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
-
-// GET /api/members/today - Staff views today's entries
-router.get('/today', authMiddleware, staffOnly, async (req, res) => {
-  try {
-    const today = getToday();
-    const record = await MemberInput.findOne({ staffId: req.user._id, date: today });
-
-    if (!record) {
-      return res.json({
-        success: true,
-        data: {
-          members: [],
-          validCount: 0,
-          targetReached: false,
-          breakHours: 0,
-          remaining: DAILY_TARGET,
-        },
-      });
-    }
-
-    const breakStatus = await BreakStatus.findOne({ staffId: req.user._id, date: today });
-
-    res.json({
-      success: true,
-      data: {
-        members: record.members,
-        validCount: record.validCount,
-        targetReached: record.targetReached,
-        breakHours: breakStatus?.breakHours??0,
-        remaining: Math.max(0, DAILY_TARGET - record.validCount),
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
-
-// GET /api/members/admin/all - Admin views all staff today
-router.get('/admin/all', authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const date = req.query.date || getToday();
-    const Staff = require('../models/Staff');
-
-    const allStaff = await Staff.find({ role: 'staff', isActive: true }).select('name username employeeId');
-    const inputs = await MemberInput.find({ date });
-    const breaks = await BreakStatus.find({ date });
-    const Permission = require('../models/Permission');
-    const permissions = await Permission.find({ date });
-
-    const inputMap = {};
-    inputs.forEach(i => { inputMap[i.staffId.toString()] = i; });
-
-    const breakMap = {};
-    breaks.forEach(b => { breakMap[b.staffId.toString()] = b; });
-
-    const permMap = {};
-    permissions.forEach(p => { permMap[p.staffId.toString()] = p; });
-
-    const result = allStaff.map(s => {
-      const sid = s._id.toString();
-      const input = inputMap[sid];
-      const brk = breakMap[sid];
-      const perm = permMap[sid];
-
-      return {
-        staffId: s._id,
-        name: s.name,
-        username: s.username,
-        employeeId: s.employeeId,
-        validCount: input?.validCount || 0,
-        targetReached: input?.targetReached || false,
-        breakHours: brk?.breakHours || 1,
-        toiletUsed: perm?.toiletUsed || false,
-        smoke1Used: perm?.smoke1Used || false,
-        smoke2Used: perm?.smoke2Used || false,
-        members: input?.members || [],
-      };
-    });
-
-    // Stats
-    const reached = result.filter(r => r.targetReached).length;
-    const failed = result.filter(r => !r.targetReached).length;
-
-    res.json({
-      success: true,
-      date,
-      stats: {
-        total: allStaff.length,
-        reached,
-        failed,
-        notStarted: result.filter(r => r.validCount === 0).length,
-      },
-      data: result,
-    });
-  } catch (error) {
-    console.error('Admin all error:', error);
-    res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
-
-// GET /api/members/admin/staff/:staffId - Admin views specific staff history
-router.get('/admin/staff/:staffId', authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { staffId } = req.params;
-    const { days = 7 } = req.query;
-
-    const records = await MemberInput.find({ staffId })
-      .sort({ date: -1 })
-      .limit(Number(days));
-
-    res.json({ success: true, data: records });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
-
-// PUT /api/members/edit/:index - Staff edit member by index
-router.put('/edit/:index', authMiddleware, staffOnly, async (req, res) => {
-  try {
-    const { memberId, deposit } = req.body;
-    const index = parseInt(req.params.index);
-    const staffId = req.user._id;
-    const today = getToday();
-
-    if (!memberId || memberId.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Member ID tidak boleh kosong.' });
-    }
-    const depositNum = Number(deposit);
-    if (isNaN(depositNum) || depositNum < 1000) {
-      return res.status(400).json({ success: false, message: 'Deposit minimal Rp 10.000.' });
-    }
-
-    const record = await MemberInput.findOne({ staffId, date: today });
-    if (!record || index < 0 || index >= record.members.length) {
-      return res.status(404).json({ success: false, message: 'Entri tidak ditemukan.' });
-    }
-
-    record.members[index].memberId = memberId.trim();
-    record.members[index].deposit = depositNum;
-    record.members[index].isValid = depositNum >= MIN_DEPOSIT;
-
-    // Recalculate validCount
-    const validCount = record.members.filter(m => m.isValid).length;
-    record.validCount = validCount;
-    record.targetReached = validCount >= DAILY_TARGET;
-
-    record.markModified('members');
-    await record.save();
-    await updateBreakStatus(staffId, today, validCount);
-
-    res.json({ success: true, message: 'Entri berhasil diperbarui.', data: record });
+    const input = await MemberInput.findOne({ staffId: req.staff._id, date: getToday() });
+    const members = input?.members || [];
+    const validCount = members.filter(m => m.isValid).length;
+    const totalDeposit = members.reduce((s, m) => s + m.deposit, 0);
+    let breakAllowed = '0';
+    if (validCount >= 3) breakAllowed = '2';
+    else if (validCount >= 1) breakAllowed = '1';
+    res.json({ success: true, data: { members, validCount, totalDeposit, breakAllowed, targetMet: validCount >= 3 } });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
+// POST add member
+router.post('/add', auth, staffOnly, async (req, res) => {
+  try {
+    const { memberId, deposit } = req.body;
+    if (!memberId || !deposit) return res.json({ success: false, message: 'Member ID dan deposit wajib diisi' });
+    const dep = Number(deposit);
+    if (isNaN(dep) || dep < MIN_DEPOSIT) return res.json({ success: false, message: `Deposit minimal Rp ${MIN_DEPOSIT.toLocaleString('id-ID')}` });
+
+    const today = getToday();
+    let input = await MemberInput.findOne({ staffId: req.staff._id, date: today });
+    if (!input) input = new MemberInput({ staffId: req.staff._id, date: today, members: [] });
+
+    const isDup = input.members.some(m => m.memberId === memberId);
+    if (isDup) return res.json({ success: false, message: 'Member ID sudah ada hari ini' });
+
+    const isValid = dep >= VALID_DEPOSIT;
+    input.members.push({ memberId, deposit: dep, isValid });
+    const validCount = input.members.filter(m => m.isValid).length;
+    input.targetMet = validCount >= 3;
+    await input.save();
+
+    res.json({ success: true, message: `Member berhasil ditambahkan${isValid ? '' : ' (deposit di bawah Rp 50.000, tidak valid untuk target)'}`, data: input.members });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// PUT edit member by index
+router.put('/edit/:index', auth, staffOnly, async (req, res) => {
+  try {
+    const idx = parseInt(req.params.index);
+    const { memberId, deposit } = req.body;
+    const dep = Number(deposit);
+    if (isNaN(dep) || dep < MIN_DEPOSIT) return res.json({ success: false, message: `Deposit minimal Rp ${MIN_DEPOSIT.toLocaleString('id-ID')}` });
+
+    const input = await MemberInput.findOne({ staffId: req.staff._id, date: getToday() });
+    if (!input || !input.members[idx]) return res.json({ success: false, message: 'Member tidak ditemukan' });
+
+    const isDup = input.members.some((m, i) => m.memberId === memberId && i !== idx);
+    if (isDup) return res.json({ success: false, message: 'Member ID sudah digunakan' });
+
+    input.members[idx].memberId = memberId;
+    input.members[idx].deposit = dep;
+    input.members[idx].isValid = dep >= VALID_DEPOSIT;
+    input.markModified('members');
+    await input.save();
+
+    res.json({ success: true, message: 'Member berhasil diupdate', data: input.members });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET all staff inputs today (admin)
+router.get('/admin/today', auth, adminOnly, async (req, res) => {
+  try {
+    const inputs = await MemberInput.find({ date: getToday() }).populate('staffId', 'fullName username employeeId');
+    res.json({ success: true, data: inputs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET history (admin)
+router.get('/admin/history', auth, adminOnly, async (req, res) => {
+  try {
+    const inputs = await MemberInput.find({}).populate('staffId', 'fullName username employeeId').sort({ createdAt: -1 }).limit(200);
+    res.json({ success: true, data: inputs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 module.exports = router;

@@ -1,174 +1,114 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
+const { auth, staffOnly, adminOnly } = require('../middleware/auth');
 const Permission = require('../models/Permission');
-const { authMiddleware, staffOnly, adminOnly } = require('../middleware/auth');
+const Staff = require('../models/Staff');
 
+const TOTAL_LIMIT = 1800; // 30 menit dalam detik
 const getToday = () => new Date().toISOString().split('T')[0];
-const TOTAL_LIMIT = 1800; // 30 menit total per hari
 
-function buildResponse(record) {
-  const now = new Date();
-  let secondsRunning = 0;
-  let timerSecondsLeft = null;
+const getOrCreate = async (staffId) => {
+  let perm = await Permission.findOne({ staffId, date: getToday() });
+  if (!perm) perm = await Permission.create({ staffId, date: getToday(), totalLimitSeconds: TOTAL_LIMIT });
+  return perm;
+};
 
-  if (record.activeTimer && record.timerStartAt) {
-    secondsRunning = Math.floor((now - record.timerStartAt) / 1000);
-    const alreadyUsed = record.totalUsedSeconds;
-    const remaining = Math.max(0, TOTAL_LIMIT - alreadyUsed - secondsRunning);
-    timerSecondsLeft = remaining; // bisa 0 (artinya overtime)
-  }
+const buildResponse = (perm) => ({
+  totalLimitSeconds: perm.totalLimitSeconds,
+  totalUsedSeconds: perm.totalUsedSeconds,
+  totalOvertimeSeconds: perm.totalOvertimeSeconds,
+  remainingSeconds: Math.max(0, perm.totalLimitSeconds - perm.totalUsedSeconds),
+  activeTimer: perm.activeTimer,
+  timerStartAt: perm.timerStartAt,
+  sessions: perm.sessions,
+});
 
-  const remainingSeconds = Math.max(0, TOTAL_LIMIT - record.totalUsedSeconds);
-
-  return {
-    totalLimitSeconds: TOTAL_LIMIT,
-    totalUsedSeconds: record.totalUsedSeconds,
-    totalOvertimeSeconds: record.totalOvertimeSeconds,
-    remainingSeconds,
-    activeTimer: record.activeTimer,
-    timerStartAt: record.timerStartAt,
-    timerSecondsLeft,
-    secondsRunning,
-    sessions: record.sessions,
-  };
-}
-
-// POST /api/permissions/start - Staff mulai keluar
-router.post('/start', authMiddleware, staffOnly, async (req, res) => {
+// GET today status (staff)
+router.get('/today', auth, staffOnly, async (req, res) => {
   try {
-    const staffId = req.user._id;
-    const today = getToday();
-    let record = await Permission.findOne({ staffId, date: today });
-    if (!record) record = new Permission({ staffId, date: today });
+    const perm = await getOrCreate(req.staff._id);
+    res.json({ success: true, data: buildResponse(perm) });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
-    if (record.activeTimer) {
-      return res.status(400).json({ success: false, message: 'Masih ada izin aktif. Klik Masuk dulu.' });
-    }
+// POST start izin (keluar)
+router.post('/start', auth, staffOnly, async (req, res) => {
+  try {
+    const perm = await getOrCreate(req.staff._id);
+    if (perm.activeTimer) return res.json({ success: false, message: 'Anda sudah sedang izin' });
+    const remaining = perm.totalLimitSeconds - perm.totalUsedSeconds;
+    if (remaining <= 0) return res.json({ success: false, message: 'Jatah izin hari ini sudah habis' });
+
+    perm.activeTimer = 'izin';
+    perm.timerStartAt = new Date();
+    await perm.save();
+
+    res.json({ success: true, message: 'Izin dimulai. Segera kembali!', data: buildResponse(perm) });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST stop izin (masuk)
+router.post('/stop', auth, staffOnly, async (req, res) => {
+  try {
+    const perm = await getOrCreate(req.staff._id);
+    if (!perm.activeTimer) return res.json({ success: false, message: 'Tidak ada izin yang aktif' });
 
     const now = new Date();
-    record.activeTimer = 'izin';
-    record.timerStartAt = now;
-    record.sessions.push({ startAt: now });
-    await record.save();
+    const dur = Math.floor((now - perm.timerStartAt) / 1000);
+    const remaining = perm.totalLimitSeconds - perm.totalUsedSeconds;
+    const overtimeSec = Math.max(0, dur - remaining);
+    const usedThisSession = Math.min(dur, remaining);
 
-    const remaining = Math.max(0, TOTAL_LIMIT - record.totalUsedSeconds);
-    const mnt = Math.floor(remaining / 60);
-    const dtk = remaining % 60;
-    res.json({
-      success: true,
-      message: `Izin dimulai. Sisa jatah: ${mnt}m ${dtk}s.`,
-      data: buildResponse(record),
+    perm.sessions.push({
+      startAt: perm.timerStartAt,
+      endAt: now,
+      durationSeconds: dur,
+      isOvertime: overtimeSec > 0,
+      overtimeSeconds: overtimeSec,
     });
+
+    perm.totalUsedSeconds += usedThisSession;
+    perm.totalOvertimeSeconds += overtimeSec;
+    perm.activeTimer = null;
+    perm.timerStartAt = null;
+    await perm.save();
+
+    const msg = overtimeSec > 0
+      ? `Kembali dicatat. Overtime ${Math.floor(overtimeSec/60)}m ${overtimeSec%60}s`
+      : `Kembali dicatat. Durasi: ${Math.floor(dur/60)}m ${dur%60}s`;
+    res.json({ success: true, message: msg, data: buildResponse(perm) });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// POST /api/permissions/stop - Staff kembali
-router.post('/stop', authMiddleware, staffOnly, async (req, res) => {
-  try {
-    const staffId = req.user._id;
-    const today = getToday();
-    const record = await Permission.findOne({ staffId, date: today });
-    if (!record || !record.activeTimer) {
-      return res.status(400).json({ success: false, message: 'Tidak ada timer aktif.' });
-    }
-
-    const now = new Date();
-    const elapsed = Math.floor((now - record.timerStartAt) / 1000);
-
-    // Hitung sisa jatah sebelum sesi ini
-    const beforeUsed = record.totalUsedSeconds;
-    const remainingBefore = Math.max(0, TOTAL_LIMIT - beforeUsed);
-
-    const actualUsed = Math.min(elapsed, remainingBefore);
-    const overtime = Math.max(0, elapsed - remainingBefore);
-
-    record.totalUsedSeconds += actualUsed;
-    record.totalOvertimeSeconds += overtime;
-
-    // Update sesi terakhir
-    const lastSession = record.sessions[record.sessions.length - 1];
-    lastSession.endAt = now;
-    lastSession.durationSeconds = elapsed;
-    lastSession.isOvertime = overtime > 0;
-    lastSession.overtimeSeconds = overtime;
-
-    record.activeTimer = null;
-    record.timerStartAt = null;
-    await record.save();
-
-    const remainingAfter = Math.max(0, TOTAL_LIMIT - record.totalUsedSeconds);
-    let msg = `Kembali! Durasi keluar: ${Math.floor(elapsed/60)}m ${elapsed%60}s.`;
-    if (overtime > 0) {
-      msg += ` ⚠️ Overtime ${Math.floor(overtime/60)}m ${overtime%60}s!`;
-    } else {
-      msg += ` Sisa jatah: ${Math.floor(remainingAfter/60)}m ${remainingAfter%60}s.`;
-    }
-
-    res.json({ success: true, message: msg, data: buildResponse(record) });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
-
-// GET /api/permissions/today - Staff lihat status izin hari ini
-router.get('/today', authMiddleware, staffOnly, async (req, res) => {
+// GET admin logs
+router.get('/admin/logs', auth, adminOnly, async (req, res) => {
   try {
     const today = getToday();
-    const record = await Permission.findOne({ staffId: req.user._id, date: today });
-    if (!record) {
-      return res.json({ success: true, data: {
-        totalLimitSeconds: TOTAL_LIMIT,
-        totalUsedSeconds: 0,
-        totalOvertimeSeconds: 0,
-        remainingSeconds: TOTAL_LIMIT,
-        activeTimer: null,
-        timerStartAt: null,
-        timerSecondsLeft: null,
-        secondsRunning: 0,
-        sessions: [],
-      }});
-    }
-    res.json({ success: true, data: buildResponse(record) });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
+    const staffList = await Staff.find({ role: 'staff', isActive: true });
+    const perms = await Permission.find({ date: today });
 
-// GET /api/permissions/admin/logs - Admin lihat log izin per staff
-router.get('/admin/logs', authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const date = req.query.date || getToday();
-    const records = await Permission.find({ date }).populate('staffId', 'name username employeeId');
-
-    const summary = records.map(r => {
-      const sessions = r.sessions.map(s => ({
-        startAt: s.startAt,
-        endAt: s.endAt,
-        durationSeconds: s.durationSeconds,
-        isOvertime: s.isOvertime,
-        overtimeSeconds: s.overtimeSeconds,
-      }));
-
+    const result = staffList.map(s => {
+      const p = perms.find(x => x.staffId.toString() === s._id.toString());
       return {
-        staffName: r.staffId?.name || '-',
-        username: r.staffId?.username || '-',
-        employeeId: r.staffId?.employeeId || '-',
-        totalUsedSeconds: r.totalUsedSeconds,
-        totalOvertimeSeconds: r.totalOvertimeSeconds,
-        remainingSeconds: Math.max(0, TOTAL_LIMIT - r.totalUsedSeconds),
-        activeTimer: r.activeTimer,
-        sessionCount: r.sessions.length,
-        sessions,
+        staffId: s._id,
+        fullName: s.fullName,
+        employeeId: s.employeeId,
+        totalUsedSeconds: p?.totalUsedSeconds || 0,
+        totalOvertimeSeconds: p?.totalOvertimeSeconds || 0,
+        remainingSeconds: p ? Math.max(0, TOTAL_LIMIT - p.totalUsedSeconds) : TOTAL_LIMIT,
+        activeTimer: p?.activeTimer || null,
+        sessions: p?.sessions || [],
       };
     });
 
-    res.json({ success: true, date, data: summary });
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 

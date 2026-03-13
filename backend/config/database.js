@@ -2,13 +2,12 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://staffsync_user:YOgSYH3pEKxNoa99@cluster0.ahvb6sk.mongodb.net/staff_monitor');
+    console.log('MongoDB connected');
+    const { seedAdmins } = require('./seed');
+    await seedAdmins();
+  } catch (err) {
+    console.error('DB error:', err.message);
     process.exit(1);
   }
 };

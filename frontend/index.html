@@ -1,219 +1,27 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STAFF ANG — Monitoring System</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>STAFF ANG — Staff Monitoring</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --red: #E63946;
-      --red-dim: rgba(230,57,70,0.15);
-      --gold: #FFB703;
-      --dark: #080C10;
-      --dark2: #0D1219;
-      --dark3: #131A24;
-      --border: rgba(255,255,255,0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Outfit', sans-serif; background: var(--dark); color: #E8EDF2; overflow-x: hidden; }
-    .bebas { font-family: 'Bebas Neue', cursive; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-
-    /* Animated background */
-    .bg-pattern {
-      position: fixed; inset: 0; z-index: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(230,57,70,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,183,3,0.05) 0%, transparent 50%),
-        linear-gradient(180deg, #080C10 0%, #0A0F16 100%);
-    }
-    .grid-lines {
-      position: fixed; inset: 0; z-index: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
-    .noise {
-      position: fixed; inset: 0; z-index: 0; opacity: 0.03;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    }
-
-    .content { position: relative; z-index: 1; }
-
-    /* Logo */
-    .logo-text {
-      font-family: 'Bebas Neue', cursive;
-      font-size: clamp(72px, 15vw, 140px);
-      line-height: 0.9;
-      background: linear-gradient(135deg, #FFFFFF 0%, #E63946 50%, #FFB703 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 2px;
-    }
-
-    /* Cards */
-    .portal-card {
-      background: var(--dark3);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 36px;
-      cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    .portal-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      opacity: 0;
-      transition: opacity 0.35s;
-    }
-    .portal-card.staff::before { background: radial-gradient(ellipse at top left, rgba(230,57,70,0.12), transparent 60%); }
-    .portal-card.admin::before { background: radial-gradient(ellipse at top left, rgba(255,183,3,0.12), transparent 60%); }
-    .portal-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.12); }
-    .portal-card:hover::before { opacity: 1; }
-    .portal-card.staff:hover { box-shadow: 0 20px 60px rgba(230,57,70,0.15); }
-    .portal-card.admin:hover { box-shadow: 0 20px 60px rgba(255,183,3,0.12); }
-
-    .card-icon {
-      width: 56px; height: 56px;
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 24px;
-      font-size: 24px;
-    }
-    .staff .card-icon { background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.2); }
-    .admin .card-icon { background: rgba(255,183,3,0.12); border: 1px solid rgba(255,183,3,0.2); }
-
-    .card-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-    .card-desc { font-size: 14px; color: #6B7A8D; line-height: 1.6; margin-bottom: 28px; }
-    .card-link {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: 600;
-      transition: gap 0.2s;
-    }
-    .portal-card:hover .card-link { gap: 12px; }
-    .staff .card-link { color: var(--red); }
-    .admin .card-link { color: var(--gold); }
-
-    /* Status bar */
-    .status-bar {
-      display: flex; align-items: center; gap-x: 24px;
-      padding: 12px 20px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      backdrop-filter: blur(10px);
-    }
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #22C55E;
-      box-shadow: 0 0 8px #22C55E;
-      animation: blink 2s ease-in-out infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .anim-1 { animation: slideUp 0.7s ease-out 0.1s both; }
-    .anim-2 { animation: slideUp 0.7s ease-out 0.3s both; }
-    .anim-3 { animation: slideUp 0.7s ease-out 0.5s both; }
-    .anim-4 { animation: slideUp 0.7s ease-out 0.65s both; }
-
-    /* Diagonal accent line */
-    .accent-line {
-      position: fixed;
-      width: 1px; height: 40vh;
-      background: linear-gradient(180deg, transparent, rgba(230,57,70,0.3), transparent);
-      top: 10%; right: 15%;
-      transform: rotate(15deg);
-      pointer-events: none;
-    }
-    .accent-line2 {
-      position: fixed;
-      width: 1px; height: 30vh;
-      background: linear-gradient(180deg, transparent, rgba(255,183,3,0.2), transparent);
-      bottom: 15%; left: 10%;
-      transform: rotate(-10deg);
-      pointer-events: none;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0A0E1A;color:#E2E8F0;font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .logo{font-family:'Bebas Neue';font-size:64px;letter-spacing:4px;background:linear-gradient(135deg,#6366F1,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .sub{font-family:'JetBrains Mono';font-size:12px;color:#475569;letter-spacing:2px;margin-bottom:48px}
+    .btn{display:inline-block;padding:14px 32px;border-radius:12px;font-family:'JetBrains Mono';font-size:13px;font-weight:700;text-decoration:none;letter-spacing:1px;transition:all .2s}
+    .btn-staff{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;margin-right:12px}
+    .btn-admin{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94A3B8}
+    .btn:hover{transform:translateY(-2px);opacity:.9}
   </style>
 </head>
 <body>
-  <div class="bg-pattern"></div>
-  <div class="grid-lines"></div>
-  <div class="noise"></div>
-  <div class="accent-line"></div>
-  <div class="accent-line2"></div>
-
-  <div class="content min-h-screen flex flex-col items-center justify-center px-6 py-16">
-
-    <!-- Status -->
-    <div class="status-bar mb-10 anim-1">
-      <div class="status-dot"></div>
-      <span class="mono text-xs text-slate-400 ml-3">SYSTEM ONLINE</span>
-      <span class="mx-4 text-slate-700">|</span>
-      <span class="mono text-xs text-slate-500" id="live-time"></span>
-    </div>
-
-    <!-- Logo -->
-    <div class="text-center mb-4 anim-2">
-      <div class="logo-text">STAFF ANG</div>
-      <p class="mono text-xs text-slate-600 mt-2 tracking-widest uppercase">Staff Performance Monitoring System</p>
-    </div>
-
-    <!-- Divider -->
-    <div class="flex items-center gap-4 mb-12 anim-3 w-full max-w-lg">
-      <div class="flex-1 h-px bg-gradient-to-r from-transparent to-red-900/30"></div>
-      <span class="mono text-xs text-slate-700">PILIH PORTAL</span>
-      <div class="flex-1 h-px bg-gradient-to-l from-transparent to-yellow-900/30"></div>
-    </div>
-
-    <!-- Cards -->
-    <div class="grid md:grid-cols-2 gap-5 w-full max-w-2xl anim-4">
-      <div class="portal-card staff" onclick="window.location.href='/staff/index.html'">
-        <div class="card-icon"></div>
-        <h2 class="card-title">Portal Staff</h2>
-        <p class="card-desc">Input member harian, pantau target, gunakan izin toilet & smoking.</p>
-        <div class="card-link">
-          Masuk sebagai Staff
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-        </div>
-      </div>
-
-      <div class="portal-card admin" onclick="window.location.href='/admin/index.html'">
-        <div class="card-icon"></div>
-        <h2 class="card-title">Admin Control</h2>
-        <p class="card-desc">Monitor semua staff, target harian, log permission, kelola akun.</p>
-        <div class="card-link">
-          Masuk sebagai Admin
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <p class="mono text-xs text-slate-700 mt-12 anim-4">Reset harian tengah malam · Sesi berakhir 8 jam</p>
+  <div style="text-align:center">
+    <div class="logo">STAFF ANG</div>
+    <div class="sub">STAFF MONITORING SYSTEM</div>
+    <a href="/staff/index.html" class="btn btn-staff">🧑‍💼 Portal Staff</a>
+    <a href="/admin/index.html" class="btn btn-admin">⚙️ Portal Admin</a>
   </div>
-
-  <script>
-    function updateTime() {
-      document.getElementById('live-time').textContent = new Date().toLocaleString('id-ID', {
-        weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
-      });
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
-  </script>
 </body>
 </html>
