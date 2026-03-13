@@ -234,8 +234,8 @@
           <div style="overflow-x:auto;">
             <table class="tbl">
               <thead><tr>
-                <th>Staff</th><th class="c">Progress</th><th class="c">Break</th>
-                <th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th>
+                <th>Staff</th><th class="c">Progress</th><th class="c">Total Deposit</th>
+                <th class="c">Izin</th><th class="c">Status</th>
               </tr></thead>
               <tbody id="dash-table"><tr><td colspan="7" style="padding:32px;text-align:center;" class="mono" style="font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
             </table>
@@ -300,8 +300,8 @@
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
           <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Hadir</div><div class="stat-value" style="font-size:36px;color:#22C55E;" id="abs-hadir">0</div><div class="stat-sub">tepat waktu</div></div>
-          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Terlambat</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="abs-telat">0</div><div class="stat-sub">lewat jam 08:00</div></div>
-          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Absen</div><div class="stat-value" style="font-size:36px;color:#EF4444;" id="abs-absen">0</div><div class="stat-sub">belum clock-in</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Belum Masuk</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="abs-telat">0</div><div class="stat-sub">belum clock in</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Sudah Pulang</div><div class="stat-value" style="font-size:36px;color:#60A5FA;" id="abs-absen">0</div><div class="stat-sub">sudah clock out</div></div>
         </div>
         <div class="card">
           <div class="section-head"><span class="section-title">Daftar Absensi Hari Ini</span></div>
@@ -331,7 +331,7 @@
           <div class="section-head"><span class="section-title" id="histori-title">Pilih tanggal untuk melihat data</span></div>
           <div style="overflow-x:auto;">
             <table class="tbl">
-              <thead><tr><th>Staff</th><th class="c">Member Valid</th><th class="c">Break</th><th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th></tr></thead>
+              <thead><tr><th>Staff</th><th class="c">Progress</th><th class="c">Izin</th><th>Detail Member</th><th class="c">Status</th></tr></thead>
               <tbody id="histori-table"><tr><td colspan="7" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Pilih tanggal di atas.</td></tr></tbody>
             </table>
           </div>
@@ -560,34 +560,57 @@ function showPage(page){
   else if(page==='ipwhitelist')loadIPWhitelist();
 }
 
-async function loadDashboard(){
-  const[mData,pData]=await Promise.all([api.get('/members/admin/all'),api.get('/permissions/admin/logs')]);
-  if(!mData.success)return;
-  const staff=mData.data;
-  document.getElementById('d-total').textContent=staff.length;
-  document.getElementById('d-reached').textContent=staff.filter(s=>s.targetReached).length;
-  document.getElementById('d-failed').textContent=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
-  document.getElementById('d-pending').textContent=staff.filter(s=>s.validCount===0).length;
-  const pm={};
-  if(pData.success)pData.data.forEach(p=>{
-    if(!pm[p.staffName])pm[p.staffName]={i1:false,i2:false,i3:false};
-    if(p.type==='toilet')pm[p.staffName].i1=true;
-    if(p.type==='smoke_1')pm[p.staffName].i2=true;
-    if(p.type==='smoke_2')pm[p.staffName].i3=true;
+async function loadDashboard() {
+  const [mData, pData] = await Promise.all([
+    api.get('/members/admin/all'),
+    api.get('/permissions/admin/logs')
+  ]);
+  if (!mData.success) return;
+  const staff = mData.data;
+
+  document.getElementById('d-total').textContent   = staff.length;
+  document.getElementById('d-reached').textContent = staff.filter(s => s.targetReached).length;
+  document.getElementById('d-failed').textContent  = staff.filter(s => !s.targetReached && s.validCount > 0).length;
+  document.getElementById('d-pending').textContent = staff.filter(s => s.validCount === 0).length;
+
+  // Permission map (sistem baru: 1 izin 30 menit)
+  const pm = {};
+  if (pData.success) pData.data.forEach(p => {
+    pm[p.fullName] = { used: p.totalUsedSeconds || 0, ot: p.totalOvertimeSeconds || 0, active: !!p.activeTimer };
   });
-  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
-  document.getElementById('dash-table').innerHTML=staff.length===0
-    ?'<tr><td colspan="7" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
-    :staff.map(s=>{
-      const p=pm[s.name]||{};
-      const pct=Math.min(100,Math.round((s.validCount/3)*100));
-      const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
-      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
-        <td class="c" style="min-width:120px;"><div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#334155;">/3</span></div><div class="prog-track" style="width:100px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div></td>
-        <td class="c"><span style="font-family:'Bebas Neue';font-size:18px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
-        <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
-        <td class="c">${st}</td></tr>`;
-    }).join('');
+
+  const ck = v => v ? '<span class="badge bgg">✓</span>' : '<span style="color:#1E293B;">—</span>';
+
+  document.getElementById('dash-table').innerHTML = staff.length === 0
+    ? '<tr><td colspan="5" style="padding:32px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
+    : staff.map(s => {
+        const perm = pm[s.fullName] || pm[s.name] || {};
+        const pct  = Math.min(100, Math.round((s.validCount / 3) * 100));
+        const st   = s.validCount === 0
+          ? '<span class="badge bg">Belum</span>'
+          : s.targetReached
+            ? '<span class="badge bgg">Target ✓</span>'
+            : '<span class="badge bgo">Proses</span>';
+        const fmtT = sec => sec > 0
+          ? String(Math.floor(sec/60)).padStart(2,'0') + ':' + String(sec%60).padStart(2,'0')
+          : '—';
+        const izinBadge = perm.active
+          ? '<span class="badge bgo">Sedang Izin</span>'
+          : perm.used > 0
+            ? '<span class="mono" style="font-size:11px;color:#94A3B8;">' + fmtT(perm.used) + '</span>'
+            : '<span style="color:#334155;">—</span>';
+        return `<tr>
+          <td><p style="font-weight:700;font-size:13px;">${s.fullName || s.name || '—'}</p>
+              <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p></td>
+          <td class="c" style="min-width:120px;">
+            <div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#334155;">/3</span></div>
+            <div class="prog-track" style="width:100px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div>
+          </td>
+          <td class="c"><span class="mono" style="font-size:13px;">Rp${Number(s.totalDeposit||0).toLocaleString('id-ID')}</span></td>
+          <td class="c">${izinBadge}</td>
+          <td class="c">${st}</td>
+        </tr>`;
+      }).join('');
 }
 
 async function loadMonitoring() {
@@ -722,7 +745,7 @@ async function loadStaffList(){
     :list.map((s,i)=>`<tr>
       <td><div style="display:flex;align-items:center;gap:10px;">
         <div style="width:34px;height:34px;border-radius:9px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:#fff;flex-shrink:0;">${s.name?s.name[0].toUpperCase():'?'}</div>
-        <p style="font-weight:700;font-size:13px;">${s.name}</p>
+        <p style="font-weight:700;font-size:13px;">${s.fullName||'—'}</p>
       </div></td>
       <td><span class="mono" style="font-size:12px;color:#64748B;">${s.username}</span></td>
       <td><span class="mono" style="font-size:11px;color:#F59E0B;">${s.employeeId}</span></td>
@@ -731,12 +754,12 @@ async function loadStaffList(){
         <div class="action-wrap">
           <div class="action-btn" onclick="toggleAM('am-${s._id}',event)">⋯</div>
           <div class="action-menu" id="am-${s._id}">
-            <button class="action-menu-item ai-edit" onclick="openEditStaff('${s._id}','${s.name}','${s.username}','${s.employeeId}')">✎ Edit Data</button>
+            <button class="action-menu-item ai-edit" onclick="openEditStaff('${s._id}','${s.fullName}','${s.username}','${s.employeeId}')">✎ Edit Data</button>
             <button class="action-menu-item ai-reset" onclick="openResetPassword('${s._id}','${s.name}')">⟳ Reset Sandi</button>
             <div class="action-menu-div"></div>
             <button class="action-menu-item ${s.isActive?'ai-lock':'ai-unlock'}" onclick="doToggleStaff('${s._id}',${s.isActive})">${s.isActive?'⊠ Kunci Akun':'⊙ Buka Kunci'}</button>
             <div class="action-menu-div"></div>
-            <button class="action-menu-item ai-del" onclick="openDeleteStaff('${s._id}','${s.name}')">✕ Hapus Akun</button>
+            <button class="action-menu-item ai-del" onclick="openDeleteStaff('${s._id}','${s.fullName}')">✕ Hapus Akun</button>
           </div>
         </div>
       </td>
@@ -758,7 +781,7 @@ async function submitAddStaff(){
   const password=document.getElementById('s-password').value;
   const errEl=document.getElementById('modal-error');
   if(!name||!username||!employeeId||!password){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
-  const data=await api.post('/staff',{name,username,employeeId,password,role:'staff'});
+  const data=await api.post('/staff/create',{fullName:name,username,employeeId,password,role:document.getElementById('s-role')?.value||'staff'});
   if(data.success){closeModal('modal-staff');showToast(`Staff ${name} ditambahkan!`);loadStaffList();}
   else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
 }
@@ -822,20 +845,27 @@ async function submitDeleteStaff(){
   else showToast(data.message||'Gagal.','err');
 }
 
-async function loadRanking(){
-  const data=await api.get('/staff/ranking/today');
-  if(!data.success)return;
-  const el=document.getElementById('ranking-list');
-  if(!data.data.length){el.innerHTML='<p style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</p>';return;}
-  el.innerHTML=data.data.map((s,i)=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='none'">
-      <div style="font-family:'Bebas Neue';font-size:24px;width:36px;text-align:center;color:${i<3?'#F59E0B':'#334155'};">#${i+1}</div>
-      <div style="flex:1;"><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></div>
-      <div style="text-align:right;margin-right:12px;">
-        <p style="font-family:'Bebas Neue';font-size:22px;color:${s.targetReached?'#22C55E':'#64748B'};">${s.validCount}<span style="color:#1E293B;font-size:16px;">/3</span></p>
-        <p class="mono" style="font-size:10px;color:#475569;">Break ${s.breakHours}j</p>
+async function loadRanking() {
+  const data = await api.get('/staff/ranking/today');
+  if (!data.success) return;
+  const el = document.getElementById('ranking-list');
+  if (!data.data.length) {
+    el.innerHTML = '<p style="padding:32px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#475569;">Belum ada data hari ini.</p>';
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  el.innerHTML = data.data.map((s, i) => `
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
+      <div style="font-size:${i<3?'22px':'14px'};min-width:28px;text-align:center;">${i < 3 ? medals[i] : '#' + (i+1)}</div>
+      <div style="flex:1;">
+        <p style="font-weight:700;font-size:14px;">${s.fullName || '—'}</p>
+        <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p>
       </div>
-      <span class="badge ${s.targetReached?'bgg':'bg'}">${s.targetReached?'TARGET ✓':'PROSES'}</span>
+      <div style="text-align:right;">
+        <p class="mono" style="font-size:13px;font-weight:700;color:${s.targetReached?'#4ADE80':'#F59E0B'};">${s.validCount}/3 valid</p>
+        <p class="mono" style="font-size:10px;color:#475569;">Rp${Number(s.totalDeposit||0).toLocaleString('id-ID')}</p>
+      </div>
+      <span class="badge ${s.targetReached?'bgg':'bgo'}">${s.targetReached?'✓ TARGET':'PROSES'}</span>
     </div>`).join('');
 }
 
@@ -880,32 +910,49 @@ async function deleteIP(id,ip){
 }
 
 // ── Absensi ──────────────────────────────────────────────
-async function loadAbsensi(){
-  const data=await api.get('/attendance/admin/today');
-  if(!data.success)return;
-  const list=data.data;
-  const hadir=list.filter(s=>s.status==='hadir').length;
-  const telat=list.filter(s=>s.status==='terlambat').length;
-  const absen=list.filter(s=>s.status==='absen').length;
-  document.getElementById('abs-hadir').textContent=hadir;
-  document.getElementById('abs-telat').textContent=telat;
-  document.getElementById('abs-absen').textContent=absen;
-  const fmtTime=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
-  const fmtDur=(ci,co)=>{
-    if(!ci||!co)return'—';
-    const ms=new Date(co)-new Date(ci);
-    const h=Math.floor(ms/3600000);const m=Math.floor((ms%3600000)/60000);
-    return `${h}j ${m}m`;
+async function loadAbsensi() {
+  const data = await api.get('/attendance/admin/today');
+  if (!data.success) return;
+  const list = data.data;
+
+  const hadir  = list.filter(s => s.isPresent && s.clockIn).length;
+  const belum  = list.filter(s => !s.clockIn).length;
+  const pulang = list.filter(s => s.clockIn && s.clockOut).length;
+
+  document.getElementById('abs-hadir').textContent = hadir;
+  document.getElementById('abs-telat').textContent = belum;
+  document.getElementById('abs-absen').textContent = pulang;
+
+  const fmtTime = t => t ? new Date(t).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '—';
+  const fmtDur  = (ci, co) => {
+    if (!ci || !co) return '—';
+    const ms = new Date(co) - new Date(ci);
+    const h  = Math.floor(ms / 3600000);
+    const m  = Math.floor((ms % 3600000) / 60000);
+    return h + 'j ' + m + 'm';
   };
-  document.getElementById('absensi-table').innerHTML=list.length===0
-    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#475569;">Tidak ada staff aktif.</td></tr>'
-    :list.map(s=>`<tr>
-      <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
-      <td class="c"><span class="mono" style="font-size:12px;color:${s.clockIn?'#4ADE80':'#334155'};">${fmtTime(s.clockIn)}</span></td>
-      <td class="c"><span class="mono" style="font-size:12px;color:#94A3B8;">${fmtTime(s.clockOut)}</span></td>
-      <td class="c"><span class="mono" style="font-size:12px;color:#64748B;">${fmtDur(s.clockIn,s.clockOut)}</span></td>
-      <td class="c"><span class="badge ${s.status==='hadir'?'bgg':s.status==='terlambat'?'bgo':'bgr'}">${s.status.toUpperCase()}</span></td>
-    </tr>`).join('');
+
+  const el = document.getElementById('absensi-table');
+  if (!el) return;
+  el.innerHTML = list.length === 0
+    ? '<tr><td colspan="5" style="padding:32px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#475569;">Belum ada data absensi.</td></tr>'
+    : list.map(s => {
+        const isHadir = !!s.clockIn;
+        const isPulang = !!(s.clockIn && s.clockOut);
+        const statusBadge = !isHadir
+          ? '<span class="badge bg">Belum Masuk</span>'
+          : isPulang
+            ? '<span class="badge bgg">Sudah Pulang</span>'
+            : '<span class="badge bgo">Hadir</span>';
+        return `<tr>
+          <td><p style="font-weight:700;font-size:13px;">${s.fullName || '—'}</p>
+              <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p></td>
+          <td class="c"><span class="mono" style="font-size:13px;color:#4ADE80;">${fmtTime(s.clockIn)}</span></td>
+          <td class="c"><span class="mono" style="font-size:13px;color:#60A5FA;">${fmtTime(s.clockOut)}</span></td>
+          <td class="c"><span class="mono" style="font-size:12px;color:#94A3B8;">${fmtDur(s.clockIn, s.clockOut)}</span></td>
+          <td class="c">${statusBadge}</td>
+        </tr>`;
+      }).join('');
 }
 
 // ── Histori ──────────────────────────────────────────────
@@ -917,36 +964,61 @@ function initHistori(){
   }
   loadHistori();
 }
-async function loadHistori(){
-  const date=document.getElementById('histori-date').value;
-  if(!date)return;
-  document.getElementById('histori-title').textContent='Data tanggal: '+new Date(date+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const[mData,pData]=await Promise.all([
-    api.get('/members/admin/all?date='+date),
-    api.get('/permissions/admin/logs?date='+date)
+async function loadHistori() {
+  const date = document.getElementById('histori-date').value;
+  if (!date) return;
+  document.getElementById('histori-title').textContent = 'Data tanggal: ' +
+    new Date(date + 'T00:00:00').toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  const [mData, pData] = await Promise.all([
+    api.get('/members/admin/all?date=' + date),
+    api.get('/permissions/admin/logs?date=' + date)
   ]);
-  if(!mData.success)return;
-  const staff=mData.data;
-  document.getElementById('hist-reached').textContent=staff.filter(s=>s.targetReached).length;
-  document.getElementById('hist-failed').textContent=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
-  document.getElementById('hist-pending').textContent=staff.filter(s=>s.validCount===0).length;
-  const pm={};
-  if(pData.success)pData.summary?.forEach(s=>{if(s.staffName)pm[s.staffName]={i1:s.toiletUsed,i2:s.smoke1Used,i3:s.smoke2Used};});
-  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
-  document.getElementById('histori-table').innerHTML=staff.length===0
-    ?'<tr><td colspan="7" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#475569;">Tidak ada data untuk tanggal ini.</td></tr>'
-    :staff.map(s=>{
-      const p=pm[s.name]||{};
-      const pct=Math.min(100,Math.round((s.validCount/3)*100));
-      const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
-      return `<tr>
-        <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
-        <td class="c"><span class="mono" style="font-size:12px;font-weight:700;">${s.validCount}<span style="color:#334155;">/3</span></span></td>
-        <td class="c"><span style="font-family:'Bebas Neue';font-size:17px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
-        <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
-        <td class="c">${st}</td>
-      </tr>`;
-    }).join('');
+  if (!mData.success) return;
+  const staff = mData.data;
+
+  document.getElementById('hist-reached').textContent = staff.filter(s => s.targetReached).length;
+  document.getElementById('hist-failed').textContent  = staff.filter(s => !s.targetReached && s.validCount > 0).length;
+  document.getElementById('hist-pending').textContent = staff.filter(s => s.validCount === 0).length;
+
+  // Permission map (sistem baru)
+  const pm = {};
+  if (pData.success) pData.data.forEach(p => { pm[p.fullName] = p; });
+
+  const el = document.getElementById('histori-table');
+  if (!el) return;
+
+  el.innerHTML = staff.length === 0
+    ? '<tr><td colspan="5" style="padding:32px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#475569;">Belum ada data untuk tanggal ini.</td></tr>'
+    : staff.map(s => {
+        const perm   = pm[s.fullName] || pm[s.name] || {};
+        const fmtT   = sec => sec > 0 ? String(Math.floor(sec/60)).padStart(2,'0') + ':' + String(sec%60).padStart(2,'0') : '—';
+        const pct    = Math.min(100, Math.round((s.validCount / 3) * 100));
+        const st     = s.validCount === 0
+          ? '<span class="badge bg">Belum</span>'
+          : s.targetReached
+            ? '<span class="badge bgg">Target ✓</span>'
+            : '<span class="badge bgo">Proses</span>';
+        const membDetail = (s.members || []).map((m, i) => `
+          <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,0.02);border-radius:6px;padding:5px 10px;margin-top:4px;">
+            <span class="mono" style="font-size:11px;">#${i+1} ${m.memberId}</span>
+            <span class="mono" style="font-size:11px;color:#22C55E;">Rp${Number(m.deposit).toLocaleString('id-ID')}</span>
+            <span class="badge ${m.isValid?'bgg':'bgr'}" style="font-size:9px;">${m.isValid?'VALID':'TOLAK'}</span>
+          </div>`).join('');
+        return `<tr>
+          <td>
+            <p style="font-weight:700;font-size:13px;">${s.fullName || s.name || '—'}</p>
+            <p class="mono" style="font-size:10px;color:#475569;">${s.employeeId || '—'}</p>
+          </td>
+          <td class="c">
+            <div class="mono" style="font-size:12px;font-weight:700;margin-bottom:4px;">${s.validCount}/3</div>
+            <div class="prog-track" style="width:80px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div>
+          </td>
+          <td class="c"><span class="mono" style="font-size:12px;color:#94A3B8;">${fmtT(perm.totalUsedSeconds||0)}</span></td>
+          <td style="max-width:280px;">${membDetail || '<span class="mono" style="font-size:10px;color:#475569;">—</span>'}</td>
+          <td class="c">${st}</td>
+        </tr>`;
+      }).join('');
 }
 
 // ── Pengumuman ──────────────────────────────────────────────
@@ -1033,7 +1105,7 @@ async function exportExcelStaff(staffId, staffName) {
 
 async function exportExcelAll() {
   const [memberData, staffData] = await Promise.all([
-    api.get('/members/admin/today'),
+    api.get('/members/admin/all'),
     api.get('/staff'),
   ]);
   if (!memberData.success) { showToast('Gagal ambil data', 'err'); return; }

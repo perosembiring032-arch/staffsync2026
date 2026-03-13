@@ -1,612 +1,591 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>STAFF ANG — Staff</title>
+  <title>STAFF ANG — Portal Staff</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0A0E1A;color:#E2E8F0;font-family:'Inter',sans-serif;min-height:100vh}
-    .mono{font-family:'JetBrains Mono',monospace}
-    .bebas{font-family:'Bebas Neue',sans-serif}
+    :root{
+      --red:#EF4444;--red2:#F87171;--green:#22C55E;--gold:#F59E0B;
+      --bg:#06080C;--s1:#0C1018;--s2:#111720;--s3:#161E28;
+      --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:#D1D9E6;min-height:100vh;overflow-x:hidden;}
+    .mono{font-family:'JetBrains Mono',monospace;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6;}
+    .orb{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+    .orb-r{width:600px;height:600px;background:radial-gradient(circle,rgba(239,68,68,0.07) 0%,transparent 70%);top:-150px;right:-100px;}
+    .orb-b{width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 70%);bottom:-50px;left:-50px;}
+    .sidebar{background:linear-gradient(180deg,var(--s1) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;width:230px;display:flex;flex-direction:column;z-index:50;}
+    .brand-text{font-family:'Bebas Neue';font-size:27px;letter-spacing:.05em;background:linear-gradient(135deg,#fff 30%,var(--red) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    nav{padding:12px;flex:1;display:flex;flex-direction:column;gap:2px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+    .nav-item:hover{background:rgba(255,255,255,0.04);}
+    .nav-item.active{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);}
+    .nav-item.active .nav-label{color:var(--red);}
+    .nav-icon{font-size:15px;width:20px;text-align:center;color:#475569;transition:color .2s;}
+    .nav-item.active .nav-icon{color:var(--red);}
+    .nav-label{font-size:13px;font-weight:600;color:#64748B;transition:color .2s;}
+    .main-wrap{margin-left:230px;min-height:100vh;position:relative;z-index:1;}
+    .content{padding:24px;}
+    .page-title{font-family:'Bebas Neue';font-size:34px;background:linear-gradient(135deg,#fff,#94A3B8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .page-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-top:4px;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .4s ease-out forwards;}
+    .card{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+    .card-red{border-color:rgba(239,68,68,0.18);background:rgba(239,68,68,0.03);}
+    .card-green{border-color:rgba(34,197,94,0.18);background:rgba(34,197,94,0.03);}
+    .card-gold{border-color:rgba(245,158,11,0.18);background:rgba(245,158,11,0.03);}
+    .stat-widget{padding:20px 22px;}
+    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+    .stat-value{font-family:'Bebas Neue';font-size:44px;line-height:1;}
+    .stat-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;margin-top:6px;}
+    .prog-track{height:8px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;}
+    .prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--red),#F97316);transition:width 1s cubic-bezier(.4,0,.2,1);}
+    .prog-fill.done{background:linear-gradient(90deg,#16A34A,var(--green));}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono';font-size:10px;font-weight:700;letter-spacing:.05em;}
+    .bg{background:rgba(255,255,255,0.05);color:#64748B;border:1px solid var(--border);}
+    .bgr{background:rgba(239,68,68,0.1);color:#F87171;border:1px solid rgba(239,68,68,0.2);}
+    .bgg{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
+    .bgo{background:rgba(245,158,11,0.1);color:#FCD34D;border:1px solid rgba(245,158,11,0.2);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'Syne';font-weight:700;border:none;cursor:pointer;transition:all .2s;border-radius:10px;font-size:14px;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-red{background:linear-gradient(135deg,#7F1D1D,#EF4444);color:#fff;padding:12px 20px;}
+    .btn-red:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 24px rgba(239,68,68,0.35);}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#64748B;padding:10px 18px;}
+    .btn-ghost:hover:not(:disabled){border-color:var(--border2);color:#D1D9E6;}
+    .field{width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Syne';font-size:13px;color:#D1D9E6;transition:all .2s;}
+    .field:focus{outline:none;border-color:rgba(239,68,68,0.4);box-shadow:0 0 0 3px rgba(239,68,68,0.08);}
+    .field-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
+    .field-err{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#F87171;margin-bottom:14px;}
+    .field-ok{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#4ADE80;margin-bottom:14px;}
+    #toast-wrap{position:fixed;top:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    .toast{padding:11px 16px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeUp .25s ease-out;min-width:220px;}
+    .toast-ok{background:rgba(21,128,61,0.95);border:1px solid rgba(34,197,94,0.3);color:#4ADE80;}
+    .toast-err{background:rgba(127,29,29,0.95);border:1px solid rgba(239,68,68,0.3);color:#F87171;}
+    .section-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+    .section-title{font-size:13px;font-weight:700;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+    .hidden{display:none!important;}
+    @media(max-width:1023px){.sidebar{transform:translateX(-100%);}.main-wrap{margin-left:0;}.mobile-bar{display:flex!important;}}
+    .mobile-bar{display:none;position:sticky;top:0;z-index:40;background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);overflow-x:auto;}
+    .m-btn{flex-shrink:0;padding:11px 16px;font-family:'JetBrains Mono';font-size:11px;color:#475569;cursor:pointer;border:none;background:none;transition:color .2s;}
+    .m-btn.act{color:var(--red);}
 
-    /* Login */
-    #login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.15) 0%,transparent 70%)}
-    .login-card{background:rgba(15,20,35,0.95);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;width:100%;max-width:380px}
-    .logo-text{font-family:'Bebas Neue';font-size:36px;letter-spacing:2px;background:linear-gradient(135deg,#6366F1,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
-    /* Main layout */
-    #main-page{display:none;min-height:100vh}
-    .sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:rgba(10,14,26,0.98);border-right:1px solid rgba(255,255,255,0.06);padding:20px 0;z-index:100;display:flex;flex-direction:column}
-    .content{margin-left:220px;padding:24px;min-height:100vh}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;color:#64748B;transition:all .2s;border-radius:0;border-left:2px solid transparent}
-    .nav-item:hover{color:#E2E8F0;background:rgba(255,255,255,0.04)}
-    .nav-item.active{color:#6366F1;background:rgba(99,102,241,0.08);border-left-color:#6366F1}
-
-    /* Cards */
-    .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px}
-    .card-title{font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1.5px;margin-bottom:16px;text-transform:uppercase}
-
-    /* Stat */
-    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    .stat-val{font-family:'Bebas Neue';font-size:42px;color:#fff;line-height:1}
-    .stat-lbl{font-family:'JetBrains Mono';font-size:10px;color:#64748B;margin-top:4px}
-
-    /* Izin card */
-    .izin-card{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:18px}
-    .izin-btn{border:none;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;font-weight:700;padding:12px 20px;cursor:pointer;transition:all .2s;letter-spacing:.5px}
-    .izin-btn-avail{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff}
-    .izin-btn-avail:hover{opacity:.85;transform:translateY(-1px)}
-    .izin-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-    /* Timer panel */
-    .timer-panel{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:24px;text-align:center;margin-bottom:20px}
-
-    /* Badge */
-    .badge{font-family:'JetBrains Mono';font-size:10px;padding:3px 8px;border-radius:5px;font-weight:700}
-    .bgg{background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3)}
-    .bgr{background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3)}
-    .bgy{background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3)}
-
-    /* Form */
-    .field{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;color:#E2E8F0;font-size:14px;width:100%;outline:none;transition:border .2s}
-    .field:focus{border-color:#6366F1}
-    .btn-primary{background:linear-gradient(135deg,#4F46E5,#7C3AED);border:none;border-radius:10px;color:#fff;font-family:'JetBrains Mono';font-size:12px;font-weight:700;padding:12px 24px;cursor:pointer;transition:all .2s;letter-spacing:.5px}
-    .btn-primary:hover{opacity:.85}
-    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-
-    /* Member row */
-    .member-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:7px}
-
-    /* Toast */
-    #toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
-    .toast{padding:12px 18px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeIn .3s;pointer-events:none}
-    .toast-ok{background:#064E3B;border:1px solid #065F46;color:#6EE7B7}
-    .toast-err{background:#450A0A;border:1px solid #7F1D1D;color:#FCA5A5}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-    /* Scrollbar */
-    ::-webkit-scrollbar{width:5px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
-
-    /* Announcement */
-    .ann-card{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:14px;margin-bottom:10px}
+    /* Izin cards */
+    .izin-card{border-radius:14px;border:1px solid var(--border);background:var(--s2);padding:22px;text-align:center;transition:all .3s;}
+    .izin-card.used{opacity:.55;background:rgba(255,255,255,0.015);}
+    .izin-card:not(.used):hover{border-color:rgba(239,68,68,0.3);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.4);}
+    .izin-num{font-family:'Bebas Neue';font-size:36px;width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+    .izin-num-avail{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:var(--red);}
+    .izin-num-used{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#334155;}
+    .izin-btn{width:100%;padding:11px;border-radius:10px;font-family:'Syne';font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .25s;}
+    .izin-btn-avail{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.25);color:#F87171;}
+    .izin-btn-avail:hover:not(:disabled){background:rgba(239,68,68,0.25);transform:translateY(-1px);}
+    .izin-btn-used{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#334155;cursor:not-allowed;}
+    .member-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
   </style>
 </head>
 <body>
-
 <div id="toast-wrap"></div>
+<div class="orb orb-r"></div>
+<div class="orb orb-b"></div>
 
-<!-- ── LOGIN ── -->
-<div id="login-page">
-  <div class="login-card">
-    <div style="text-align:center;margin-bottom:28px">
-      <div class="logo-text">STAFF ANG</div>
-      <p style="font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:1px;margin-top:4px">STAFF PORTAL</p>
+<!-- LOGIN -->
+<div id="view-login" class="min-h-screen flex items-center justify-center px-4 relative z-10">
+  <div class="w-full max-w-sm fade-up">
+    <div class="text-center" style="margin-bottom:36px;">
+      <a href="/" class="mono text-xs" style="color:#334155;">← Kembali</a>
+      <div style="font-family:'Bebas Neue';font-size:54px;background:linear-gradient(135deg,#fff 30%,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.04em;margin:16px 0 4px;">STAFF ANG</div>
+      <div class="mono text-xs tracking-widest" style="color:#334155;">PORTAL STAFF</div>
     </div>
-    <div style="margin-bottom:14px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">USERNAME</label>
-      <input id="l-user" type="text" class="field" style="margin-top:6px" placeholder="username"/>
+    <div class="card" style="padding:28px;">
+      <div id="login-error" class="field-err hidden"></div>
+      <div style="margin-bottom:18px;"><label class="field-label">Username</label><input id="login-username" type="text" placeholder="contoh: staff01" class="field"/></div>
+      <div style="margin-bottom:24px;">
+        <label class="field-label">Password</label>
+        <div style="position:relative;"><input id="login-password" type="password" placeholder="••••••••" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('login-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+      </div>
+      <button id="login-btn" onclick="doLogin()" class="btn btn-red" style="width:100%;padding:13px;">Masuk</button>
     </div>
-    <div style="margin-bottom:20px;position:relative">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">PASSWORD</label>
-      <input id="l-pass" type="password" class="field" style="margin-top:6px;padding-right:44px" placeholder="••••••••"/>
-      <button onclick="togglePwd()" style="position:absolute;right:12px;bottom:11px;background:none;border:none;color:#64748B;cursor:pointer;font-size:14px">👁</button>
-    </div>
-    <button id="btn-login" class="btn-primary" style="width:100%" onclick="doLogin()">MASUK</button>
-    <p id="l-err" style="font-family:'JetBrains Mono';font-size:11px;color:#EF4444;text-align:center;margin-top:12px;display:none"></p>
   </div>
 </div>
 
-<!-- ── MAIN APP ── -->
-<div id="main-page">
+<!-- APP -->
+<div id="view-app" class="hidden" style="min-height:100vh;position:relative;z-index:1;">
+
   <!-- Sidebar -->
-  <div class="sidebar">
-    <div style="padding:0 20px 20px">
-      <div class="logo-text" style="font-size:24px">STAFF ANG</div>
-      <div id="sb-name" style="font-family:'JetBrains Mono';font-size:10px;color:#475569;margin-top:2px"></div>
+  <aside class="sidebar">
+    <div style="padding:22px 18px 18px;border-bottom:1px solid var(--border);">
+      <div class="brand-text">STAFF ANG</div>
+      <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.15em;margin-top:2px;">PORTAL STAFF</div>
     </div>
-    <nav style="flex:1">
-      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">📊 Dashboard</div>
-      <div class="nav-item" onclick="showPage('input')" id="nav-input">➕ Input Member</div>
-      <div class="nav-item" onclick="showPage('izin')" id="nav-izin">🚪 Izin</div>
-      <div class="nav-item" onclick="showPage('absensi')" id="nav-absensi">📋 Absensi</div>
-      <div class="nav-item" onclick="showPage('pengumuman')" id="nav-pengumuman">📣 Pengumuman</div>
+    <nav>
+      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active">
+        <span class="nav-icon">◈</span><span class="nav-label">Dashboard</span>
+      </div>
+      <div onclick="showPage('input')" id="nav-input" class="nav-item">
+        <span class="nav-icon">◎</span><span class="nav-label">Input Member</span>
+      </div>
+      <div onclick="showPage('permission')" id="nav-permission" class="nav-item">
+        <span class="nav-icon">◷</span><span class="nav-label">Izin Harian</span>
+      </div>
     </nav>
-    <div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06)">
-      <button onclick="doLogout()" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#FCA5A5;font-family:'JetBrains Mono';font-size:11px;padding:8px;cursor:pointer">← Keluar</button>
+    <div style="padding:16px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#7F1D1D,#EF4444);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:16px;color:#fff;" id="user-avatar-s">S</div>
+        <div>
+          <p id="user-name" style="font-size:13px;font-weight:700;color:#F87171;"></p>
+          <p id="user-empid" class="mono" style="font-size:10px;color:#475569;"></p>
+        </div>
+      </div>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#475569;background:none;border:none;cursor:pointer;">⟵ Keluar</button>
     </div>
-  </div>
+  </aside>
 
-  <!-- Content -->
-  <div class="content">
-
-    <!-- DASHBOARD -->
-    <div id="page-dashboard">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">DASHBOARD</h2>
-      <div class="stat-grid">
-        <div class="card">
-          <div class="stat-lbl">MEMBER VALID</div>
-          <div class="stat-val" id="stat-valid">0</div>
-          <div class="stat-lbl">dari target 3</div>
-        </div>
-        <div class="card">
-          <div class="stat-lbl">TOTAL DEPOSIT</div>
-          <div class="stat-val" style="font-size:28px" id="stat-dep">Rp0</div>
-        </div>
-        <div class="card">
-          <div class="stat-lbl">JAM BREAK</div>
-          <div class="stat-val" id="break-val" style="color:#22C55E">-</div>
-        </div>
-      </div>
-      <!-- Aturan break -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-title">Aturan Break</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-          <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:#EF4444">NO</div>
-            <div style="font-family:'JetBrains Mono';font-size:9px;color:#94A3B8;margin-top:3px">0 member valid</div>
-          </div>
-          <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:#F59E0B">1 JAM</div>
-            <div style="font-family:'JetBrains Mono';font-size:9px;color:#94A3B8;margin-top:3px">1–2 member valid</div>
-          </div>
-          <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:#22C55E">2 JAM</div>
-            <div style="font-family:'JetBrains Mono';font-size:9px;color:#94A3B8;margin-top:3px">3+ member valid</div>
-          </div>
-        </div>
-      </div>
-      <!-- Member list hari ini -->
-      <div class="card">
-        <div class="card-title">Entri Hari Ini</div>
-        <div id="member-list"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:16px">Belum ada entri hari ini</p></div>
+  <div class="main-wrap">
+    <!-- Mobile top -->
+    <div class="lg:hidden" style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40;">
+      <div style="font-family:'Bebas Neue';font-size:24px;background:linear-gradient(135deg,#fff,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">STAFF ANG</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="user-name-m" class="mono" style="font-size:11px;color:#475569;"></span>
+        <button onclick="doLogout()" class="mono text-xs" style="color:#EF4444;background:none;border:none;cursor:pointer;">Keluar</button>
       </div>
     </div>
-
-    <!-- INPUT MEMBER -->
-    <div id="page-input" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">INPUT MEMBER</h2>
-      <div class="card" style="max-width:480px">
-        <div class="card-title">Tambah Member Baru</div>
-        <div style="margin-bottom:14px">
-          <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">MEMBER ID / USER ID</label>
-          <input id="input-member-id" type="text" class="field mono" style="margin-top:6px" placeholder="Masukkan Member ID"/>
-        </div>
-        <div style="margin-bottom:6px">
-          <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">DEPOSIT (Rp)</label>
-          <input id="input-deposit" type="number" class="field mono" style="margin-top:6px" placeholder="10000" min="10000"/>
-        </div>
-        <p style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;margin-bottom:16px">Minimum: Rp 10.000 | Valid (break) <span style="color:#22C55E">Rp 50.000+</span></p>
-        <button id="btn-submit-member" class="btn-primary" style="width:100%" onclick="submitMember()">➕ Tambah Member</button>
-      </div>
+    <div class="mobile-bar">
+      <button class="m-btn act" onclick="showPage('dashboard');setMA(this)">Dashboard</button>
+      <button class="m-btn" onclick="showPage('input');setMA(this)">Input Member</button>
+      <button class="m-btn" onclick="showPage('permission');setMA(this)">Izin Harian</button>
     </div>
 
-    <!-- IZIN -->
-    <div id="page-izin" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">IZIN</h2>
+    <div class="content">
 
-      <!-- Timer Panel (muncul saat izin aktif) -->
-      <div class="timer-panel" id="timer-panel">
-        <p style="font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;letter-spacing:2px;margin-bottom:8px" id="timer-label">SEDANG IZIN</p>
-        <div style="font-family:'Bebas Neue';font-size:80px;line-height:1;color:#fff;letter-spacing:.02em" id="timer-display">00:00</div>
-        <div style="margin-top:10px;padding:7px 16px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;display:inline-block">
-          <span style="font-family:'JetBrains Mono';font-size:11px;color:#4ADE80">Sisa jatah: </span>
-          <span style="font-family:'JetBrains Mono';font-size:13px;color:#4ADE80;font-weight:700" id="timer-sisa">30:00</span>
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="fade-up">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+          <div>
+            <div class="page-title">OVERVIEW</div>
+            <div class="page-sub" id="today-date"></div>
+          </div>
+          <button onclick="loadDashboard()" class="btn btn-ghost" style="padding:8px 14px;font-size:12px;">Refresh</button>
         </div>
-        <div id="overtime-warn" style="display:none;margin-top:10px;padding:8px 16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px">
-          <span id="overtime-text" style="font-family:'JetBrains Mono';font-size:11px;color:#FCA5A5">⚠ Jatah habis! Overtime: 00:00</span>
+
+        <!-- Absensi + Pengumuman row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+          <!-- Clock in/out -->
+          <div class="card" style="padding:18px;">
+            <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.12em;margin-bottom:12px;">ABSENSI HARI INI</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+              <div style="flex:1;">
+                <div class="mono" style="font-size:10px;color:#475569;margin-bottom:2px;">CLOCK IN</div>
+                <div id="ci-time" style="font-family:'Bebas Neue';font-size:22px;color:#22C55E;">—</div>
+              </div>
+              <div style="flex:1;">
+                <div class="mono" style="font-size:10px;color:#475569;margin-bottom:2px;">CLOCK OUT</div>
+                <div id="co-time" style="font-family:'Bebas Neue';font-size:22px;color:#94A3B8;">—</div>
+              </div>
+              <span id="att-badge" class="badge bg">BELUM</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button id="btn-clockin" onclick="doClockIn()" class="btn" style="flex:1;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:10px;font-size:12px;">Clock In</button>
+              <button id="btn-clockout" onclick="doClockOut()" class="btn btn-ghost" style="flex:1;padding:10px;font-size:12px;opacity:0.4;" id="btn-clockout" disabled>Clock Out</button>
+            </div>
+          </div>
+          <!-- Pengumuman preview -->
+          <div class="card" style="padding:18px;overflow:hidden;">
+            <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.12em;margin-bottom:12px;">PENGUMUMAN TERBARU</div>
+            <div id="ann-preview"><p class="mono" style="font-size:11px;color:#334155;">Memuat...</p></div>
+          </div>
         </div>
-        <div style="margin-top:20px">
-          <button id="btn-masuk" onclick="doStopTimer()" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);border-radius:10px;color:#4ADE80;font-family:'JetBrains Mono';font-size:13px;font-weight:700;padding:12px 28px;cursor:pointer;letter-spacing:.5px">
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget"><div class="stat-label">Member Valid</div><div class="stat-value" style="color:#fff;" id="stat-members">0<span style="color:#1E293B;font-size:28px;">/3</span></div><div class="stat-sub">hari ini</div></div>
+          <div class="card stat-widget" id="stat-target-card"><div class="stat-label">Target</div><div class="stat-value" style="color:#64748B;font-size:32px;" id="stat-target">BELUM</div><div class="stat-sub">status target</div></div>
+          <div class="card card-gold stat-widget"><div class="stat-label">Waktu Break</div><div class="stat-value" style="color:#F59E0B;" id="stat-break">-</div><div class="stat-sub" id="stat-break-sub">menunggu target</div></div>
+          <div class="card stat-widget"><div class="stat-label">Izin Dipakai</div><div class="stat-value" style="color:#fff;" id="stat-perms">0<span style="color:#1E293B;font-size:28px;">/3</span></div><div class="stat-sub">dari 3 izin</div></div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card" style="padding:20px 22px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:700;">Progress Target Harian</span>
+            <span id="progress-label" class="mono" style="font-size:11px;color:#475569;">0 / 3</span>
+          </div>
+          <div class="prog-track" style="margin-bottom:10px;"><div id="progress-bar" class="prog-fill" style="width:0%;"></div></div>
+          <p id="progress-hint" class="mono" style="font-size:11px;color:#475569;">Masukkan 3 member valid (deposit ≥ Rp 50.000) untuk break penuh.</p>
+        </div>
+
+        <!-- Member list -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Entri Hari Ini</span></div>
+          <div id="member-list" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p></div>
+        </div>
+      </div>
+
+      <!-- INPUT MEMBER -->
+      <div id="page-input" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">INPUT MEMBER</div><div class="page-sub">Masukkan ID member dan jumlah deposit</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="md:grid-cols-2">
+          <div class="card" style="padding:24px;">
+            <div id="input-error" class="field-err hidden"></div>
+            <div id="input-success" class="field-ok hidden"></div>
+            <div style="margin-bottom:18px;"><label class="field-label">ID Member</label><input id="input-member-id" type="text" placeholder="contoh: MBR-10045" class="field mono" style="text-transform:uppercase;" autocomplete="off"/></div>
+            <div style="margin-bottom:22px;">
+              <label class="field-label">Jumlah Deposit (Rp)</label>
+              <input id="input-deposit" type="number" placeholder="10000" min="10000" class="field mono" autocomplete="off"/>
+              <p class="mono" style="font-size:10px;color:#334155;margin-top:6px;">Minimum: Rp 50.000</p>
+            </div>
+            <button id="input-btn" onclick="submitMember()" class="btn btn-red" style="width:100%;padding:13px;">Submit Entri</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card card-red" style="padding:18px;">
+              <h4 style="font-size:12px;font-weight:700;color:#F87171;margin-bottom:12px;letter-spacing:.04em;">ATURAN HARIAN</h4>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#EF4444;font-size:12px;">→</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid per hari</span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#EF4444;font-size:12px;">→</span><span class="mono" style="font-size:11px;color:#64748B;">Deposit minimum Rp 50.000</span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#EF4444;font-size:12px;">→</span><span class="mono" style="font-size:11px;color:#64748B;">ID member tidak boleh duplikat</span></div>
+              </div>
+            </div>
+            <div class="card card-gold" style="padding:18px;">
+              <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#334155;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
+              </div>
+            </div>
+            <div class="card" style="padding:18px;">
+              <h4 style="font-size:12px;font-weight:700;margin-bottom:10px;">Status Hari Ini</h4>
+              <p id="input-status-text" class="mono" style="font-size:11px;color:#475569;line-height:1.7;">Memuat...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IZIN HARIAN -->
+      <div id="page-permission" class="fade-up hidden">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+          <div>
+            <div class="page-title">IZIN HARIAN</div>
+            <div class="page-sub">3 izin × 10 menit = 30 menit · Reset tengah malam</div>
+          </div>
+          <div class="card" style="padding:12px 16px;text-align:center;min-width:100px;">
+            <div class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">BREAK HARI INI</div>
+            <div id="break-val" style="font-family:'Bebas Neue';font-size:24px;color:#F59E0B;">—</div>
+          </div>
+        </div>
+
+        <!-- TIMER BESAR - tampil saat izin aktif -->
+        <div id="timer-panel" class="card" style="display:none;margin-bottom:20px;padding:28px;text-align:center;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.04);">
+          <div class="mono" style="font-size:11px;color:#EF4444;letter-spacing:.15em;margin-bottom:8px;" id="timer-label">SEDANG IZIN</div>
+          <div style="font-family:'Bebas Neue';font-size:80px;line-height:1;color:#fff;letter-spacing:.02em;" id="timer-display">10:00</div>
+          <div style="margin-top:10px;padding:7px 16px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;display:inline-block;">
+            <span class="mono" style="font-size:11px;color:#4ADE80;">Sisa jatah: </span>
+            <span class="mono" style="font-size:13px;color:#4ADE80;font-weight:700;" id="timer-sisa">30:00</span>
+          </div>
+          <div class="mono" style="font-size:11px;color:#475569;margin-top:6px;" id="timer-sub">Sisa waktu izin</div>
+          <button onclick="doStopTimer()" id="btn-masuk" class="btn" style="margin-top:20px;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:14px 40px;font-size:15px;border-radius:12px;width:100%;max-width:300px;">
             ↩ MASUK — Selesai Izin
           </button>
+          <div id="overtime-warn" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;">
+            <p id="overtime-text" class="mono" style="font-size:11px;color:#FCA5A5;margin-top:8px;">⚠ Jatah habis! Overtime: 00:00</p>
+          </div>
+        </div>
+
+        <!-- 3 Izin cards -->
+        <div style="margin-bottom:20px;">
+          <!-- 1 Izin card - 30 menit total -->
+          <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:18px;" id="izin-card-main">
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span class="mono" style="font-size:11px;color:#94A3B8;">JATAH IZIN HARI INI (30 MENIT)</span>
+                <span class="mono" id="izin-sisa-label" style="font-size:11px;color:#4ADE80;font-weight:700;">30:00 tersisa</span>
+              </div>
+              <div style="height:8px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden;">
+                <div id="izin-progress-bar" style="height:100%;width:100%;background:linear-gradient(90deg,#16A34A,#4ADE80);border-radius:100px;transition:width .5s;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">
+              <div>
+                <p class="mono" id="izin-status-main" style="font-size:12px;color:#4ADE80;margin-bottom:3px;">✓ Siap Izin</p>
+                <p class="mono" id="izin-session-info" style="font-size:10px;color:#64748B;">Belum ada sesi hari ini</p>
+              </div>
+              <button id="izin-btn-main" onclick="startIzin()" class="btn btn-izin" style="min-width:140px;">🚪 Keluar Izin</button>
+            </div>
+          </div>
+          <div id="izin-sessions-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
+        <!-- Log -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Izin Hari Ini</span></div>
+          <div id="perm-log" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p></div>
         </div>
       </div>
 
-      <!-- Izin card utama -->
-      <div class="izin-card" id="izin-card-main" style="margin-bottom:12px">
-        <div style="margin-bottom:14px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-            <span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">JATAH IZIN HARI INI (30 MENIT)</span>
-            <span id="izin-sisa-label" style="font-family:'JetBrains Mono';font-size:11px;color:#4ADE80;font-weight:700">30:00 tersisa</span>
-          </div>
-          <div style="height:8px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden">
-            <div id="izin-progress-bar" style="height:100%;width:100%;background:linear-gradient(90deg,#16A34A,#4ADE80);border-radius:100px;transition:width .5s"></div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px">
-          <div>
-            <p id="izin-status-main" style="font-family:'JetBrains Mono';font-size:12px;color:#4ADE80;margin-bottom:3px">✓ Siap Izin</p>
-            <p id="izin-session-info" style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">Belum ada sesi hari ini</p>
-          </div>
-          <button id="izin-btn-main" onclick="startIzin()" class="izin-btn izin-btn-avail" style="min-width:140px">
-            🚪 Keluar Izin
-          </button>
-        </div>
-      </div>
-
-      <!-- Riwayat sesi -->
-      <div id="izin-sessions-list" style="display:flex;flex-direction:column;gap:6px"></div>
-    </div>
-
-    <!-- ABSENSI -->
-    <div id="page-absensi" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">ABSENSI</h2>
-      <div class="card" style="max-width:400px">
-        <div class="card-title">Status Hari Ini</div>
-        <div style="display:flex;gap:10px;margin-bottom:16px">
-          <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;text-align:center">
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;margin-bottom:4px">CLOCK IN</div>
-            <div style="font-family:'JetBrains Mono';font-size:14px;color:#4ADE80" id="att-in">—</div>
-          </div>
-          <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;text-align:center">
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;margin-bottom:4px">CLOCK OUT</div>
-            <div style="font-family:'JetBrains Mono';font-size:14px;color:#FCA5A5" id="att-out">—</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px">
-          <button id="btn-clockin" class="btn-primary" style="flex:1" onclick="doClockIn()">🟢 Clock In</button>
-          <button id="btn-clockout" class="btn-primary" style="flex:1;background:linear-gradient(135deg,#DC2626,#B91C1C)" onclick="doClockOut()">🔴 Clock Out</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PENGUMUMAN -->
-    <div id="page-pengumuman" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">PENGUMUMAN</h2>
-      <div id="ann-list"><p class="mono" style="font-size:11px;color:#475569">Memuat pengumuman...</p></div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main-page -->
-
-<!-- Modal Edit Member -->
-<div id="modal-edit-member" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center">
-  <div class="card" style="width:100%;max-width:380px;margin:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h3 style="font-family:'JetBrains Mono';font-size:13px;font-weight:700">Edit Member</h3>
-      <button onclick="closeEditMember()" style="background:none;border:none;color:#64748B;font-size:18px;cursor:pointer">×</button>
-    </div>
-    <input type="hidden" id="edit-index"/>
-    <div style="margin-bottom:14px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">MEMBER ID</label>
-      <input id="edit-member-id" type="text" class="field mono" style="margin-top:6px"/>
-    </div>
-    <div style="margin-bottom:18px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">DEPOSIT (Rp)</label>
-      <input id="edit-deposit" type="number" class="field mono" style="margin-top:6px" min="10000"/>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button onclick="closeEditMember()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#94A3B8;font-family:'JetBrains Mono';font-size:12px;padding:10px;cursor:pointer">Batal</button>
-      <button onclick="submitEditMember()" class="btn-primary" style="flex:1">Simpan</button>
     </div>
   </div>
 </div>
 
+<script src="/shared/api.js"></script>
 <script>
-// ═══════════════════════════════════════════════════
-// API
-// ═══════════════════════════════════════════════════
-const BASE_URL = 'https://staffsync2026.onrender.com/api';
-const TOKEN_KEY = 'staffang_token';
-const USER_KEY  = 'staffang_user';
-
-const api = {
-  _h: () => {
-    const h = {'Content-Type':'application/json'};
-    const t = localStorage.getItem(TOKEN_KEY);
-    if (t) h['Authorization'] = 'Bearer ' + t;
-    return h;
-  },
-  request: async (method, path, body) => {
-    try {
-      const r = await fetch(BASE_URL + path, {method, headers: api._h(), body: body ? JSON.stringify(body) : undefined});
-      return await r.json();
-    } catch (e) { return {success:false, message:'Koneksi gagal'}; }
-  },
-  get:    p     => api.request('GET',    p),
-  post:   (p,b) => api.request('POST',   p, b),
-  put:    (p,b) => api.request('PUT',    p, b),
-};
-
-// ═══════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════
-function showToast(msg, type) {
-  const w = document.getElementById('toast-wrap');
-  const t = document.createElement('div');
-  t.className = 'toast ' + (type === 'err' ? 'toast-err' : 'toast-ok');
-  t.textContent = msg;
-  w.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
-}
-
-// ═══════════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════════
-function getRole() {
-  try { return JSON.parse(localStorage.getItem(USER_KEY))?.role; } catch { return null; }
-}
-
-function togglePwd() {
-  const f = document.getElementById('l-pass');
-  f.type = f.type === 'password' ? 'text' : 'password';
-}
-
-async function doLogin() {
-  const btn = document.getElementById('btn-login');
-  const err = document.getElementById('l-err');
-  const user = document.getElementById('l-user').value.trim();
-  const pass = document.getElementById('l-pass').value;
-  if (!user || !pass) { err.textContent = 'Isi username dan password'; err.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'Masuk...'; err.style.display = 'none';
-  const data = await api.request('POST', '/auth/login', {username: user, password: pass});
-  btn.disabled = false; btn.textContent = 'MASUK';
-  if (data.success && data.user?.role === 'staff') {
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-    initApp();
-  } else if (data.success && data.user?.role === 'admin') {
-    err.textContent = 'Akun ini adalah admin. Gunakan halaman admin.'; err.style.display = 'block';
-  } else {
-    err.textContent = data.message || 'Login gagal'; err.style.display = 'block';
-  }
-}
-
-function doLogout() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  document.getElementById('main-page').style.display = 'none';
-  document.getElementById('login-page').style.display = 'flex';
-}
-
-// ═══════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════
-function initApp() {
-  const user = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
-  document.getElementById('login-page').style.display = 'none';
-  document.getElementById('main-page').style.display = 'block';
-  document.getElementById('sb-name').textContent = user.fullName || user.username || '';
-  showPage('dashboard');
-  loadDashboard();
-  loadPermissions();
-  loadAttendance();
-}
-
-// ═══════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════
-function showPage(name) {
-  ['dashboard','input','izin','absensi','pengumuman'].forEach(p => {
-    document.getElementById('page-' + p).style.display = p === name ? 'block' : 'none';
-    document.getElementById('nav-' + p).classList.toggle('active', p === name);
-  });
-  if (name === 'dashboard') loadDashboard();
-  if (name === 'izin') loadPermissions();
-  if (name === 'pengumuman') loadAnnouncements();
-  if (name === 'absensi') loadAttendance();
-}
-
-// ═══════════════════════════════════════════════════
-// DASHBOARD & MEMBERS
-// ═══════════════════════════════════════════════════
-function fmtRp(n) {
-  return 'Rp' + Number(n).toLocaleString('id-ID');
-}
-
-async function loadDashboard() {
-  const data = await api.get('/members/today');
-  if (!data.success) return;
-  const d = data.data;
-  document.getElementById('stat-valid').textContent = d.validCount || 0;
-  document.getElementById('stat-dep').textContent = fmtRp(d.totalDeposit || 0);
-
-  const bv = document.getElementById('break-val');
-  if (bv) {
-    if (d.validCount === 0) { bv.textContent = 'NO BREAK'; bv.style.color = '#EF4444'; }
-    else if (d.validCount < 3) { bv.textContent = '1 JAM'; bv.style.color = '#F59E0B'; }
-    else { bv.textContent = '2 JAM'; bv.style.color = '#22C55E'; }
-  }
-
-  const list = document.getElementById('member-list');
-  if (!d.members || d.members.length === 0) {
-    list.innerHTML = '<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:16px">Belum ada entri hari ini</p>';
-    return;
-  }
-  list.innerHTML = d.members.map((m, i) => `
-    <div class="member-row">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-family:'JetBrains Mono';font-size:10px;color:#475569">#${i+1}</span>
-        <span style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:#F1F5F9">${m.memberId}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-family:'JetBrains Mono';font-size:12px;color:#4ADE80">${fmtRp(m.deposit)}</span>
-        <span class="badge ${m.isValid ? 'bgg' : 'bgr'}">${m.isValid ? 'VALID' : 'TOLAK'}</span>
-        <button onclick="openEditMember(${i},'${m.memberId}',${m.deposit})" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60A5FA;font-family:'JetBrains Mono';font-size:9px;padding:3px 8px;border-radius:6px;cursor:pointer">✏ EDIT</button>
-      </div>
-    </div>`).join('');
-}
-
-async function submitMember() {
-  const memberId = document.getElementById('input-member-id').value.trim();
-  const deposit  = document.getElementById('input-deposit').value;
-  if (!memberId || !deposit) { showToast('Isi semua field', 'err'); return; }
-  const btn = document.getElementById('btn-submit-member');
-  btn.disabled = true; btn.textContent = 'Menyimpan...';
-  const data = await api.post('/members/add', {memberId, deposit: Number(deposit)});
-  btn.disabled = false; btn.textContent = '➕ Tambah Member';
-  if (data.success) {
-    showToast(data.message);
-    document.getElementById('input-member-id').value = '';
-    document.getElementById('input-deposit').value = '';
-    loadDashboard();
-    loadPermissions();
-  } else {
-    showToast(data.message, 'err');
-  }
-}
-
-// Edit member
-function openEditMember(idx, memberId, deposit) {
-  document.getElementById('edit-index').value = idx;
-  document.getElementById('edit-member-id').value = memberId;
-  document.getElementById('edit-deposit').value = deposit;
-  document.getElementById('modal-edit-member').style.display = 'flex';
-}
-
-function closeEditMember() {
-  document.getElementById('modal-edit-member').style.display = 'none';
-}
-
-async function submitEditMember() {
-  const idx      = document.getElementById('edit-index').value;
-  const memberId = document.getElementById('edit-member-id').value.trim();
-  const deposit  = document.getElementById('edit-deposit').value;
-  if (!memberId || !deposit) { showToast('Isi semua field', 'err'); return; }
-  const data = await api.put('/members/edit/' + idx, {memberId, deposit: Number(deposit)});
-  if (data.success) {
-    showToast(data.message);
-    closeEditMember();
-    loadDashboard();
-  } else {
-    showToast(data.message, 'err');
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// IZIN — 1 slot, total 30 menit/hari
-// ═══════════════════════════════════════════════════
-const TOTAL_LIMIT = 1800;
+// ── Timer State ──────────────────────────────────────────────
 let timerInterval = null;
-let timerStartMs  = 0;
-let timerRemAtStart = TOTAL_LIMIT;
+let timerServerSeconds = 0; // seconds left dari server
+let timerLocalStart = null; // local Date when we started counting
 
-function fmtT(s) {
-  const neg = s < 0;
-  const abs = Math.abs(Math.floor(s));
-  const m   = Math.floor(abs / 60);
-  const sec = abs % 60;
-  return (neg ? '-' : '') + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
+function showToast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
+
+async function doLogin(){
+  const username=document.getElementById('login-username').value.trim();
+  const password=document.getElementById('login-password').value;
+  const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
+  if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
+  const data=await api.post('/auth/login/staff',{username,password});
+  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
+  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
+}
+function doLogout(){
+  localStorage.removeItem('staffang_token');
+  localStorage.removeItem('staffang_user');
+  api.token=null;
+  window.location.href='/staff/index.html';
+}
+
+function showToast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
+
+function initApp(user){
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  document.getElementById('user-name').textContent=user.name;
+  document.getElementById('user-empid').textContent=user.employeeId;
+  document.getElementById('user-avatar-s').textContent=user.name?user.name[0].toUpperCase():'S';
+  document.getElementById('user-name-m')&&(document.getElementById('user-name-m').textContent=user.employeeId);
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  loadDashboard();loadPermissions();
+}
+
+function showPage(page){
+  ['dashboard','input','permission'].forEach(p=>{
+    document.getElementById(`page-${p}`)?.classList.add('hidden');
+    document.getElementById(`nav-${p}`)?.classList.remove('active');
+  });
+  document.getElementById(`page-${page}`)?.classList.remove('hidden');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  if(page==='dashboard')loadDashboard();
+  if(page==='input'){loadDashboard();loadInputStatus();}
+  if(page==='permission')loadPermissions();
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+async function loadDashboard(){
+  const[members,perms,att,anns]=await Promise.all([
+    api.get('/members/today'),
+    api.get('/permissions/today'),
+    api.get('/attendance/today'),
+    api.get('/announcements'),
+  ]);
+  if(!members.success)return;
+  const{validCount,targetReached,breakHours,members:list}=members.data;
+  const perm=perms.success?perms.data:{};
+
+  // Stats
+  document.getElementById('stat-members').innerHTML=`${validCount}<span style="color:#1E293B;font-size:28px;">/3</span>`;
+  const tEl=document.getElementById('stat-target');
+  const tCard=document.getElementById('stat-target-card');
+  if(validCount===0){tEl.textContent='BELUM';tEl.style.color='#334155';tCard.style.borderColor='var(--border)';}
+  else if(targetReached){tEl.textContent='TERCAPAI';tEl.style.color='#22C55E';tCard.style.borderColor='rgba(34,197,94,0.2)';}
+  else{tEl.textContent='PROSES';tEl.style.color='#F59E0B';tCard.style.borderColor='rgba(245,158,11,0.2)';}
+  if(breakHours===0){document.getElementById('stat-break').textContent='NO BREAK';document.getElementById('stat-break').style.color='#EF4444';}
+  else{document.getElementById('stat-break').textContent=`${breakHours} JAM`;document.getElementById('stat-break').style.color=breakHours>=2?'#22C55E':'#F59E0B';}
+  const usedPerms=[perm.toiletUsed,perm.smoke1Used,perm.smoke2Used].filter(Boolean).length;
+  document.getElementById('stat-perms').innerHTML=`${usedPerms}<span style="color:#1E293B;font-size:28px;">/3</span>`;
+
+  // Progress
+  const pct=Math.round((validCount/3)*100);
+  const bar=document.getElementById('progress-bar');
+  bar.style.width=`${pct}%`;
+  if(targetReached)bar.classList.add('done');else bar.classList.remove('done');
+  document.getElementById('progress-label').textContent=`${validCount} / 3 member`;
+  document.getElementById('progress-hint').textContent=targetReached?'Target tercapai! Break penuh 2 jam.': `${3-validCount} member lagi untuk mencapai target.`;
+
+  // Member list
+  const listEl=document.getElementById('member-list');
+  if(!list||!list.length){listEl.innerHTML='<p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p>';}
+  else{listEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${list.map((m,i)=>`
+    <div class="member-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="mono" style="font-size:10px;color:#334155;">#${i+1}</span>
+        <span class="mono" style="font-size:13px;font-weight:700;">${m.memberId}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="mono" style="font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
+        <span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span>
+        <button onclick="openEditMember(${i},'${m.memberId}',${m.deposit})" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60A5FA;font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border-radius:6px;cursor:pointer;">&#9998; EDIT</button>
+      </div>
+    </div>`).join('')}}</div>`;}
+
+  // Absensi widget
+  const ciBtn=document.getElementById('btn-clockin');
+  const coBtn=document.getElementById('btn-clockout');
+  if(att.success){
+    const a=att.data;
+    const fmt=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
+    document.getElementById('ci-time').textContent=fmt(a.clockIn);
+    document.getElementById('co-time').textContent=fmt(a.clockOut);
+    const badge=document.getElementById('att-badge');
+    if(!a.clockIn){
+      badge.textContent='BELUM';badge.className='badge bg';
+      ciBtn.disabled=false;ciBtn.style.opacity='1';
+      coBtn.disabled=true;coBtn.style.opacity='0.4';
+    } else if(!a.clockOut){
+      badge.textContent=a.status.toUpperCase();
+      badge.className=`badge ${a.status==='terlambat'?'bgo':'bgg'}`;
+      ciBtn.disabled=true;ciBtn.style.opacity='0.4';
+      coBtn.disabled=false;coBtn.style.opacity='1';
+    } else {
+      badge.textContent='SELESAI';badge.className='badge bgg';
+      ciBtn.disabled=true;ciBtn.style.opacity='0.4';
+      coBtn.disabled=true;coBtn.style.opacity='0.4';
+    }
+  } else {
+    // Attendance API error - tetap enable Clock In
+    ciBtn.disabled=false;ciBtn.style.opacity='1';
+    coBtn.disabled=true;coBtn.style.opacity='0.4';
+  }
+
+  // Pengumuman preview
+  const annEl=document.getElementById('ann-preview');
+  if(anns.success&&anns.data.length){
+    const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
+    annEl.innerHTML=anns.data.slice(0,3).map(a=>`
+      <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
+          <span style="font-size:12px;font-weight:700;color:#D1D9E6;">${a.title}</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.5;padding-left:12px;">${a.content.length>80?a.content.slice(0,80)+'...':a.content}</p>
+      </div>`).join('');
+  }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">Tidak ada pengumuman.</p>';}
+}
+
+// ── Absensi ──────────────────────────────────────────────
+async function doClockIn(){
+  const btn=document.getElementById('btn-clockin');
+  btn.disabled=true;btn.textContent='Mencatat...';
+  const data=await api.post('/attendance/clockin',{});
+  if(data.success){showToast(`Clock-in! Status: ${data.data.status}`);loadDashboard();}
+  else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock In';}
+}
+async function doClockOut(){
+  const btn=document.getElementById('btn-clockout');
+  btn.disabled=true;btn.textContent='Mencatat...';
+  const data=await api.post('/attendance/clockout',{});
+  if(data.success){showToast(`Clock-out! Durasi: ${data.data.duration}`);loadDashboard();}
+  else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock Out';}
+}
+
+// ── Input Member ──────────────────────────────────────────────
+async function loadInputStatus(){
+  const data=await api.get('/members/today');
+  if(data.success){
+    const{validCount,targetReached}=data.data;
+    document.getElementById('input-status-text').innerHTML=`Entri valid: <span style="color:#fff;">${validCount}/3</span><br>Target: <span style="color:${targetReached?'#22C55E':'#F59E0B'};">${targetReached?'Tercapai ✓':'Belum'}</span><br>Sisa: <span style="color:#fff;">${Math.max(0,3-validCount)} member lagi</span>`;
+    if(validCount>=3){document.getElementById('input-btn').disabled=true;document.getElementById('input-btn').textContent='Batas Harian Tercapai';}
+    else{document.getElementById('input-btn').disabled=false;document.getElementById('input-btn').textContent='Submit Entri';}
+  }
+}
+async function submitMember(){
+  const memberId=document.getElementById('input-member-id').value.trim();
+  const deposit=document.getElementById('input-deposit').value;
+  const btn=document.getElementById('input-btn');
+  const errEl=document.getElementById('input-error');
+  const succEl=document.getElementById('input-success');
+  errEl.classList.add('hidden');succEl.classList.add('hidden');
+  if(!memberId||!deposit){errEl.textContent='Isi semua field.';errEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Menyimpan…';
+  const data=await api.post('/members/input',{memberId,deposit:Number(deposit)});
+  if(data.success){
+    succEl.textContent=`✓ Member ${memberId} berhasil! (${formatCurrency(data.data.deposit)})`;
+    succEl.classList.remove('hidden');
+    document.getElementById('input-member-id').value='';
+    document.getElementById('input-deposit').value='';
+    showToast(`Member ditambahkan! ${data.data.validCount}/3`);
+    loadInputStatus();
+  }else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
+  btn.disabled=false;btn.textContent='Submit Entri';
+}
+
+// ── IZIN & TIMER ──────────────────────────────────────────────
+const TIMER_MAX = 600; // 10 menit
+
+function fmtTimer(s){
+  const m=Math.floor(Math.abs(s)/60);const sec=Math.abs(s)%60;
+  return (s<0?'-':'')+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function fmtDur(s){
+  if(!s)return'—';
+  const m=Math.floor(s/60);const sec=s%60;
+  return `${m}m ${sec}s`;
 }
 
 function startLocalTimer(remainingSeconds) {
-  if (timerInterval) clearInterval(timerInterval);
-  timerRemAtStart = remainingSeconds;
-  timerStartMs    = Date.now();
+  if (window._timerInterval) clearInterval(window._timerInterval);
+  const startMs  = Date.now();
+  const startRem = remainingSeconds;
 
-  timerInterval = setInterval(() => {
-    const elapsed = (Date.now() - timerStartMs) / 1000;
-    const sisa    = timerRemAtStart - elapsed;
+  window._timerInterval = setInterval(() => {
+    const elapsed = (Date.now() - startMs) / 1000;
+    const sisa    = startRem - elapsed;
 
+    // Timer display (durasi keluar)
     const disp = document.getElementById('timer-display');
-    if (disp) { disp.textContent = fmtT(elapsed); disp.style.color = sisa < 0 ? '#EF4444' : '#fff'; }
+    if (disp) { disp.textContent = fmtTimer(elapsed); disp.style.color = sisa < 0 ? '#EF4444' : '#fff'; }
 
+    // Sisa jatah
     const sisaEl = document.getElementById('timer-sisa');
-    if (sisaEl) { sisaEl.textContent = sisa > 0 ? fmtT(sisa) : '00:00'; sisaEl.style.color = sisa < 60 ? '#EF4444' : '#4ADE80'; }
+    if (sisaEl) { sisaEl.textContent = sisa > 0 ? fmtTimer(sisa) : '00:00'; sisaEl.style.color = sisa < 60 ? '#EF4444' : '#4ADE80'; }
 
+    // Label
     const lbl = document.getElementById('timer-label');
     if (lbl) lbl.textContent = sisa < 0 ? 'OVERTIME!' : 'SEDANG IZIN';
 
     // Progress bar
-    const pct = Math.max(0, (sisa / TOTAL_LIMIT) * 100);
+    const pct = Math.max(0, (sisa / 1800) * 100);
     const bar = document.getElementById('izin-progress-bar');
     if (bar) {
       bar.style.width = pct + '%';
       bar.style.background = pct > 33 ? 'linear-gradient(90deg,#16A34A,#4ADE80)' : pct > 10 ? 'linear-gradient(90deg,#B45309,#F59E0B)' : 'linear-gradient(90deg,#991B1B,#EF4444)';
     }
-
     const sisaLbl = document.getElementById('izin-sisa-label');
-    if (sisaLbl) { sisaLbl.textContent = sisa > 0 ? fmtT(sisa) + ' tersisa' : 'Jatah habis!'; sisaLbl.style.color = sisa > 0 ? '#4ADE80' : '#EF4444'; }
+    if (sisaLbl) { sisaLbl.textContent = sisa > 0 ? fmtTimer(sisa) + ' tersisa' : 'Jatah habis!'; sisaLbl.style.color = sisa > 0 ? '#4ADE80' : '#EF4444'; }
 
-    const otEl  = document.getElementById('overtime-warn');
-    const otTxt = document.getElementById('overtime-text');
-    if (otEl)  otEl.style.display = sisa < 0 ? 'block' : 'none';
-    if (otTxt && sisa < 0) otTxt.textContent = '⚠ Jatah habis! Overtime: ' + fmtT(Math.abs(sisa));
+    // Overtime
+    const otWarn = document.getElementById('overtime-warn');
+    const otTxt  = document.getElementById('overtime-text');
+    if (otWarn) otWarn.style.display = sisa < 0 ? 'block' : 'none';
+    if (otTxt && sisa < 0) otTxt.textContent = '⚠ Jatah habis! Overtime: ' + fmtTimer(Math.abs(sisa));
   }, 500);
 }
 
 function stopLocalTimer() {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-}
-
-function showTimerPanel(remainingSeconds) {
-  const panel = document.getElementById('timer-panel');
-  if (!panel) return;
-  panel.style.display = 'block';
-  document.getElementById('timer-display').textContent = '00:00';
-  document.getElementById('timer-display').style.color = '#fff';
-  document.getElementById('timer-sisa').textContent = fmtT(remainingSeconds);
-  document.getElementById('timer-label').textContent = 'SEDANG IZIN';
-  document.getElementById('overtime-warn').style.display = 'none';
-  const btn = document.getElementById('izin-btn-main');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sedang Keluar...'; }
-}
-
-function updateIzinUI(d) {
-  const remaining = d.remainingSeconds != null ? d.remainingSeconds : TOTAL_LIMIT;
-  const used      = d.totalUsedSeconds || 0;
-  const ot        = d.totalOvertimeSeconds || 0;
-  const sessions  = d.sessions || [];
-  const isActive  = !!d.activeTimer;
-
-  const pct = Math.min(100, (remaining / TOTAL_LIMIT) * 100);
-  const bar = document.getElementById('izin-progress-bar');
-  if (bar) {
-    bar.style.width = pct + '%';
-    bar.style.background = pct > 33 ? 'linear-gradient(90deg,#16A34A,#4ADE80)' : pct > 10 ? 'linear-gradient(90deg,#B45309,#F59E0B)' : 'linear-gradient(90deg,#991B1B,#EF4444)';
-  }
-
-  const sisaLbl = document.getElementById('izin-sisa-label');
-  if (sisaLbl) {
-    sisaLbl.textContent = isActive ? 'Sedang keluar...' : remaining > 0 ? fmtT(remaining) + ' tersisa' : 'Jatah habis!';
-    sisaLbl.style.color = isActive ? '#FCD34D' : remaining > 0 ? '#4ADE80' : '#EF4444';
-  }
-
-  const statusEl = document.getElementById('izin-status-main');
-  if (statusEl) {
-    statusEl.textContent = isActive ? '🚪 Sedang di luar...' : remaining === 0 ? '🔴 Jatah habis' : '✓ Siap Izin';
-    statusEl.style.color = isActive ? '#FCD34D' : remaining === 0 ? '#EF4444' : '#4ADE80';
-  }
-
-  const infoEl = document.getElementById('izin-session-info');
-  if (infoEl) {
-    infoEl.textContent = sessions.length === 0
-      ? 'Belum ada sesi hari ini'
-      : sessions.length + 'x keluar | Terpakai: ' + fmtT(used) + (ot > 0 ? ' | OT: ' + fmtT(ot) : '');
-  }
-
-  const btnMain = document.getElementById('izin-btn-main');
-  if (btnMain) {
-    btnMain.disabled = isActive || remaining === 0;
-    btnMain.textContent = isActive ? '⏳ Sedang Keluar...' : remaining === 0 ? '🔴 Jatah Habis' : '🚪 Keluar Izin';
-    btnMain.className = 'izin-btn' + ((!isActive && remaining > 0) ? ' izin-btn-avail' : '');
-  }
-
-  const listEl = document.getElementById('izin-sessions-list');
-  if (listEl) {
-    if (sessions.length > 0) {
-      listEl.innerHTML = sessions.map((s, i) => {
-        const dur  = s.durationSeconds || 0;
-        const otSec = s.overtimeSeconds || 0;
-        const tOut = s.startAt ? new Date(s.startAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '—';
-        const tIn  = s.endAt   ? new Date(s.endAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '(masih keluar)';
-        return `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 12px">
-          <span style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">Sesi ${i+1}</span>
-          <span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">🚪 ${tOut} → ↩ ${tIn}</span>
-          <span style="font-family:'JetBrains Mono';font-size:11px;${s.isOvertime ? 'color:#FCA5A5' : 'color:#4ADE80'}">${fmtT(dur)}${otSec > 0 ? ' (+'+fmtT(otSec)+' OT)' : ''}</span>
-        </div>`;
-      }).join('');
-    } else {
-      listEl.innerHTML = '';
-    }
-  }
+  if (window._timerInterval) { clearInterval(window._timerInterval); window._timerInterval = null; }
 }
 
 async function loadPermissions() {
@@ -617,20 +596,17 @@ async function loadPermissions() {
   if (!permData.success) return;
   const d = permData.data;
 
-  // Break badge (di dashboard juga)
+  // Break badge
   const validCount = memberData.success ? (memberData.data.validCount || 0) : 0;
   const bv = document.getElementById('break-val');
   if (bv) {
-    if (validCount === 0) { bv.textContent = 'NO BREAK'; bv.style.color = '#EF4444'; }
-    else if (validCount < 3) { bv.textContent = '1 JAM'; bv.style.color = '#F59E0B'; }
-    else { bv.textContent = '2 JAM'; bv.style.color = '#22C55E'; }
+    if (validCount === 0)      { bv.textContent = 'NO BREAK'; bv.style.color = '#EF4444'; }
+    else if (validCount < 3)   { bv.textContent = '1 JAM';    bv.style.color = '#F59E0B'; }
+    else                       { bv.textContent = '2 JAM';    bv.style.color = '#22C55E'; }
   }
 
-  // Jika ada timer aktif, hitung sisa dari server
+  // Timer aktif
   if (d.activeTimer && d.timerStartAt) {
-    const elapsedSinceStart = (Date.now() - new Date(d.timerStartAt)) / 1000;
-    const rem = Math.max(0, (d.remainingSeconds || 0) - elapsedSinceStart + (d.totalLimitSeconds - d.totalUsedSeconds - (d.remainingSeconds || 0)));
-    // Gunakan remainingSeconds langsung dari server
     showTimerPanel(d.remainingSeconds || 0);
     startLocalTimer(d.remainingSeconds || 0);
   } else {
@@ -642,13 +618,79 @@ async function loadPermissions() {
   updateIzinUI(d);
 }
 
+function updateIzinUI(d) {
+  const remaining = d.remainingSeconds != null ? d.remainingSeconds : 1800;
+  const used      = d.totalUsedSeconds || 0;
+  const ot        = d.totalOvertimeSeconds || 0;
+  const sessions  = d.sessions || [];
+  const isActive  = !!d.activeTimer;
+  const LIMIT     = 1800;
+
+  const pct = Math.min(100, (remaining / LIMIT) * 100);
+  const bar = document.getElementById('izin-progress-bar');
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pct > 33 ? 'linear-gradient(90deg,#16A34A,#4ADE80)' : pct > 10 ? 'linear-gradient(90deg,#B45309,#F59E0B)' : 'linear-gradient(90deg,#991B1B,#EF4444)';
+  }
+  const sisaLbl = document.getElementById('izin-sisa-label');
+  if (sisaLbl) {
+    sisaLbl.textContent = isActive ? 'Sedang keluar...' : remaining > 0 ? fmtTimer(remaining) + ' tersisa' : 'Jatah habis!';
+    sisaLbl.style.color = isActive ? '#FCD34D' : remaining > 0 ? '#4ADE80' : '#EF4444';
+  }
+  const statusEl = document.getElementById('izin-status-main');
+  if (statusEl) {
+    statusEl.textContent = isActive ? '🚪 Sedang di luar...' : remaining === 0 ? '🔴 Jatah habis' : '✓ Siap Izin';
+    statusEl.style.color = isActive ? '#FCD34D' : remaining === 0 ? '#EF4444' : '#4ADE80';
+  }
+  const infoEl = document.getElementById('izin-session-info');
+  if (infoEl) {
+    infoEl.textContent = sessions.length === 0 ? 'Belum ada sesi hari ini' :
+      sessions.length + 'x keluar | Terpakai: ' + fmtTimer(used) + (ot > 0 ? ' | OT: ' + fmtTimer(ot) : '');
+  }
+  const btnMain = document.getElementById('izin-btn-main');
+  if (btnMain) {
+    btnMain.disabled = isActive || remaining === 0;
+    btnMain.textContent = isActive ? '⏳ Sedang Keluar...' : remaining === 0 ? '🔴 Jatah Habis' : '🚪 Keluar Izin';
+  }
+  const listEl = document.getElementById('izin-sessions-list');
+  if (listEl) {
+    listEl.innerHTML = sessions.map((s, i) => {
+      const tOut = s.startAt ? new Date(s.startAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const tIn  = s.endAt   ? new Date(s.endAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '(masih keluar)';
+      const dur  = s.durationSeconds || 0;
+      const otSec = s.overtimeSeconds || 0;
+      return '<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 12px;">' +
+        '<span class="mono" style="font-size:10px;color:#64748B;">Sesi ' + (i+1) + '</span>' +
+        '<span class="mono" style="font-size:11px;color:#94A3B8;">🚪 ' + tOut + ' → ↩ ' + tIn + '</span>' +
+        '<span class="mono" style="font-size:11px;' + (s.isOvertime ? 'color:#FCA5A5;' : 'color:#4ADE80;') + '">' +
+        fmtTimer(dur) + (otSec > 0 ? ' (+' + fmtTimer(otSec) + ' OT)' : '') + '</span></div>';
+    }).join('');
+  }
+}
+
+function showTimerPanel(remainingSeconds) {
+  const panel = document.getElementById('timer-panel');
+  if (!panel) return;
+  panel.style.display = 'block';
+  const disp = document.getElementById('timer-display');
+  if (disp) { disp.textContent = '00:00'; disp.style.color = '#fff'; }
+  const sisaEl = document.getElementById('timer-sisa');
+  if (sisaEl) { sisaEl.textContent = fmtTimer(remainingSeconds); sisaEl.style.color = '#4ADE80'; }
+  const lbl = document.getElementById('timer-label');
+  if (lbl) lbl.textContent = 'SEDANG IZIN';
+  const otWarn = document.getElementById('overtime-warn');
+  if (otWarn) otWarn.style.display = 'none';
+  const btn = document.getElementById('izin-btn-main');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sedang Keluar...'; }
+}
+
 async function startIzin() {
   const btn = document.getElementById('izin-btn-main');
   if (btn) { btn.disabled = true; btn.textContent = 'Memulai...'; }
   const data = await api.post('/permissions/start', {});
   if (data.success) {
     showToast(data.message);
-    const rem = data.data ? data.data.remainingSeconds : TOTAL_LIMIT;
+    const rem = data.data ? data.data.remainingSeconds : 1800;
     showTimerPanel(rem);
     startLocalTimer(rem);
     if (data.data) updateIzinUI(data.data);
@@ -674,73 +716,67 @@ async function doStopTimer() {
   }
 }
 
-// ═══════════════════════════════════════════════════
-// ABSENSI
-// ═══════════════════════════════════════════════════
-function fmtTime(dt) {
-  if (!dt) return '—';
-  return new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-}
-
-async function loadAttendance() {
-  const data = await api.get('/attendance/today');
-  if (!data.success) return;
-  const a = data.data;
-  document.getElementById('att-in').textContent  = fmtTime(a?.clockIn);
-  document.getElementById('att-out').textContent = fmtTime(a?.clockOut);
-  document.getElementById('btn-clockin').disabled  = !!a?.clockIn;
-  document.getElementById('btn-clockout').disabled = !a?.clockIn || !!a?.clockOut;
-}
-
-async function doClockIn() {
-  const data = await api.post('/attendance/clockin', {});
-  showToast(data.message, data.success ? '' : 'err');
-  if (data.success) loadAttendance();
-}
-
-async function doClockOut() {
-  const data = await api.post('/attendance/clockout', {});
-  showToast(data.message, data.success ? '' : 'err');
-  if (data.success) loadAttendance();
-}
-
-// ═══════════════════════════════════════════════════
-// PENGUMUMAN
-// ═══════════════════════════════════════════════════
-async function loadAnnouncements() {
-  const data = await api.get('/announcements');
-  const el = document.getElementById('ann-list');
-  if (!data.success || !data.data.length) {
-    el.innerHTML = '<p class="mono" style="font-size:11px;color:#475569">Belum ada pengumuman</p>';
-    return;
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
+window.addEventListener('DOMContentLoaded',()=>{
+  const token=api.getToken();const user=api.getUser();
+  if(token&&user&&user.role==='staff'){initApp(user);}
+  else if(token&&user){
+    localStorage.removeItem('staffang_token');
+    localStorage.removeItem('staffang_user');
+    api.token=null;
   }
-  el.innerHTML = data.data.map(a => `
-    <div class="ann-card">
-      <div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:6px">📣 ${a.title}</div>
-      <div style="font-size:13px;color:#E2E8F0;line-height:1.6">${a.content}</div>
-      <div style="font-family:'JetBrains Mono';font-size:9px;color:#475569;margin-top:8px">${new Date(a.createdAt).toLocaleDateString('id-ID')}</div>
-    </div>`).join('');
-}
-
-// ═══════════════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const user  = (() => { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch { return null; } })();
-  if (token && user?.role === 'staff') {
-    initApp();
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    document.getElementById('login-page').style.display = 'flex';
-  }
-
-  // Enter key untuk login
-  document.getElementById('l-pass').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-  });
 });
+
+
+// ── EDIT MEMBER ──
+function openEditMember(idx, memberId, deposit) {
+  document.getElementById('edit-index').value = idx;
+  document.getElementById('edit-member-id').value = memberId;
+  document.getElementById('edit-deposit').value = deposit;
+  document.getElementById('modal-edit-member').style.display = 'flex';
+}
+function closeEditMember() {
+  document.getElementById('modal-edit-member').style.display = 'none';
+}
+async function submitEditMember() {
+  const idx      = document.getElementById('edit-index').value;
+  const memberId = document.getElementById('edit-member-id').value.trim();
+  const deposit  = document.getElementById('edit-deposit').value;
+  if (!memberId || !deposit) { showToast('Isi semua field', 'err'); return; }
+  const data = await api.put('/members/edit/' + idx, {memberId, deposit: Number(deposit)});
+  if (data.success) {
+    showToast(data.message);
+    closeEditMember();
+    loadDashboard();
+    loadPermissions();
+  } else {
+    showToast(data.message, 'err');
+  }
+}
 </script>
+
+<!-- Modal Edit Member -->
+<div id="modal-edit-member" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#0F1423;border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:28px;width:100%;max-width:360px;margin:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <h3 class="mono" style="font-size:13px;font-weight:700;">Edit Member</h3>
+      <button onclick="closeEditMember()" style="background:none;border:none;color:#64748B;font-size:20px;cursor:pointer;">×</button>
+    </div>
+    <input type="hidden" id="edit-index"/>
+    <div style="margin-bottom:12px;">
+      <label class="mono" style="font-size:10px;color:#64748B;letter-spacing:1px;">MEMBER ID</label>
+      <input id="edit-member-id" type="text" class="field mono" style="margin-top:6px;"/>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label class="mono" style="font-size:10px;color:#64748B;letter-spacing:1px;">DEPOSIT (Rp)</label>
+      <input id="edit-deposit" type="number" class="field mono" style="margin-top:6px;" min="10000"/>
+      <p class="mono" style="font-size:10px;color:#64748B;margin-top:4px;">Min Rp 10.000 | Valid Rp 50.000+</p>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeEditMember()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#94A3B8;font-family:'JetBrains Mono';font-size:12px;padding:10px;cursor:pointer;">Batal</button>
+      <button onclick="submitEditMember()" class="btn btn-gold" style="flex:1;">Simpan</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

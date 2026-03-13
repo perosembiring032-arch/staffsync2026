@@ -1,4 +1,4 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const { auth, staffOnly, adminOnly } = require('../middleware/auth');
 const MemberInput = require('../models/MemberInput');
 
@@ -62,11 +62,13 @@ router.put('/edit/:index', auth, staffOnly, async (req, res) => {
     if (!input || !input.members[idx]) return res.json({ success: false, message: 'Member tidak ditemukan' });
 
     const isDup = input.members.some((m, i) => m.memberId === memberId && i !== idx);
-    if (isDup) return res.json({ success: false, message: 'Member ID sudah digunakan' });
+    if (isDup) return res.json({ success: false, message: 'Member ID sudah ada hari ini' });
 
     input.members[idx].memberId = memberId;
     input.members[idx].deposit = dep;
     input.members[idx].isValid = dep >= VALID_DEPOSIT;
+    const validCount = input.members.filter(m => m.isValid).length;
+    input.targetMet = validCount >= 3;
     input.markModified('members');
     await input.save();
 
@@ -76,7 +78,7 @@ router.put('/edit/:index', auth, staffOnly, async (req, res) => {
   }
 });
 
-// GET all staff inputs today (admin)
+// GET all staff inputs today (admin) - /admin/today
 router.get('/admin/today', auth, adminOnly, async (req, res) => {
   try {
     const inputs = await MemberInput.find({ date: getToday() }).populate('staffId', 'fullName username employeeId');
@@ -86,10 +88,38 @@ router.get('/admin/today', auth, adminOnly, async (req, res) => {
   }
 });
 
-// GET history (admin)
+// GET all staff summary - /admin/all (supports ?date=YYYY-MM-DD)
+router.get('/admin/all', auth, adminOnly, async (req, res) => {
+  try {
+    const date = req.query.date || getToday();
+    const inputs = await MemberInput.find({ date }).populate('staffId', 'fullName username employeeId');
+    const data = inputs.map(inp => {
+      const members = inp.members || [];
+      const validCount = members.filter(m => m.isValid).length;
+      const totalDeposit = members.reduce((s, m) => s + m.deposit, 0);
+      return {
+        staffId: inp.staffId?._id,
+        name: inp.staffId?.fullName || '—',
+        fullName: inp.staffId?.fullName || '—',
+        employeeId: inp.staffId?.employeeId || '—',
+        username: inp.staffId?.username || '—',
+        members,
+        validCount,
+        totalDeposit,
+        targetReached: validCount >= 3,
+        date: inp.date
+      };
+    });
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET history (admin) - /admin/history
 router.get('/admin/history', auth, adminOnly, async (req, res) => {
   try {
-    const inputs = await MemberInput.find({}).populate('staffId', 'fullName username employeeId').sort({ createdAt: -1 }).limit(200);
+    const inputs = await MemberInput.find({}).populate('staffId', 'fullName username employeeId').sort({ date: -1 }).limit(200);
     res.json({ success: true, data: inputs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
