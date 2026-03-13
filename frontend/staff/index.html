@@ -460,8 +460,7 @@ async function loadDashboard(){
       ciBtn.disabled=false;ciBtn.style.opacity='1';
       coBtn.disabled=true;coBtn.style.opacity='0.4';
     } else if(!a.clockOut){
-      badge.textContent=a.status.toUpperCase();
-      badge.className=`badge ${a.status==='terlambat'?'bgo':'bgg'}`;
+      badge.textContent='HADIR';badge.className='badge bgg';
       ciBtn.disabled=true;ciBtn.style.opacity='0.4';
       coBtn.disabled=false;coBtn.style.opacity='1';
     } else {
@@ -495,14 +494,14 @@ async function doClockIn(){
   const btn=document.getElementById('btn-clockin');
   btn.disabled=true;btn.textContent='Mencatat...';
   const data=await api.post('/attendance/clockin',{});
-  if(data.success){showToast(`Clock-in! Status: ${data.data.status}`);loadDashboard();}
+  if(data.success){showToast('Clock-in berhasil! Selamat bekerja.');loadDashboard();}
   else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock In';}
 }
 async function doClockOut(){
   const btn=document.getElementById('btn-clockout');
   btn.disabled=true;btn.textContent='Mencatat...';
   const data=await api.post('/attendance/clockout',{});
-  if(data.success){showToast(`Clock-out! Durasi: ${data.data.duration}`);loadDashboard();}
+  if(data.success){const ci=new Date(data.data.clockIn);const co=new Date(data.data.clockOut);const dur=Math.round((co-ci)/60000);showToast('Clock-out! Durasi: '+Math.floor(dur/60)+'j '+( dur%60)+'m');loadDashboard();}
   else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock Out';}
 }
 
