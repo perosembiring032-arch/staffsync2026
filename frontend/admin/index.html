@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8"/>
@@ -6,545 +6,666 @@
   <title>STAFF ANG — Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0A0E1A;color:#E2E8F0;font-family:'Inter',sans-serif;min-height:100vh}
-    .mono{font-family:'JetBrains Mono',monospace}
-    .bebas{font-family:'Bebas Neue',sans-serif}
-
-    /* Login */
-    #login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.15) 0%,transparent 70%)}
-    .login-card{background:rgba(15,20,35,0.95);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;width:100%;max-width:380px}
-    .logo-text{font-family:'Bebas Neue';font-size:36px;letter-spacing:2px;background:linear-gradient(135deg,#6366F1,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
-    /* Main */
-    #main-page{display:none;min-height:100vh}
-    .sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:rgba(10,14,26,0.98);border-right:1px solid rgba(255,255,255,0.06);padding:20px 0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-    .content{margin-left:220px;padding:24px;min-height:100vh}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;color:#64748B;transition:all .2s;border-left:2px solid transparent}
-    .nav-item:hover{color:#E2E8F0;background:rgba(255,255,255,0.04)}
-    .nav-item.active{color:#6366F1;background:rgba(99,102,241,0.08);border-left-color:#6366F1}
-
-    /* Cards */
-    .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px}
-    .card-title{font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1.5px;margin-bottom:16px;text-transform:uppercase}
-
-    /* Stat widgets */
-    .stat-widget{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px}
-    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px;margin-bottom:6px}
-    .stat-value{font-family:'Bebas Neue';font-size:36px;color:#fff;line-height:1.1}
-    .stat-sub{font-family:'JetBrains Mono';font-size:9px;color:#475569;margin-top:4px}
-
-    /* Table */
-    table{width:100%;border-collapse:collapse}
-    th{font-family:'JetBrains Mono';font-size:9px;color:#64748B;text-align:left;padding:8px 12px;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.06)}
-    td{font-size:13px;color:#E2E8F0;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04)}
-    tr:hover td{background:rgba(255,255,255,0.02)}
-
-    /* Badge */
-    .badge{font-family:'JetBrains Mono';font-size:10px;padding:3px 8px;border-radius:5px;font-weight:700}
-    .bgg{background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3)}
-    .bgr{background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3)}
-    .bgy{background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3)}
-    .bgb{background:rgba(59,130,246,0.15);color:#60A5FA;border:1px solid rgba(59,130,246,0.3)}
-
-    /* Form */
-    .field{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;color:#E2E8F0;font-size:14px;width:100%;outline:none;transition:border .2s}
-    .field:focus{border-color:#6366F1}
-    .btn-primary{background:linear-gradient(135deg,#4F46E5,#7C3AED);border:none;border-radius:10px;color:#fff;font-family:'JetBrains Mono';font-size:12px;font-weight:700;padding:10px 20px;cursor:pointer;transition:all .2s}
-    .btn-primary:hover{opacity:.85}
-    .btn-sm{font-family:'JetBrains Mono';font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;border:none}
-
-    /* Toast */
-    #toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
-    .toast{padding:12px 18px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeIn .3s;pointer-events:none}
-    .toast-ok{background:#064E3B;border:1px solid #065F46;color:#6EE7B7}
-    .toast-err{background:#450A0A;border:1px solid #7F1D1D;color:#FCA5A5}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-    /* Modal */
-    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center}
-
-    ::-webkit-scrollbar{width:5px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+    :root{
+      --gold:#F59E0B;--gold2:#FCD34D;--red:#EF4444;--green:#22C55E;--blue:#3B82F6;
+      --bg:#06080C;--s1:#0C1018;--s2:#111720;--s3:#161E28;
+      --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:#D1D9E6;min-height:100vh;overflow-x:hidden;}
+    .mono{font-family:'JetBrains Mono',monospace;}
+    .bebas{font-family:'Bebas Neue',cursive;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6;}
+    .orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+    .orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(245,158,11,0.06) 0%,transparent 70%);top:-200px;left:-100px;}
+    .orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 70%);bottom:-100px;right:-100px;}
+    .sidebar{background:linear-gradient(180deg,var(--s1) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;width:240px;display:flex;flex-direction:column;z-index:50;}
+    .sidebar-brand{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+    .brand-text{font-family:'Bebas Neue';font-size:28px;letter-spacing:.05em;background:linear-gradient(135deg,#fff 30%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .brand-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.15em;margin-top:2px;}
+    nav{padding:12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+    .nav-item:hover{background:rgba(255,255,255,0.04);}
+    .nav-item.active{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.15);}
+    .nav-item.active .nav-label{color:var(--gold);}
+    .nav-item.active .nav-icon{color:var(--gold);}
+    .nav-icon{font-size:15px;width:20px;text-align:center;color:#475569;transition:color .2s;}
+    .nav-label{font-size:13px;font-weight:600;color:#64748B;transition:color .2s;}
+    .nav-divider{height:1px;background:var(--border);margin:8px 0;}
+    .sidebar-footer{padding:16px;border-top:1px solid var(--border);}
+    .user-avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#92400E,var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:16px;color:#000;flex-shrink:0;}
+    .main-wrap{margin-left:240px;min-height:100vh;position:relative;z-index:1;}
+    .content{padding:24px;}
+    .page-title{font-family:'Bebas Neue';font-size:34px;letter-spacing:.02em;background:linear-gradient(135deg,#fff,#94A3B8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .page-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-top:4px;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .4s ease-out forwards;}
+    @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
+    .live-pulse{animation:pulse2 2s infinite;}
+    .card{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+    .card-gold{border-color:rgba(245,158,11,0.18);background:rgba(245,158,11,0.03);}
+    .card-red{border-color:rgba(239,68,68,0.18);background:rgba(239,68,68,0.03);}
+    .card-green{border-color:rgba(34,197,94,0.18);background:rgba(34,197,94,0.03);}
+    .stat-widget{padding:20px 22px;}
+    .stat-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+    .stat-value{font-family:'Bebas Neue';font-size:44px;line-height:1;letter-spacing:.02em;}
+    .stat-sub{font-family:'JetBrains Mono';font-size:10px;color:#475569;margin-top:6px;}
+    .prog-track{height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;}
+    .prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--red),#F97316);transition:width .8s cubic-bezier(.4,0,.2,1);}
+    .prog-fill.done{background:linear-gradient(90deg,#16A34A,var(--green));}
+    .tbl{width:100%;border-collapse:collapse;}
+    .tbl thead tr{border-bottom:1px solid var(--border);}
+    .tbl th{padding:10px 16px;font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;font-weight:500;text-align:left;}
+    .tbl th.c,.tbl td.c{text-align:center;}
+    .tbl tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);transition:background .15s;}
+    .tbl tbody tr:last-child{border-bottom:none;}
+    .tbl tbody tr:hover{background:rgba(255,255,255,0.02);}
+    .tbl td{padding:12px 16px;font-size:13px;}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono';font-size:10px;font-weight:700;letter-spacing:.05em;}
+    .bg{background:rgba(255,255,255,0.05);color:#64748B;border:1px solid var(--border);}
+    .bgo{background:rgba(245,158,11,0.1);color:#FCD34D;border:1px solid rgba(245,158,11,0.2);}
+    .bgr{background:rgba(239,68,68,0.1);color:#F87171;border:1px solid rgba(239,68,68,0.2);}
+    .bgg{background:rgba(34,197,94,0.1);color:#4ADE80;border:1px solid rgba(34,197,94,0.2);}
+    .bgb{background:rgba(59,130,246,0.1);color:#93C5FD;border:1px solid rgba(59,130,246,0.2);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'Syne';font-weight:700;border:none;cursor:pointer;transition:all .2s;border-radius:10px;font-size:13px;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-gold{background:linear-gradient(135deg,#92400E,#F59E0B);color:#000;padding:10px 18px;}
+    .btn-gold:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,0.3);}
+    .btn-red{background:linear-gradient(135deg,#7F1D1D,#EF4444);color:#fff;padding:10px 18px;}
+    .btn-red:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(239,68,68,0.3);}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#64748B;padding:10px 18px;}
+    .btn-ghost:hover:not(:disabled){border-color:var(--border2);color:#D1D9E6;}
+    .btn-icon{width:32px;height:32px;padding:0;border-radius:8px;}
+    .action-wrap{position:relative;display:inline-block;}
+    .action-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#94A3B8;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:18px;font-weight:700;user-select:none;}
+    .action-btn:hover{background:rgba(255,255,255,0.1);border-color:var(--border2);color:#fff;}
+    .action-menu{position:absolute;right:0;top:38px;background:var(--s3);border:1px solid var(--border2);border-radius:12px;min-width:168px;z-index:100;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.6);display:none;}
+    .action-menu.open{display:block;animation:fadeUp .15s ease-out;}
+    .action-menu-item{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:background .12s;border:none;width:100%;background:none;text-align:left;font-family:'Syne';}
+    .action-menu-item:hover{background:rgba(255,255,255,0.05);}
+    .ai-edit{color:#93C5FD;} .ai-reset{color:#FCD34D;} .ai-lock{color:#FB923C;} .ai-unlock{color:#4ADE80;} .ai-del{color:#F87171;}
+    .action-menu-div{height:1px;background:var(--border);margin:4px 0;}
+    .field{width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Syne';font-size:13px;color:#D1D9E6;transition:all .2s;}
+    .field:focus{outline:none;border-color:rgba(245,158,11,0.4);box-shadow:0 0 0 3px rgba(245,158,11,0.08);}
+    .field-label{font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .modal-box{background:var(--s2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:440px;}
+    .modal-title{font-family:'Bebas Neue';font-size:26px;letter-spacing:.04em;margin-bottom:4px;}
+    .modal-sub{font-family:'JetBrains Mono';font-size:11px;color:#475569;margin-bottom:22px;}
+    .field-err{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono';font-size:11px;color:#F87171;margin-bottom:16px;}
+    #toast-wrap{position:fixed;top:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    .toast{padding:11px 16px;border-radius:10px;font-family:'JetBrains Mono';font-size:12px;animation:fadeUp .25s ease-out;min-width:220px;pointer-events:none;}
+    .toast-ok{background:rgba(21,128,61,0.95);border:1px solid rgba(34,197,94,0.3);color:#4ADE80;}
+    .toast-err{background:rgba(127,29,29,0.95);border:1px solid rgba(239,68,68,0.3);color:#F87171;}
+    .section-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+    .section-title{font-size:13px;font-weight:700;color:#D1D9E6;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+    .hidden{display:none!important;}
+    @media(max-width:1023px){.sidebar{transform:translateX(-100%);}.main-wrap{margin-left:0;}.mobile-bar{display:flex!important;}}
+    .mobile-bar{display:none;position:sticky;top:0;z-index:40;background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);overflow-x:auto;}
+    .m-btn{flex-shrink:0;padding:11px 14px;font-family:'JetBrains Mono';font-size:11px;color:#475569;cursor:pointer;border:none;background:none;transition:color .2s;white-space:nowrap;}
+    .m-btn.act{color:var(--gold);}
   </style>
 </head>
 <body>
 <div id="toast-wrap"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
-<!-- ── LOGIN ── -->
-<div id="login-page">
-  <div class="login-card">
-    <div style="text-align:center;margin-bottom:28px">
-      <div class="logo-text">STAFF ANG</div>
-      <p style="font-family:'JetBrains Mono';font-size:10px;color:#475569;letter-spacing:1px;margin-top:4px">ADMIN PORTAL</p>
+<!-- LOGIN -->
+<div id="view-login" class="min-h-screen flex items-center justify-center px-4 relative z-10">
+  <div class="w-full max-w-sm fade-up">
+    <div class="text-center mb-10">
+      <a href="/" class="mono text-xs" style="color:#334155;">← Kembali</a>
+      <div style="font-family:'Bebas Neue';font-size:54px;background:linear-gradient(135deg,#fff 30%,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.04em;margin:16px 0 4px;">STAFF ANG</div>
+      <div class="mono text-xs tracking-widest" style="color:#334155;">ADMIN CONTROL PANEL</div>
     </div>
-    <div style="margin-bottom:14px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">USERNAME</label>
-      <input id="l-user" type="text" class="field" style="margin-top:6px" placeholder="admin"/>
+    <div class="card" style="padding:28px;">
+      <div id="login-error" class="field-err hidden" style="margin-bottom:18px;"></div>
+      <div style="margin-bottom:18px;"><label class="field-label">Username</label><input id="login-username" type="text" placeholder="admin" class="field"/></div>
+      <div style="margin-bottom:24px;">
+        <label class="field-label">Password</label>
+        <div style="position:relative;"><input id="login-password" type="password" placeholder="••••••••" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('login-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+      </div>
+      <button id="login-btn" onclick="doLogin()" class="btn btn-gold" style="width:100%;padding:13px;">Masuk sebagai Admin</button>
     </div>
-    <div style="margin-bottom:20px;position:relative">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px">PASSWORD</label>
-      <input id="l-pass" type="password" class="field" style="margin-top:6px;padding-right:44px" placeholder="••••••••"/>
-      <button onclick="togglePwd()" style="position:absolute;right:12px;bottom:11px;background:none;border:none;color:#64748B;cursor:pointer;font-size:14px">👁</button>
-    </div>
-    <button id="btn-login" class="btn-primary" style="width:100%" onclick="doLogin()">MASUK ADMIN</button>
-    <p id="l-err" style="font-family:'JetBrains Mono';font-size:11px;color:#EF4444;text-align:center;margin-top:12px;display:none"></p>
+    <p class="mono text-xs text-center" style="color:#334155;margin-top:14px;">Akses dibatasi IP Whitelist</p>
   </div>
 </div>
 
-<!-- ── MAIN ── -->
-<div id="main-page">
+<!-- APP -->
+<div id="view-app" class="hidden" style="min-height:100vh;position:relative;z-index:1;">
+
   <!-- Sidebar -->
-  <div class="sidebar">
-    <div style="padding:0 20px 20px">
-      <div class="logo-text" style="font-size:22px">STAFF ANG</div>
-      <div style="font-family:'JetBrains Mono';font-size:9px;color:#4F46E5;margin-top:2px;letter-spacing:1px">ADMIN PANEL</div>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-text">STAFF ANG</div>
+      <div class="brand-sub">ADMIN PANEL</div>
     </div>
-    <nav style="flex:1">
-      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">📊 Dashboard</div>
-      <div class="nav-item" onclick="showPage('monitoring')" id="nav-monitoring">🎯 Target Monitoring</div>
-      <div class="nav-item" onclick="showPage('permissions')" id="nav-permissions">🚪 Log Izin</div>
-      <div class="nav-item" onclick="showPage('stafflist')" id="nav-stafflist">👥 Kelola Staff</div>
-      <div class="nav-item" onclick="showPage('ranking')" id="nav-ranking">🏆 Ranking</div>
-      <div class="nav-item" onclick="showPage('absensi')" id="nav-absensi">📋 Absensi Staff</div>
-      <div class="nav-item" onclick="showPage('histori')" id="nav-histori">📁 Riwayat Histori</div>
-      <div class="nav-item" onclick="showPage('pengumuman')" id="nav-pengumuman">📣 Pengumuman</div>
-      <div class="nav-item" onclick="showPage('ipwhitelist')" id="nav-ipwhitelist">🔒 IP Whitelist</div>
+    <nav>
+      <div onclick="showPage('dashboard')" id="nav-dashboard" class="nav-item active">
+        <span class="nav-icon">◈</span><span class="nav-label">Dashboard</span>
+      </div>
+      <div onclick="showPage('monitoring')" id="nav-monitoring" class="nav-item">
+        <span class="nav-icon">◎</span><span class="nav-label">Target Monitoring</span>
+      </div>
+      <div onclick="showPage('permissions')" id="nav-permissions" class="nav-item">
+        <span class="nav-icon">◷</span><span class="nav-label">Log Permission</span>
+      </div>
+      <div onclick="showPage('stafflist')" id="nav-stafflist" class="nav-item">
+        <span class="nav-icon">◫</span><span class="nav-label">Kelola Staff</span>
+      </div>
+      <div onclick="showPage('ranking')" id="nav-ranking" class="nav-item">
+        <span class="nav-icon">◆</span><span class="nav-label">Rankings</span>
+      </div>
+      <div onclick="showPage('absensi')" id="nav-absensi" class="nav-item">
+        <span class="nav-icon">◌</span><span class="nav-label">Absensi Staff</span>
+      </div>
+      <div onclick="showPage('histori')" id="nav-histori" class="nav-item">
+        <span class="nav-icon">▣</span><span class="nav-label">Riwayat Histori</span>
+      </div>
+      <div onclick="showPage('pengumuman')" id="nav-pengumuman" class="nav-item">
+        <span class="nav-icon">◈</span><span class="nav-label">Pengumuman</span>
+      </div>
+      <div class="nav-divider"></div>
+      <div onclick="showPage('ipwhitelist')" id="nav-ipwhitelist" class="nav-item">
+        <span class="nav-icon">◉</span><span class="nav-label">IP Whitelist</span>
+      </div>
     </nav>
-    <div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06)">
-      <button onclick="doLogout()" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#FCA5A5;font-family:'JetBrains Mono';font-size:11px;padding:8px;cursor:pointer">← Keluar</button>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div>
+          <p id="user-name" style="font-size:13px;font-weight:700;color:#F59E0B;"></p>
+          <p class="mono" style="font-size:10px;color:#475569;">Master Admin</p>
+        </div>
+      </div>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#475569;background:none;border:none;cursor:pointer;">⟵ Keluar</button>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <!-- Mobile top -->
+    <div class="lg:hidden" style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:rgba(6,8,12,0.97);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40;">
+      <div style="font-family:'Bebas Neue';font-size:24px;background:linear-gradient(135deg,#fff,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">STAFF ANG</div>
+      <button onclick="doLogout()" class="mono text-xs" style="color:#EF4444;background:none;border:none;cursor:pointer;">Keluar</button>
+    </div>
+    <div class="mobile-bar">
+      <button class="m-btn act" onclick="showPage('dashboard');setMA(this)">Overview</button>
+      <button class="m-btn" onclick="showPage('monitoring');setMA(this)">Target</button>
+      <button class="m-btn" onclick="showPage('permissions');setMA(this)">Log Izin</button>
+      <button class="m-btn" onclick="showPage('stafflist');setMA(this)">Staff</button>
+      <button class="m-btn" onclick="showPage('ranking');setMA(this)">Ranking</button>
+      <button class="m-btn" onclick="showPage('absensi');setMA(this)">Absensi</button>
+      <button class="m-btn" onclick="showPage('histori');setMA(this)">Histori</button>
+      <button class="m-btn" onclick="showPage('pengumuman');setMA(this)">Pengumuman</button>
+      <button class="m-btn" onclick="showPage('ipwhitelist');setMA(this)">IP</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="fade-up">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+          <div>
+            <div class="page-title">OVERVIEW</div>
+            <div class="page-sub" id="dash-date"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px #22C55E;" class="live-pulse"></div>
+            <span class="mono" style="font-size:11px;color:#22C55E;">LIVE</span>
+            <button onclick="loadDashboard()" class="btn btn-ghost btn-icon" style="margin-left:4px;">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;" class="lg:grid-cols-4">
+          <div class="card stat-widget"><div class="stat-label">Total Staff</div><div class="stat-value" style="color:#fff;" id="d-total">—</div><div class="stat-sub">terdaftar</div></div>
+          <div class="card card-green stat-widget"><div class="stat-label">Target Tercapai</div><div class="stat-value" style="color:#22C55E;" id="d-reached">—</div><div class="stat-sub">3 member valid</div></div>
+          <div class="card card-red stat-widget"><div class="stat-label">Dalam Proses</div><div class="stat-value" style="color:#EF4444;" id="d-failed">—</div><div class="stat-sub">belum selesai</div></div>
+          <div class="card card-gold stat-widget"><div class="stat-label">Belum Mulai</div><div class="stat-value" style="color:#F59E0B;" id="d-pending">—</div><div class="stat-sub">0 entri hari ini</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Status Staff Hari Ini</span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr>
+                <th>Staff</th><th class="c">Progress</th><th class="c">Break</th>
+                <th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th>
+              </tr></thead>
+              <tbody id="dash-table"><tr><td colspan="7" style="padding:32px;text-align:center;" class="mono" style="font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONITORING -->
+      <div id="page-monitoring" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">TARGET MONITORING</div><div class="page-sub">Detail entri member per staff hari ini</div></div>
+        <div id="monitoring-list" style="display:flex;flex-direction:column;gap:14px;"></div>
+      </div>
+
+      <!-- PERMISSIONS -->
+      <div id="page-permissions" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">LOG PERMISSION</div><div class="page-sub">Riwayat izin harian seluruh staff</div></div>
+          <button onclick="loadPermLogs()" class="btn btn-ghost" style="font-size:12px;padding:8px 14px;">Refresh</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Staff Izin</div><div class="stat-value" style="font-size:36px;color:#fff;" id="plog-count1">0</div><div class="stat-sub">pakai izin hari ini</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Overtime</div><div class="stat-value" style="font-size:36px;color:#fff;" id="plog-count2" style="color:#FCA5A5">0</div><div class="stat-sub">staff kena overtime</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Rata Pakai</div><div class="stat-value" style="font-size:36px;color:#fff;" id="plog-count3" style="color:#4ADE80;font-size:28px;">0m</div><div class="stat-sub">rata-rata per staff</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Detail Per Staff</div>
+          <div id="perm-log-container"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Riwayat Detail</span></div>
+          <div id="perm-detail-log"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
+        </div>
+      </div>
+
+      <!-- STAFF LIST -->
+      <div id="page-stafflist" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">KELOLA STAFF</div><div class="page-sub">Manajemen akun staff</div></div>
+          <button onclick="openAddStaff()" class="btn btn-gold">+ Tambah Staff</button>
+        </div>
+        <div class="card">
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr><th>Nama</th><th>Username</th><th>ID Karyawan</th><th class="c">Status</th><th class="c">Aksi</th></tr></thead>
+              <tbody id="staff-table"><tr><td colspan="5" style="padding:32px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat data...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RANKING -->
+      <div id="page-ranking" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">RANKINGS</div><div class="page-sub">Performa staff hari ini</div></div>
+        <div class="card" id="ranking-list"></div>
+      </div>
+
+      <!-- ABSENSI -->
+      <div id="page-absensi" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">ABSENSI STAFF</div><div class="page-sub">Pantau jam masuk seluruh staff hari ini</div></div>
+          <button onclick="loadAbsensi()" class="btn btn-ghost" style="font-size:12px;padding:8px 14px;">Refresh</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Hadir</div><div class="stat-value" style="font-size:36px;color:#22C55E;" id="abs-hadir">0</div><div class="stat-sub">tepat waktu</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Terlambat</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="abs-telat">0</div><div class="stat-sub">lewat jam 08:00</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Absen</div><div class="stat-value" style="font-size:36px;color:#EF4444;" id="abs-absen">0</div><div class="stat-sub">belum clock-in</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Daftar Absensi Hari Ini</span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr><th>Staff</th><th class="c">Clock In</th><th class="c">Clock Out</th><th class="c">Durasi</th><th class="c">Status</th></tr></thead>
+              <tbody id="absensi-table"><tr><td colspan="5" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIWAYAT HISTORI -->
+      <div id="page-histori" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">RIWAYAT HISTORI</div><div class="page-sub">Data member & target per tanggal</div></div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="date" id="histori-date" class="field" style="width:160px;padding:8px 12px;font-size:12px;" onchange="loadHistori()"/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Target Tercapai</div><div class="stat-value" style="font-size:36px;color:#22C55E;" id="hist-reached">—</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Dalam Proses</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="hist-failed">—</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Belum Mulai</div><div class="stat-value" style="font-size:36px;color:#EF4444;" id="hist-pending">—</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title" id="histori-title">Pilih tanggal untuk melihat data</span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr><th>Staff</th><th class="c">Member Valid</th><th class="c">Break</th><th class="c">Izin 1</th><th class="c">Izin 2</th><th class="c">Izin 3</th><th class="c">Status</th></tr></thead>
+              <tbody id="histori-table"><tr><td colspan="7" style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Pilih tanggal di atas.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENGUMUMAN -->
+      <div id="page-pengumuman" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">PENGUMUMAN</div><div class="page-sub">Kirim pengumuman ke seluruh staff</div></div>
+          <button onclick="openAddAnn()" class="btn btn-gold">+ Buat Pengumuman</button>
+        </div>
+        <div id="ann-list" style="display:flex;flex-direction:column;gap:12px;">
+          <p style="text-align:center;padding:32px;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p>
+        </div>
+      </div>
+
+      <!-- IP WHITELIST -->
+      <div id="page-ipwhitelist" class="fade-up hidden">
+        <div style="margin-bottom:24px;"><div class="page-title">IP WHITELIST</div><div class="page-sub">Kelola akses IP untuk halaman admin</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="md:grid-cols-2">
+          <div class="card">
+            <div class="section-head"><span class="section-title">IP Anda Saat Ini</span><span class="badge bg" id="ip-count">— IP</span></div>
+            <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
+              <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+                <div><div class="mono" style="font-size:10px;color:#475569;margin-bottom:4px;">IP AKTIF ANDA</div><div id="my-ip" class="mono" style="font-size:14px;font-weight:700;color:#F59E0B;">—</div></div>
+                <button onclick="whitelistMyIP()" class="btn btn-gold" style="font-size:11px;padding:8px 12px;">+ Tambah IP Ini</button>
+              </div>
+              <div>
+                <label class="field-label">Tambah IP Manual</label>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <input id="new-ip" type="text" placeholder="192.168.1.100" class="field"/>
+                  <div style="display:flex;gap:8px;">
+                    <input id="new-ip-label" type="text" placeholder="Label (contoh: Kantor)" class="field" style="flex:1;"/>
+                    <button onclick="addIPManual()" class="btn btn-gold" style="font-size:11px;padding:10px 14px;white-space:nowrap;">Tambah</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-head"><span class="section-title">Daftar IP Terdaftar</span></div>
+            <div id="ip-list"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <!-- Content -->
-  <div class="content">
-
-    <!-- DASHBOARD -->
-    <div id="page-dashboard">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">DASHBOARD ADMIN</h2>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">TOTAL STAFF AKTIF</div><div class="stat-value" id="dash-staff">0</div><div class="stat-sub">staff terdaftar</div></div>
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">HADIR HARI INI</div><div class="stat-value" id="dash-hadir">0</div><div class="stat-sub">clock in hari ini</div></div>
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">TARGET TERCAPAI</div><div class="stat-value" id="dash-target">0</div><div class="stat-sub">staff 3+ valid member</div></div>
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">TOTAL MEMBER</div><div class="stat-value" id="dash-member">0</div><div class="stat-sub">entri hari ini</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Ringkasan Hari Ini</div>
-        <div id="dash-table-wrap"><p class="mono" style="font-size:11px;color:#475569">Memuat data...</p></div>
+<!-- MODAL: Tambah Staff -->
+<div id="modal-staff" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title" style="color:#F59E0B;">Tambah Staff Baru</div>
+    <div class="modal-sub">Buat akun staff baru</div>
+    <div id="modal-error" class="field-err hidden"></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Nama Lengkap</label><input id="s-name" type="text" placeholder="contoh: Ahmad Rizky" class="field"/></div>
+      <div><label class="field-label">Username</label><input id="s-username" type="text" placeholder="contoh: ahmad01" class="field mono"/></div>
+      <div><label class="field-label">ID Karyawan</label><input id="s-empid" type="text" placeholder="contoh: EMP001" class="field mono"/></div>
+      <div><label class="field-label">Password</label>
+        <div style="position:relative;"><input id="s-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('s-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
       </div>
     </div>
-
-    <!-- TARGET MONITORING -->
-    <div id="page-monitoring" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <h2 class="bebas" style="font-size:28px;letter-spacing:1px">TARGET MONITORING</h2>
-        <button onclick="exportExcelAll()" class="btn-primary" style="display:flex;align-items:center;gap:6px">⬇ Export Semua</button>
-      </div>
-      <div id="monitoring-list"><p class="mono" style="font-size:11px;color:#475569">Memuat data...</p></div>
-    </div>
-
-    <!-- LOG IZIN -->
-    <div id="page-permissions" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">LOG IZIN HARI INI</h2>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">Staff Izin</div><div class="stat-value" id="plog-count1" style="color:#fff">0</div><div class="stat-sub">pakai izin hari ini</div></div>
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">Overtime</div><div class="stat-value" id="plog-count2" style="color:#FCA5A5">0</div><div class="stat-sub">staff kena overtime</div></div>
-        <div class="stat-widget" style="padding:16px 18px"><div class="stat-label">Rata Pakai</div><div class="stat-value" id="plog-count3" style="font-size:28px;color:#4ADE80">0m</div><div class="stat-sub">rata-rata per staff</div></div>
-      </div>
-      <div id="perm-log-list"><p class="mono" style="font-size:11px;color:#475569">Memuat data...</p></div>
-    </div>
-
-    <!-- KELOLA STAFF -->
-    <div id="page-stafflist" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <h2 class="bebas" style="font-size:28px;letter-spacing:1px">KELOLA STAFF</h2>
-        <button onclick="openAddStaff()" class="btn-primary">+ Tambah Staff</button>
-      </div>
-      <div class="card">
-        <div id="staff-table-wrap"><p class="mono" style="font-size:11px;color:#475569">Memuat...</p></div>
-      </div>
-    </div>
-
-    <!-- RANKING -->
-    <div id="page-ranking" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">RANKING HARI INI</h2>
-      <div id="ranking-list"><p class="mono" style="font-size:11px;color:#475569">Memuat data...</p></div>
-    </div>
-
-    <!-- ABSENSI -->
-    <div id="page-absensi" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">ABSENSI STAFF</h2>
-      <div class="card">
-        <div id="absensi-table-wrap"><p class="mono" style="font-size:11px;color:#475569">Memuat...</p></div>
-      </div>
-    </div>
-
-    <!-- RIWAYAT HISTORI -->
-    <div id="page-histori" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">RIWAYAT HISTORI</h2>
-      <div class="card">
-        <div id="histori-table-wrap"><p class="mono" style="font-size:11px;color:#475569">Memuat...</p></div>
-      </div>
-    </div>
-
-    <!-- PENGUMUMAN -->
-    <div id="page-pengumuman" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">PENGUMUMAN</h2>
-      <div class="card" style="max-width:560px;margin-bottom:20px">
-        <div class="card-title">Buat Pengumuman</div>
-        <input id="ann-title" type="text" class="field" placeholder="Judul pengumuman" style="margin-bottom:10px"/>
-        <textarea id="ann-content" class="field" rows="3" placeholder="Isi pengumuman..." style="resize:vertical;min-height:80px;margin-bottom:12px"></textarea>
-        <button onclick="postAnn()" class="btn-primary">📢 Kirim Pengumuman</button>
-      </div>
-      <div id="ann-list"><p class="mono" style="font-size:11px;color:#475569">Memuat...</p></div>
-    </div>
-
-    <!-- IP WHITELIST -->
-    <div id="page-ipwhitelist" style="display:none">
-      <h2 class="bebas" style="font-size:28px;letter-spacing:1px;margin-bottom:20px">IP WHITELIST</h2>
-      <div class="card" style="max-width:480px;margin-bottom:20px">
-        <div class="card-title">Tambah IP</div>
-        <div style="display:flex;gap:10px;margin-bottom:10px">
-          <input id="ip-input" type="text" class="field mono" placeholder="192.168.1.1"/>
-          <input id="ip-label" type="text" class="field" placeholder="Label (opsional)" style="max-width:160px"/>
-        </div>
-        <button onclick="addIPManual()" class="btn-primary">+ Tambah IP</button>
-      </div>
-      <div class="card">
-        <div class="card-title">Daftar IP Terdaftar</div>
-        <div id="ip-list"><p class="mono" style="font-size:11px;color:#475569">Memuat...</p></div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main-page -->
-
-<!-- Modal Tambah Staff -->
-<div id="modal-add-staff" class="modal-bg">
-  <div class="card" style="width:100%;max-width:420px;margin:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h3 style="font-family:'JetBrains Mono';font-size:13px;font-weight:700">Tambah Staff / Admin</h3>
-      <button onclick="closeModal('modal-add-staff')" style="background:none;border:none;color:#64748B;font-size:18px;cursor:pointer">×</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div>
-        <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">USERNAME</label>
-        <input id="s-user" type="text" class="field mono" style="margin-top:5px"/>
-      </div>
-      <div>
-        <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">EMPLOYEE ID</label>
-        <input id="s-empid" type="text" class="field mono" style="margin-top:5px"/>
-      </div>
-    </div>
-    <div style="margin-bottom:10px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">NAMA LENGKAP</label>
-      <input id="s-name" type="text" class="field" style="margin-top:5px"/>
-    </div>
-    <div style="margin-bottom:10px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">PASSWORD</label>
-      <input id="s-pass" type="password" class="field" style="margin-top:5px"/>
-    </div>
-    <div style="margin-bottom:18px">
-      <label style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">ROLE</label>
-      <select id="s-role" class="field" style="margin-top:5px" onchange="updateAddBtn()">
+    <div style="margin-bottom:12px;">
+      <p style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;letter-spacing:1px;margin-bottom:6px;">ROLE</p>
+      <select id="s-role" onchange="updateAddStaffBtn()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;color:#E2E8F0;font-size:14px;width:100%;outline:none;">
         <option value="staff">Staff</option>
         <option value="admin">Admin / Master</option>
       </select>
     </div>
-    <button id="btn-add-staff" onclick="doAddStaff()" class="btn-primary" style="width:100%">Buat Staff</button>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-staff')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button id="btn-add-staff" onclick="submitAddStaff()" class="btn btn-gold" style="flex:1;">Buat Staff</button>
+    </div>
   </div>
 </div>
 
-<script>
-// ═══════════════════════════════════════════════════
-// API
-// ═══════════════════════════════════════════════════
-const BASE_URL = 'https://staffsync2026.onrender.com/api';
-const TOKEN_KEY = 'staffang_token';
-const USER_KEY  = 'staffang_user';
+<!-- MODAL: Edit Staff -->
+<div id="modal-edit" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title" style="color:#93C5FD;">Edit Data Staff</div>
+    <div id="modal-edit-sub" class="modal-sub"></div>
+    <div id="modal-edit-error" class="field-err hidden"></div>
+    <input id="edit-id" type="hidden"/>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Nama Lengkap</label><input id="edit-name" type="text" class="field"/></div>
+      <div><label class="field-label">Username</label><input id="edit-username" type="text" class="field mono"/></div>
+      <div><label class="field-label">ID Karyawan</label><input id="edit-empid" type="text" class="field mono"/></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-edit')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitEditStaff()" class="btn btn-gold" style="flex:1;">Simpan</button>
+    </div>
+  </div>
+</div>
 
-const api = {
-  _h: () => {
-    const h = {'Content-Type':'application/json'};
-    const t = localStorage.getItem(TOKEN_KEY);
-    if (t) h['Authorization'] = 'Bearer ' + t;
-    return h;
-  },
-  request: async (method, path, body) => {
-    try {
-      const r = await fetch(BASE_URL + path, {method, headers: api._h(), body: body ? JSON.stringify(body) : undefined});
-      return await r.json();
-    } catch (e) { return {success:false, message:'Koneksi gagal'}; }
-  },
-  get:    p     => api.request('GET',    p),
-  post:   (p,b) => api.request('POST',   p, b),
-  patch:  (p,b) => api.request('PATCH',  p, b),
-  delete: p     => api.request('DELETE', p),
-};
+<!-- MODAL: Reset Password -->
+<div id="modal-reset" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title" style="color:#F59E0B;">Reset Password</div>
+    <div id="modal-reset-sub" class="modal-sub"></div>
+    <div id="modal-reset-error" class="field-err hidden"></div>
+    <input id="reset-id" type="hidden"/>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Password Baru</label>
+        <div style="position:relative;"><input id="reset-password" type="password" placeholder="Min. 6 karakter" class="field" style="padding-right:64px;"/>
+        <button onclick="togglePwd('reset-password')" class="mono text-xs" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#475569;">LIHAT</button></div>
+      </div>
+      <div><label class="field-label">Konfirmasi Password</label><input id="reset-confirm" type="password" placeholder="Ulangi password" class="field"/></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-reset')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitResetPassword()" class="btn btn-gold" style="flex:1;">Reset Password</button>
+    </div>
+  </div>
+</div>
 
-// ═══════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════
-function showToast(msg, type) {
-  const w = document.getElementById('toast-wrap');
-  const t = document.createElement('div');
-  t.className = 'toast ' + (type === 'err' ? 'toast-err' : 'toast-ok');
-  t.textContent = msg;
-  w.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
-}
+<!-- MODAL: Hapus Staff -->
+<div id="modal-delete" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title" style="color:#EF4444;">Hapus Akun Staff</div>
+    <div id="modal-delete-sub" class="modal-sub"></div>
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:10px;padding:14px;margin-bottom:22px;">
+      <p class="mono" style="font-size:11px;color:#F87171;">⚠ Aksi ini permanen. Semua data entri staff ikut terhapus.</p>
+    </div>
+    <input id="delete-id" type="hidden"/>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeModal('modal-delete')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitDeleteStaff()" class="btn btn-red" style="flex:1;">Hapus Permanen</button>
+    </div>
+  </div>
+</div>
 
-function fmtRp(n) { return 'Rp' + Number(n||0).toLocaleString('id-ID'); }
-function fmtTime(dt) { if (!dt) return '—'; return new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}); }
-function fmtT(s) {
-  const abs = Math.abs(Math.floor(s));
-  return String(Math.floor(abs/60)).padStart(2,'0') + ':' + String(abs%60).padStart(2,'0');
-}
-
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-// ═══════════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════════
-function togglePwd() { const f=document.getElementById('l-pass'); f.type=f.type==='password'?'text':'password'; }
-
-async function doLogin() {
-  const btn = document.getElementById('btn-login');
-  const err = document.getElementById('l-err');
-  const user = document.getElementById('l-user').value.trim();
-  const pass = document.getElementById('l-pass').value;
-  if (!user || !pass) { err.textContent='Isi username dan password'; err.style.display='block'; return; }
-  btn.disabled=true; btn.textContent='Masuk...'; err.style.display='none';
-  const data = await api.request('POST', '/auth/login', {username:user, password:pass});
-  btn.disabled=false; btn.textContent='MASUK ADMIN';
-  if (data.success && data.user?.role === 'admin') {
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-    initApp();
-  } else if (data.success && data.user?.role === 'staff') {
-    err.textContent='Akun ini adalah staff. Gunakan halaman staff.'; err.style.display='block';
-  } else {
-    err.textContent=data.message||'Login gagal'; err.style.display='block';
-  }
-}
-
-function doLogout() {
-  localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY);
-  document.getElementById('main-page').style.display='none';
-  document.getElementById('login-page').style.display='flex';
-}
-
-// ═══════════════════════════════════════════════════
-// INIT & NAV
-// ═══════════════════════════════════════════════════
-function initApp() {
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('main-page').style.display='block';
-  showPage('dashboard');
-}
-
-const PAGES = ['dashboard','monitoring','permissions','stafflist','ranking','absensi','histori','pengumuman','ipwhitelist'];
-
-function showPage(name) {
-  PAGES.forEach(p => {
-    document.getElementById('page-'+p).style.display = p===name ? 'block' : 'none';
-    document.getElementById('nav-'+p).classList.toggle('active', p===name);
-  });
-  if (name==='dashboard')   loadDashboard();
-  if (name==='monitoring')  loadMonitoring();
-  if (name==='permissions') loadPermLogs();
-  if (name==='stafflist')   loadStaffList();
-  if (name==='ranking')     loadRanking();
-  if (name==='absensi')     loadAbsensi();
-  if (name==='histori')     loadHistori();
-  if (name==='pengumuman')  loadAnnouncements();
-  if (name==='ipwhitelist') loadIPList();
-}
-
-// ═══════════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════════
-async function loadDashboard() {
-  const [staffData, attData, memberData] = await Promise.all([
-    api.get('/staff'),
-    api.get('/attendance/admin/today'),
-    api.get('/members/admin/today'),
-  ]);
-
-  const staffList  = staffData.success  ? staffData.data.filter(s=>s.role==='staff'&&s.isActive) : [];
-  const attList    = attData.success    ? attData.data : [];
-  const memberList = memberData.success ? memberData.data : [];
-
-  const hadir    = attList.filter(a=>a.isPresent).length;
-  const targetOK = memberList.filter(m=>m.targetMet).length;
-  const totalMem = memberList.reduce((s,m)=>(m.members||[]).length+s, 0);
-
-  document.getElementById('dash-staff').textContent  = staffList.length;
-  document.getElementById('dash-hadir').textContent  = hadir;
-  document.getElementById('dash-target').textContent = targetOK;
-  document.getElementById('dash-member').textContent = totalMem;
-
-  const wrap = document.getElementById('dash-table-wrap');
-  if (!staffList.length) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Belum ada staff aktif</p>'; return; }
-
-  wrap.innerHTML = `<table>
-    <thead><tr><th>NAMA</th><th>ID</th><th>ABSENSI</th><th>MEMBER</th><th>TARGET</th></tr></thead>
-    <tbody>${staffList.map(s=>{
-      const a = attList.find(x=>x.staffId?.toString()===s._id?.toString());
-      const m = memberList.find(x=>x.staffId?._id?.toString()===s._id?.toString()||x.staffId?.toString()===s._id?.toString());
-      const members = m?.members||[];
-      const valid = members.filter(x=>x.isValid).length;
-      return `<tr>
-        <td style="font-weight:600;color:#F1F5F9">${s.fullName}</td>
-        <td class="mono" style="color:#94A3B8;font-size:12px">${s.employeeId}</td>
-        <td><span class="badge ${a?.isPresent?'bgg':'bgr'}">${a?.isPresent?'HADIR':'ABSEN'}</span></td>
-        <td class="mono" style="font-size:12px">${valid}/${members.length}</td>
-        <td><span class="badge ${valid>=3?'bgg':valid>0?'bgy':'bgr'}">${valid>=3?'✓ TERCAPAI':valid+'/3'}</span></td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
-}
-
-// ═══════════════════════════════════════════════════
-// TARGET MONITORING + EXCEL EXPORT
-// ═══════════════════════════════════════════════════
-async function loadMonitoring() {
-  const [memberData, staffData] = await Promise.all([
-    api.get('/members/admin/today'),
-    api.get('/staff'),
-  ]);
-  const members  = memberData.success ? memberData.data : [];
-  const staffAll = staffData.success  ? staffData.data.filter(s=>s.role==='staff'&&s.isActive) : [];
-  const wrap = document.getElementById('monitoring-list');
-
-  if (!staffAll.length) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Belum ada staff aktif</p>'; return; }
-
-  wrap.innerHTML = staffAll.map(s => {
-    const entry   = members.find(m=>m.staffId?._id?.toString()===s._id?.toString()||m.staffId?.toString()===s._id?.toString());
-    const mList   = entry?.members || [];
-    const valid   = mList.filter(x=>x.isValid).length;
-    const pct     = Math.min(100, (valid/3)*100);
-
-    return `<div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+<!-- MODAL: Tambah Pengumuman -->
+<div id="modal-ann" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-title" style="color:#F59E0B;">Buat Pengumuman</div>
+    <div class="modal-sub">Pengumuman akan tampil di dashboard semua staff</div>
+    <div id="modal-ann-error" class="field-err hidden"></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label class="field-label">Judul</label><input id="ann-title" type="text" placeholder="contoh: Perhatian Shift Malam" class="field"/></div>
+      <div><label class="field-label">Isi Pengumuman</label><textarea id="ann-content" placeholder="Tulis isi pengumuman di sini..." class="field" style="min-height:100px;resize:vertical;"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
-          <div style="font-weight:700;font-size:15px;color:#F1F5F9">${s.fullName}</div>
-          <div class="mono" style="font-size:10px;color:#64748B">${s.employeeId} · ${mList.length} entri</div>
+          <label class="field-label">Prioritas</label>
+          <select id="ann-priority" class="field">
+            <option value="normal">Normal</option>
+            <option value="penting">Penting</option>
+            <option value="urgent">Urgent</option>
+          </select>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="badge ${valid>=3?'bgg':valid>0?'bgy':'bgr'}">${valid>=3?'✓ TARGET':''+valid+'/3'}</span>
-          <button onclick="exportExcelStaff('${s._id}','${s.fullName}')" class="btn-primary" style="font-size:10px;padding:5px 12px">⬇ Excel</button>
+        <div>
+          <label class="field-label">Kadaluarsa (opsional)</label>
+          <input id="ann-expires" type="datetime-local" class="field"/>
         </div>
       </div>
-      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden;margin-bottom:14px">
-        <div style="height:100%;width:${pct}%;background:${valid>=3?'linear-gradient(90deg,#16A34A,#4ADE80)':valid>0?'linear-gradient(90deg,#B45309,#F59E0B)':'linear-gradient(90deg,#7F1D1D,#EF4444)'};border-radius:100px;transition:width .5s"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeModal('modal-ann')" class="btn btn-ghost" style="flex:1;">Batal</button>
+      <button onclick="submitAnn()" class="btn btn-gold" style="flex:1;">Kirim Pengumuman</button>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/api.js"></script>
+<script>
+function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function showToast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.action-wrap'))document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
+});
+function toggleAM(id,e){
+  e.stopPropagation();
+  document.querySelectorAll('.action-menu').forEach(m=>{if(m.id!==id)m.classList.remove('open');});
+  document.getElementById(id).classList.toggle('open');
+}
+
+async function doLogin(){
+  const username=document.getElementById('login-username').value.trim();
+  const password=document.getElementById('login-password').value;
+  const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
+  if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
+  const data=await api.post('/auth/login/admin',{username,password});
+  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
+  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk sebagai Admin';}
+}
+function doLogout(){
+  localStorage.removeItem('staffang_token');
+  localStorage.removeItem('staffang_user');
+  api.token=null;
+  window.location.href='/admin/index.html';
+}
+function initApp(user){
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  document.getElementById('user-name').textContent=user.name;
+  document.getElementById('user-avatar').textContent=user.name?user.name[0].toUpperCase():'A';
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  loadDashboard();
+}
+
+function showPage(page){
+  ['dashboard','monitoring','permissions','stafflist','ranking','absensi','histori','pengumuman','ipwhitelist'].forEach(p=>{
+    document.getElementById(`page-${p}`)?.classList.add('hidden');
+    document.getElementById(`nav-${p}`)?.classList.remove('active');
+  });
+  document.getElementById(`page-${page}`)?.classList.remove('hidden');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  if(page==='dashboard')loadDashboard();
+  else if(page==='monitoring')loadMonitoring();
+  else if(page==='permissions')loadPermLogs();
+  else if(page==='stafflist')loadStaffList();
+  else if(page==='ranking')loadRanking();
+  else if(page==='absensi')loadAbsensi();
+  else if(page==='histori')initHistori();
+  else if(page==='pengumuman')loadAnnouncements();
+  else if(page==='ipwhitelist')loadIPWhitelist();
+}
+
+async function loadDashboard(){
+  const[mData,pData]=await Promise.all([api.get('/members/admin/all'),api.get('/permissions/admin/logs')]);
+  if(!mData.success)return;
+  const staff=mData.data;
+  document.getElementById('d-total').textContent=staff.length;
+  document.getElementById('d-reached').textContent=staff.filter(s=>s.targetReached).length;
+  document.getElementById('d-failed').textContent=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
+  document.getElementById('d-pending').textContent=staff.filter(s=>s.validCount===0).length;
+  const pm={};
+  if(pData.success)pData.data.forEach(p=>{
+    if(!pm[p.staffName])pm[p.staffName]={i1:false,i2:false,i3:false};
+    if(p.type==='toilet')pm[p.staffName].i1=true;
+    if(p.type==='smoke_1')pm[p.staffName].i2=true;
+    if(p.type==='smoke_2')pm[p.staffName].i3=true;
+  });
+  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
+  document.getElementById('dash-table').innerHTML=staff.length===0
+    ?'<tr><td colspan="7" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
+    :staff.map(s=>{
+      const p=pm[s.name]||{};
+      const pct=Math.min(100,Math.round((s.validCount/3)*100));
+      const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
+      return `<tr><td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
+        <td class="c" style="min-width:120px;"><div class="mono" style="font-size:12px;font-weight:700;margin-bottom:6px;">${s.validCount}<span style="color:#334155;">/3</span></div><div class="prog-track" style="width:100px;margin:0 auto;"><div class="prog-fill${s.targetReached?' done':''}" style="width:${pct}%;"></div></div></td>
+        <td class="c"><span style="font-family:'Bebas Neue';font-size:18px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
+        <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
+        <td class="c">${st}</td></tr>`;
+    }).join('');
+}
+
+async function loadMonitoring() {
+  const data = await api.get('/members/admin/today');
+  if (!data.success) return;
+  const el = document.getElementById('monitoring-list');
+  if (!data.data.length) {
+    el.innerHTML = '<div class="card" style="padding:32px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#475569;">Belum ada data.</div>';
+    return;
+  }
+  el.innerHTML = data.data.map(s => {
+    const staffName = s.staffId?.fullName || s.staffName || '—';
+    const staffEmpId = s.staffId?.employeeId || s.employeeId || '—';
+    const staffId   = s.staffId?._id || s.staffId || '';
+    const members   = s.members || [];
+    const validCount = members.filter(m => m.isValid).length;
+    const pct = Math.min(100, Math.round((validCount / 3) * 100));
+
+    const mems = members.length ? members.map((m, i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:9px;padding:9px 13px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span class="mono" style="font-size:10px;color:#334155;">#${i+1}</span>
+          <span class="mono" style="font-size:13px;font-weight:700;">${m.memberId}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="mono" style="font-size:12px;color:#22C55E;">Rp${Number(m.deposit).toLocaleString('id-ID')}</span>
+          <span class="badge ${m.isValid ? 'bgg' : 'bgr'}">${m.isValid ? 'VALID' : 'TOLAK'}</span>
+        </div>
+      </div>`).join('') : '<p class="mono" style="font-size:11px;color:#475569;padding:8px 0;">Belum ada entri</p>';
+
+    return `<div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <p style="font-size:15px;font-weight:700;">${staffName}</p>
+          <p class="mono" style="font-size:10px;color:#475569;">${staffEmpId} &middot; ${members.length} entri</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge ${validCount >= 3 ? 'bgg' : validCount > 0 ? 'bgo' : 'bgr'}">${validCount >= 3 ? '✓ TARGET' : validCount + '/3'}</span>
+          <button onclick="exportExcelStaff('${staffId}','${staffName}')" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:#4ADE80;font-family:JetBrains Mono,monospace;font-size:10px;padding:5px 12px;border-radius:7px;cursor:pointer;">⬇ Excel</button>
+        </div>
       </div>
-      ${mList.length ? `<table>
-        <thead><tr><th>#</th><th>MEMBER ID</th><th>DEPOSIT</th><th>STATUS</th></tr></thead>
-        <tbody>${mList.map((m,i)=>`<tr>
-          <td class="mono" style="color:#475569;font-size:11px">${i+1}</td>
-          <td class="mono" style="color:#F1F5F9">${m.memberId}</td>
-          <td class="mono" style="color:#4ADE80">${fmtRp(m.deposit)}</td>
-          <td><span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span></td>
-        </tr>`).join('')}</tbody>
-      </table>` : '<p class="mono" style="font-size:11px;color:#475569;padding:8px 0">Belum ada entri</p>'}
+      <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:12px;">
+        <div style="height:100%;width:${pct}%;background:${validCount >= 3 ? 'linear-gradient(90deg,#16A34A,#4ADE80)' : validCount > 0 ? 'linear-gradient(90deg,#B45309,#F59E0B)' : 'linear-gradient(90deg,#7F1D1D,#EF4444)'};border-radius:100px;transition:width .5s;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">${mems}</div>
     </div>`;
   }).join('');
 }
 
-function exportExcelStaff(staffId, staffName) {
-  const wrap = document.getElementById('monitoring-list');
-  const cards = wrap.querySelectorAll('.card');
-  let staffCard = null;
-  for (const c of cards) {
-    if (c.textContent.includes(staffName)) { staffCard = c; break; }
-  }
-
-  // Ambil data dari DOM
-  api.get('/members/admin/today').then(data => {
-    if (!data.success) { showToast('Gagal ambil data', 'err'); return; }
-    const entry = data.data.find(m => m.staffId?._id === staffId || m.staffId === staffId || (m.staffId && m.staffId.toString() === staffId));
-    const mList = entry?.members || [];
-
-    const rows = [['No','Member ID','Deposit','Status']];
-    mList.forEach((m,i) => rows.push([i+1, m.memberId, m.deposit, m.isValid ? 'VALID' : 'TOLAK']));
-
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{wch:5},{wch:20},{wch:15},{wch:10}];
-    XLSX.utils.book_append_sheet(wb, ws, staffName.slice(0,31));
-    XLSX.writeFile(wb, `${staffName}_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast('Excel ' + staffName + ' diunduh');
-  });
-}
-
-async function exportExcelAll() {
-  const data = await api.get('/members/admin/today');
-  const staffData = await api.get('/staff');
-  if (!data.success) { showToast('Gagal ambil data', 'err'); return; }
-
-  const staffList = staffData.success ? staffData.data.filter(s=>s.role==='staff') : [];
-  const wb = XLSX.utils.book_new();
-  let hasSheet = false;
-
-  // Sheet ringkasan
-  const sumRows = [['Nama Staff','Employee ID','Total Member','Member Valid','Total Deposit','Target']];
-  data.data.forEach(entry => {
-    const s = staffList.find(x=>x._id===entry.staffId?._id||x._id===entry.staffId);
-    const members = entry.members || [];
-    const valid = members.filter(m=>m.isValid).length;
-    const dep = members.reduce((s,m)=>s+m.deposit,0);
-    sumRows.push([
-      entry.staffId?.fullName || '—',
-      entry.staffId?.employeeId || '—',
-      members.length, valid, dep, valid>=3?'TERCAPAI':'BELUM'
-    ]);
-  });
-  const wsSummary = XLSX.utils.aoa_to_sheet(sumRows);
-  XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
-  hasSheet = true;
-
-  // Sheet per-staff
-  data.data.forEach(entry => {
-    const name = (entry.staffId?.fullName || 'Staff').slice(0,31);
-    const members = entry.members || [];
-    const rows = [['No','Member ID','Deposit','Status']];
-    members.forEach((m,i) => rows.push([i+1, m.memberId, m.deposit, m.isValid?'VALID':'TOLAK']));
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{wch:5},{wch:20},{wch:15},{wch:10}];
-    XLSX.utils.book_append_sheet(wb, ws, name);
-  });
-
-  if (!hasSheet) { showToast('Tidak ada data', 'err'); return; }
-  XLSX.writeFile(wb, `STAFFANG_${new Date().toISOString().split('T')[0]}.xlsx`);
-  showToast('Export semua staff berhasil!');
-}
-
-// ═══════════════════════════════════════════════════
-// LOG IZIN
-// ═══════════════════════════════════════════════════
 async function loadPermLogs() {
   const data = await api.get('/permissions/admin/logs');
   if (!data.success) return;
   const list = data.data;
 
-  const staffWithIzin = list.filter(s => s.totalUsedSeconds > 0).length;
-  const staffOT       = list.filter(s => s.totalOvertimeSeconds > 0).length;
-  const avgSec        = list.length ? list.reduce((s,x)=>s+(x.totalUsedSeconds||0),0) / list.length : 0;
+  const staffWithIzin = list.filter(s => (s.totalUsedSeconds || 0) > 0).length;
+  const staffOT       = list.filter(s => (s.totalOvertimeSeconds || 0) > 0).length;
+  const avgSec        = list.length ? list.reduce((s, x) => s + (x.totalUsedSeconds || 0), 0) / list.length : 0;
 
   document.getElementById('plog-count1').textContent = staffWithIzin;
   document.getElementById('plog-count2').textContent = staffOT;
-  document.getElementById('plog-count3').textContent = Math.floor(avgSec/60) + 'm';
+  document.getElementById('plog-count3').textContent = Math.floor(avgSec / 60) + 'm';
 
-  const wrap = document.getElementById('perm-log-list');
-  if (!list.length) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Tidak ada data izin hari ini</p>'; return; }
+  const fmtT = s => {
+    const abs = Math.abs(Math.floor(s));
+    return String(Math.floor(abs / 60)).padStart(2, '0') + ':' + String(abs % 60).padStart(2, '0');
+  };
+
+  const wrap = document.getElementById('perm-log-container');
+  if (!wrap) return;
+
+  if (!list.length) {
+    wrap.innerHTML = '<p style="padding:28px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#475569;">Belum ada data izin hari ini</p>';
+    return;
+  }
 
   wrap.innerHTML = list.map(s => {
+    const name      = s.fullName || '—';
+    const empId     = s.employeeId || '—';
     const used      = s.totalUsedSeconds || 0;
     const ot        = s.totalOvertimeSeconds || 0;
     const remaining = s.remainingSeconds || 0;
@@ -552,271 +673,395 @@ async function loadPermLogs() {
     const sessions  = s.sessions || [];
 
     const sessionRows = sessions.map((sess, i) => {
-      const tOut = sess.startAt ? new Date(sess.startAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '—';
-      const tIn  = sess.endAt   ? new Date(sess.endAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '(aktif)';
-      const dur  = sess.durationSeconds || 0;
+      const tOut  = sess.startAt ? new Date(sess.startAt).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '—';
+      const tIn   = sess.endAt   ? new Date(sess.endAt).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '(aktif)';
+      const dur   = sess.durationSeconds || 0;
       const otSec = sess.overtimeSeconds || 0;
-      return `<div style="display:flex;justify-content:space-between;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;padding:6px 10px;margin-top:5px">
-        <span class="mono" style="font-size:10px;color:#475569">Sesi ${i+1}</span>
-        <span class="mono" style="font-size:10px;color:#94A3B8">🚪 ${tOut} → ↩ ${tIn}</span>
-        <span class="mono" style="font-size:10px;${sess.isOvertime?'color:#FCA5A5':'color:#4ADE80'}">${fmtT(dur)}${otSec>0?' (+'+fmtT(otSec)+' OT)':''}</span>
-      </div>`;
+      return '<div style="display:flex;justify-content:space-between;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;padding:7px 12px;margin-top:6px;">' +
+        '<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:#475569;">Sesi ' + (i+1) + '</span>' +
+        '<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:#94A3B8;">🚪 ' + tOut + ' → ↩ ' + tIn + '</span>' +
+        '<span style="font-family:JetBrains Mono,monospace;font-size:10px;' + (sess.isOvertime ? 'color:#FCA5A5;' : 'color:#4ADE80;') + '">' +
+        fmtT(dur) + (otSec > 0 ? ' (+' + fmtT(otSec) + ' OT)' : '') + '</span></div>';
     }).join('');
 
-    return `<div class="card" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div>
-          <div style="font-weight:700;color:#F1F5F9">${s.fullName}</div>
-          <div class="mono" style="font-size:10px;color:#64748B">${s.employeeId}</div>
-        </div>
-        <div style="text-align:right">
-          <span class="badge ${s.activeTimer?'bgy':ot>0?'bgr':used>0?'bgb':''}">
-            ${s.activeTimer?'SEDANG IZIN':ot>0?'OVERTIME':used>0?'SUDAH IZIN':'TIDAK IZIN'}
-          </span>
-        </div>
-      </div>
-      <div style="display:flex;gap:16px;margin-bottom:8px">
-        <div><span class="mono" style="font-size:10px;color:#64748B">Terpakai:</span> <span class="mono" style="font-size:11px;color:#4ADE80">${fmtT(used)}</span></div>
-        <div><span class="mono" style="font-size:10px;color:#64748B">Sisa:</span> <span class="mono" style="font-size:11px;color:#94A3B8">${fmtT(remaining)}</span></div>
-        ${ot>0?`<div><span class="mono" style="font-size:10px;color:#64748B">Overtime:</span> <span class="mono" style="font-size:11px;color:#FCA5A5">${fmtT(ot)}</span></div>`:''}
-      </div>
-      <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden;margin-bottom:${sessions.length?'10px':'0'}">
-        <div style="height:100%;width:${pct}%;background:${ot>0?'linear-gradient(90deg,#991B1B,#EF4444)':'linear-gradient(90deg,#4F46E5,#6366F1)'};border-radius:100px"></div>
-      </div>
-      ${sessionRows}
-    </div>`;
+    const statusBadge = s.activeTimer
+      ? '<span style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#F59E0B;font-family:JetBrains Mono,monospace;font-size:10px;padding:3px 10px;border-radius:5px;">SEDANG IZIN</span>'
+      : ot > 0
+        ? '<span style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#EF4444;font-family:JetBrains Mono,monospace;font-size:10px;padding:3px 10px;border-radius:5px;">OVERTIME</span>'
+        : used > 0
+          ? '<span style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60A5FA;font-family:JetBrains Mono,monospace;font-size:10px;padding:3px 10px;border-radius:5px;">SUDAH IZIN</span>'
+          : '<span style="color:#475569;font-family:JetBrains Mono,monospace;font-size:10px;">TIDAK IZIN</span>';
+
+    return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;margin-bottom:12px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">' +
+        '<div>' +
+          '<div style="font-weight:700;font-size:15px;color:#F1F5F9;">' + name + '</div>' +
+          '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:#64748B;">' + empId + '</div>' +
+        '</div>' + statusBadge +
+      '</div>' +
+      '<div style="display:flex;gap:16px;margin-bottom:8px;">' +
+        '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#64748B;">Terpakai: <span style="color:#4ADE80;">' + fmtT(used) + '</span></span>' +
+        '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#64748B;">Sisa: <span style="color:#94A3B8;">' + fmtT(remaining) + '</span></span>' +
+        (ot > 0 ? '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#64748B;">Overtime: <span style="color:#FCA5A5;">' + fmtT(ot) + '</span></span>' : '') +
+      '</div>' +
+      '<div style="height:5px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden;' + (sessionRows ? 'margin-bottom:4px;' : '') + '">' +
+        '<div style="height:100%;width:' + pct + '%;background:' + (ot > 0 ? 'linear-gradient(90deg,#991B1B,#EF4444)' : 'linear-gradient(90deg,#4F46E5,#6366F1)') + ';border-radius:100px;"></div>' +
+      '</div>' +
+      sessionRows +
+    '</div>';
   }).join('');
 }
 
-// ═══════════════════════════════════════════════════
-// KELOLA STAFF
-// ═══════════════════════════════════════════════════
-async function loadStaffList() {
-  const data = await api.get('/staff');
-  const wrap = document.getElementById('staff-table-wrap');
-  if (!data.success) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#EF4444">'+data.message+'</p>'; return; }
-  if (!data.data.length) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Belum ada staff</p>'; return; }
-
-  wrap.innerHTML = `<table>
-    <thead><tr><th>NAMA</th><th>USERNAME</th><th>EMPLOYEE ID</th><th>ROLE</th><th>STATUS</th><th>AKSI</th></tr></thead>
-    <tbody>${data.data.map(s=>`<tr>
-      <td style="font-weight:600;color:#F1F5F9">${s.fullName}</td>
-      <td class="mono" style="font-size:12px;color:#94A3B8">${s.username}</td>
-      <td class="mono" style="font-size:12px;color:#94A3B8">${s.employeeId}</td>
-      <td><span class="badge ${s.role==='admin'?'bgb':'bgy'}">${s.role.toUpperCase()}</span></td>
-      <td><span class="badge ${s.isActive?'bgg':'bgr'}">${s.isActive?'AKTIF':'NONAKTIF'}</span></td>
-      <td>
-        <button onclick="doToggleStaff('${s._id}')" class="btn-sm" style="background:rgba(245,158,11,0.15);color:#F59E0B;margin-right:4px">${s.isActive?'Nonaktifkan':'Aktifkan'}</button>
+async function loadStaffList(){
+  const data=await api.get('/staff');
+  if(!data.success)return;
+  const list=data.data.filter(s=>s.role==='staff');
+  const colors=['#7C3AED','#0369A1','#065F46','#9D174D','#92400E','#1D4ED8','#047857','#B45309'];
+  document.getElementById('staff-table').innerHTML=list.length===0
+    ?'<tr><td colspan="5" style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada staff.</td></tr>'
+    :list.map((s,i)=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:9px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:#fff;flex-shrink:0;">${s.name?s.name[0].toUpperCase():'?'}</div>
+        <p style="font-weight:700;font-size:13px;">${s.name}</p>
+      </div></td>
+      <td><span class="mono" style="font-size:12px;color:#64748B;">${s.username}</span></td>
+      <td><span class="mono" style="font-size:11px;color:#F59E0B;">${s.employeeId}</span></td>
+      <td class="c"><span class="badge ${s.isActive?'bgg':'bgr'}">${s.isActive?'AKTIF':'KUNCI'}</span></td>
+      <td class="c">
+        <div class="action-wrap">
+          <div class="action-btn" onclick="toggleAM('am-${s._id}',event)">⋯</div>
+          <div class="action-menu" id="am-${s._id}">
+            <button class="action-menu-item ai-edit" onclick="openEditStaff('${s._id}','${s.name}','${s.username}','${s.employeeId}')">✎ Edit Data</button>
+            <button class="action-menu-item ai-reset" onclick="openResetPassword('${s._id}','${s.name}')">⟳ Reset Sandi</button>
+            <div class="action-menu-div"></div>
+            <button class="action-menu-item ${s.isActive?'ai-lock':'ai-unlock'}" onclick="doToggleStaff('${s._id}',${s.isActive})">${s.isActive?'⊠ Kunci Akun':'⊙ Buka Kunci'}</button>
+            <div class="action-menu-div"></div>
+            <button class="action-menu-item ai-del" onclick="openDeleteStaff('${s._id}','${s.name}')">✕ Hapus Akun</button>
+          </div>
+        </div>
       </td>
-    </tr>`).join('')}</tbody>
-  </table>`;
+    </tr>`).join('');
 }
 
-function openAddStaff() {
-  ['s-user','s-empid','s-name','s-pass'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('s-role').value = 'staff';
-  updateAddBtn();
-  document.getElementById('modal-add-staff').style.display = 'flex';
+function openAddStaff(){
+  document.getElementById('modal-staff').classList.remove('hidden');
+  document.getElementById('modal-error').classList.add('hidden');
+  ['s-name','s-username','s-empid','s-password'].forEach(id=>document.getElementById(id).value='');
+
+  if(document.getElementById('s-role'))document.getElementById('s-role').value='staff';
+  updateAddStaffBtn();
+}
+async function submitAddStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  const username=document.getElementById('s-username').value.trim();
+  const employeeId=document.getElementById('s-empid').value.trim();
+  const password=document.getElementById('s-password').value;
+  const errEl=document.getElementById('modal-error');
+  if(!name||!username||!employeeId||!password){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
+  const data=await api.post('/staff',{name,username,employeeId,password,role:'staff'});
+  if(data.success){closeModal('modal-staff');showToast(`Staff ${name} ditambahkan!`);loadStaffList();}
+  else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
+}
+function openEditStaff(id,name,username,employeeId){
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-name').value=name;
+  document.getElementById('edit-username').value=username;
+  document.getElementById('edit-empid').value=employeeId;
+  document.getElementById('modal-edit-sub').textContent='Edit data: '+name;
+  document.getElementById('modal-edit-error').classList.add('hidden');
+  document.getElementById('modal-edit').classList.remove('hidden');
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
+}
+async function submitEditStaff(){
+  const id=document.getElementById('edit-id').value;
+  const name=document.getElementById('edit-name').value.trim();
+  const username=document.getElementById('edit-username').value.trim();
+  const employeeId=document.getElementById('edit-empid').value.trim();
+  const errEl=document.getElementById('modal-edit-error');
+  if(!name||!username||!employeeId){errEl.textContent='Semua field wajib diisi.';errEl.classList.remove('hidden');return;}
+  const data=await api.put(`/staff/${id}`,{name,username,employeeId});
+  if(data.success){closeModal('modal-edit');showToast(`Data ${name} diupdate!`);loadStaffList();}
+  else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
+}
+function openResetPassword(id,name){
+  document.getElementById('reset-id').value=id;
+  document.getElementById('modal-reset-sub').textContent='Reset password: '+name;
+  document.getElementById('modal-reset-error').classList.add('hidden');
+  document.getElementById('reset-password').value='';
+  document.getElementById('reset-confirm').value='';
+  document.getElementById('modal-reset').classList.remove('hidden');
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
+}
+async function submitResetPassword(){
+  const id=document.getElementById('reset-id').value;
+  const password=document.getElementById('reset-password').value;
+  const confirm=document.getElementById('reset-confirm').value;
+  const errEl=document.getElementById('modal-reset-error');
+  if(!password||password.length<6){errEl.textContent='Password minimal 6 karakter.';errEl.classList.remove('hidden');return;}
+  if(password!==confirm){errEl.textContent='Konfirmasi tidak cocok.';errEl.classList.remove('hidden');return;}
+  const data=await api.put(`/staff/${id}`,{password});
+  if(data.success){closeModal('modal-reset');showToast('Password berhasil direset!');}
+  else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
+}
+async function doToggleStaff(id,isActive){
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
+  const data=await api.put(`/staff/${id}`,{isActive:!isActive});
+  if(data.success){showToast(`Akun berhasil ${isActive?'dikunci':'dibuka kunci'}.`);loadStaffList();}
+  else showToast(data.message,'err');
+}
+function openDeleteStaff(id,name){
+  document.getElementById('delete-id').value=id;
+  document.getElementById('modal-delete-sub').textContent='Akan menghapus: '+name;
+  document.getElementById('modal-delete').classList.remove('hidden');
+  document.querySelectorAll('.action-menu').forEach(m=>m.classList.remove('open'));
+}
+async function submitDeleteStaff(){
+  const id=document.getElementById('delete-id').value;
+  const data=await api.delete(`/staff/${id}`);
+  if(data.success){closeModal('modal-delete');showToast('Akun staff dihapus.');loadStaffList();}
+  else showToast(data.message||'Gagal.','err');
 }
 
-function updateAddBtn() {
-  const role = document.getElementById('s-role').value;
-  document.getElementById('btn-add-staff').textContent = role === 'admin' ? 'Buat Admin' : 'Buat Staff';
+async function loadRanking(){
+  const data=await api.get('/staff/ranking/today');
+  if(!data.success)return;
+  const el=document.getElementById('ranking-list');
+  if(!data.data.length){el.innerHTML='<p style="padding:32px;text-align:center;font-family:\'JetBrains Mono\';font-size:11px;color:#475569;">Belum ada data.</p>';return;}
+  el.innerHTML=data.data.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='none'">
+      <div style="font-family:'Bebas Neue';font-size:24px;width:36px;text-align:center;color:${i<3?'#F59E0B':'#334155'};">#${i+1}</div>
+      <div style="flex:1;"><p style="font-weight:700;font-size:14px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></div>
+      <div style="text-align:right;margin-right:12px;">
+        <p style="font-family:'Bebas Neue';font-size:22px;color:${s.targetReached?'#22C55E':'#64748B'};">${s.validCount}<span style="color:#1E293B;font-size:16px;">/3</span></p>
+        <p class="mono" style="font-size:10px;color:#475569;">Break ${s.breakHours}j</p>
+      </div>
+      <span class="badge ${s.targetReached?'bgg':'bg'}">${s.targetReached?'TARGET ✓':'PROSES'}</span>
+    </div>`).join('');
 }
 
-async function doAddStaff() {
-  const username   = document.getElementById('s-user').value.trim();
-  const employeeId = document.getElementById('s-empid').value.trim();
-  const fullName   = document.getElementById('s-name').value.trim();
-  const password   = document.getElementById('s-pass').value;
-  const role       = document.getElementById('s-role').value;
-  if (!username||!employeeId||!fullName||!password) { showToast('Isi semua field','err'); return; }
-  const data = await api.post('/staff/create', {username,employeeId,fullName,password,role});
-  showToast(data.message, data.success?'':'err');
-  if (data.success) { closeModal('modal-add-staff'); loadStaffList(); }
+async function loadIPWhitelist(){
+  const myIPData=await api.get('/ip-whitelist/myip');
+  if(myIPData.success)document.getElementById('my-ip').textContent=myIPData.ip||myIPData.data?.ip||'—';
+  const data=await api.get('/ip-whitelist');
+  if(!data.success)return;
+  document.getElementById('ip-count').textContent=`${data.data.length} IP`;
+  document.getElementById('ip-list').innerHTML=data.data.length===0
+    ?'<div style="padding:28px;text-align:center;"><p class="mono" style="font-size:11px;color:#22C55E;margin-bottom:6px;">Mode Setup Aktif</p><p class="mono" style="font-size:10px;color:#475569;">Semua IP bisa masuk. Tambah IP untuk batasi akses.</p></div>'
+    :data.data.map(ip=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:${ip.isActive?'#22C55E':'#334155'};${ip.isActive?'box-shadow:0 0 5px #22C55E;':''}"></div>
+          <div><p class="mono" style="font-size:13px;font-weight:700;">${ip.ip}</p><p class="mono" style="font-size:10px;color:#475569;">${ip.label||'—'} · ${new Date(ip.createdAt).toLocaleDateString('id-ID')}</p></div>
+        </div>
+        <button onclick="deleteIP('${ip._id}','${ip.ip}')" class="btn btn-ghost" style="font-size:11px;padding:6px 12px;color:#EF4444;border-color:rgba(239,68,68,0.2);">Hapus</button>
+      </div>`).join('');
+}
+async function whitelistMyIP(){
+  const d=await api.get('/ip-whitelist/myip');
+  if(!d.success){showToast('Gagal get IP.','err');return;}
+  const ip=d.ip||d.data?.ip;
+  const label=prompt(`Label untuk IP ${ip}:`)||'IP Saya';
+  if(!label)return;
+  const r=await api.post('/ip-whitelist',{ip,label});
+  if(r.success){showToast(`IP ${ip} ditambahkan!`);loadIPWhitelist();}else showToast(r.message||'Gagal.','err');
+}
+async function addIPManual(){
+  const ip=document.getElementById('new-ip').value.trim();
+  const label=document.getElementById('new-ip-label').value.trim()||'Manual';
+  if(!ip){showToast('Masukkan IP.','err');return;}
+  const r=await api.post('/ip-whitelist',{ip,label});
+  if(r.success){showToast(`IP ${ip} ditambahkan!`);document.getElementById('new-ip').value='';document.getElementById('new-ip-label').value='';loadIPWhitelist();}
+  else showToast(r.message||'Gagal.','err');
+}
+async function deleteIP(id,ip){
+  if(!confirm(`Hapus IP ${ip}?`))return;
+  const r=await api.delete(`/ip-whitelist/${id}`);
+  if(r.success){showToast(`IP ${ip} dihapus.`);loadIPWhitelist();}else showToast(r.message,'err');
 }
 
-async function doToggleStaff(id) {
-  const data = await api.patch('/staff/'+id+'/toggle', {});
-  showToast(data.message, data.success?'':'err');
-  if (data.success) loadStaffList();
+// ── Absensi ──────────────────────────────────────────────
+async function loadAbsensi(){
+  const data=await api.get('/attendance/admin/today');
+  if(!data.success)return;
+  const list=data.data;
+  const hadir=list.filter(s=>s.status==='hadir').length;
+  const telat=list.filter(s=>s.status==='terlambat').length;
+  const absen=list.filter(s=>s.status==='absen').length;
+  document.getElementById('abs-hadir').textContent=hadir;
+  document.getElementById('abs-telat').textContent=telat;
+  document.getElementById('abs-absen').textContent=absen;
+  const fmtTime=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
+  const fmtDur=(ci,co)=>{
+    if(!ci||!co)return'—';
+    const ms=new Date(co)-new Date(ci);
+    const h=Math.floor(ms/3600000);const m=Math.floor((ms%3600000)/60000);
+    return `${h}j ${m}m`;
+  };
+  document.getElementById('absensi-table').innerHTML=list.length===0
+    ?'<tr><td colspan="5" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#475569;">Tidak ada staff aktif.</td></tr>'
+    :list.map(s=>`<tr>
+      <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
+      <td class="c"><span class="mono" style="font-size:12px;color:${s.clockIn?'#4ADE80':'#334155'};">${fmtTime(s.clockIn)}</span></td>
+      <td class="c"><span class="mono" style="font-size:12px;color:#94A3B8;">${fmtTime(s.clockOut)}</span></td>
+      <td class="c"><span class="mono" style="font-size:12px;color:#64748B;">${fmtDur(s.clockIn,s.clockOut)}</span></td>
+      <td class="c"><span class="badge ${s.status==='hadir'?'bgg':s.status==='terlambat'?'bgo':'bgr'}">${s.status.toUpperCase()}</span></td>
+    </tr>`).join('');
 }
 
-// ═══════════════════════════════════════════════════
-// RANKING
-// ═══════════════════════════════════════════════════
-async function loadRanking() {
+// ── Histori ──────────────────────────────────────────────
+function initHistori(){
+  const d=document.getElementById('histori-date');
+  if(!d.value){
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    d.value=yesterday.toISOString().split('T')[0];
+  }
+  loadHistori();
+}
+async function loadHistori(){
+  const date=document.getElementById('histori-date').value;
+  if(!date)return;
+  document.getElementById('histori-title').textContent='Data tanggal: '+new Date(date+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const[mData,pData]=await Promise.all([
+    api.get('/members/admin/all?date='+date),
+    api.get('/permissions/admin/logs?date='+date)
+  ]);
+  if(!mData.success)return;
+  const staff=mData.data;
+  document.getElementById('hist-reached').textContent=staff.filter(s=>s.targetReached).length;
+  document.getElementById('hist-failed').textContent=staff.filter(s=>!s.targetReached&&s.validCount>0).length;
+  document.getElementById('hist-pending').textContent=staff.filter(s=>s.validCount===0).length;
+  const pm={};
+  if(pData.success)pData.summary?.forEach(s=>{if(s.staffName)pm[s.staffName]={i1:s.toiletUsed,i2:s.smoke1Used,i3:s.smoke2Used};});
+  const ck=v=>v?'<span class="badge bgg">✓</span>':'<span style="color:#1E293B;">—</span>';
+  document.getElementById('histori-table').innerHTML=staff.length===0
+    ?'<tr><td colspan="7" style="padding:28px;text-align:center;font-family:monospace;font-size:11px;color:#475569;">Tidak ada data untuk tanggal ini.</td></tr>'
+    :staff.map(s=>{
+      const p=pm[s.name]||{};
+      const pct=Math.min(100,Math.round((s.validCount/3)*100));
+      const st=s.validCount===0?'<span class="badge bg">Belum</span>':s.targetReached?'<span class="badge bgg">Target ✓</span>':'<span class="badge bgo">Proses</span>';
+      return `<tr>
+        <td><p style="font-weight:700;font-size:13px;">${s.name}</p><p class="mono" style="font-size:10px;color:#475569;">${s.employeeId}</p></td>
+        <td class="c"><span class="mono" style="font-size:12px;font-weight:700;">${s.validCount}<span style="color:#334155;">/3</span></span></td>
+        <td class="c"><span style="font-family:'Bebas Neue';font-size:17px;color:${s.targetReached?'#22C55E':'#F59E0B'};">${s.breakHours}J</span></td>
+        <td class="c">${ck(p.i1)}</td><td class="c">${ck(p.i2)}</td><td class="c">${ck(p.i3)}</td>
+        <td class="c">${st}</td>
+      </tr>`;
+    }).join('');
+}
+
+// ── Pengumuman ──────────────────────────────────────────────
+async function loadAnnouncements(){
+  const data=await api.get('/announcements');
+  if(!data.success)return;
+  const list=data.data;
+  const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
+  const el=document.getElementById('ann-list');
+  if(!list.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;"><p class="mono" style="font-size:11px;color:#475569;">Belum ada pengumuman aktif.</p></div>';return;}
+  el.innerHTML=list.map(a=>`
+    <div class="card" style="border-color:${colors[a.priority]}30;">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span class="badge" style="background:${colors[a.priority]}18;color:${colors[a.priority]};border:1px solid ${colors[a.priority]}30;">${a.priority.toUpperCase()}</span>
+            <span style="font-size:14px;font-weight:700;">${a.title}</span>
+          </div>
+          <p style="font-size:13px;color:#94A3B8;line-height:1.6;">${a.content}</p>
+        </div>
+        <button onclick="deleteAnn('${a._id}')" class="btn btn-ghost" style="font-size:11px;padding:6px 10px;color:#EF4444;border-color:rgba(239,68,68,0.2);flex-shrink:0;">Hapus</button>
+      </div>
+      <div style="padding:10px 18px;display:flex;align-items:center;gap:16px;">
+        <span class="mono" style="font-size:10px;color:#475569;">Dibuat: ${new Date(a.createdAt).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+        ${a.expiresAt?`<span class="mono" style="font-size:10px;color:#475569;">Kadaluarsa: ${new Date(a.expiresAt).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function openAddAnn(){
+  document.getElementById('modal-ann').classList.remove('hidden');
+  document.getElementById('modal-ann-error').classList.add('hidden');
+  ['ann-title','ann-content','ann-expires'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ann-priority').value='normal';
+}
+async function submitAnn(){
+  const title=document.getElementById('ann-title').value.trim();
+  const content=document.getElementById('ann-content').value.trim();
+  const priority=document.getElementById('ann-priority').value;
+  const expiresAt=document.getElementById('ann-expires').value;
+  const errEl=document.getElementById('modal-ann-error');
+  if(!title||!content){errEl.textContent='Judul dan isi wajib diisi.';errEl.classList.remove('hidden');return;}
+  const data=await api.post('/announcements',{title,content,priority,expiresAt:expiresAt||null});
+  if(data.success){closeModal('modal-ann');showToast('Pengumuman dikirim!');loadAnnouncements();}
+  else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
+}
+async function deleteAnn(id){
+  if(!confirm('Hapus pengumuman ini?'))return;
+  const data=await api.delete(`/announcements/${id}`);
+  if(data.success){showToast('Pengumuman dihapus.');loadAnnouncements();}
+  else showToast(data.message,'err');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
+window.addEventListener('DOMContentLoaded',()=>{
+  const token=api.getToken();const user=api.getUser();
+  if(token&&user&&user.role==='admin'){initApp(user);}
+  else if(token&&user&&user.role!=='admin'){
+    // Token ada tapi bukan admin - clear dan tampil login
+    localStorage.removeItem('staffang_token');
+    localStorage.removeItem('staffang_user');
+    api.token=null;
+  }
+});
+
+// ── EXCEL EXPORT ──
+async function exportExcelStaff(staffId, staffName) {
+  const data = await api.get('/members/admin/today');
+  if (!data.success) { showToast('Gagal ambil data', 'err'); return; }
+  const entry = data.data.find(m => {
+    const sid = m.staffId?._id || m.staffId;
+    return sid === staffId || sid?.toString() === staffId;
+  });
+  const members = entry?.members || [];
+  const rows = [['No', 'Member ID', 'Deposit', 'Status']];
+  members.forEach((m, i) => rows.push([i+1, m.memberId, m.deposit, m.isValid ? 'VALID' : 'TOLAK']));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:5},{wch:22},{wch:15},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws, staffName.slice(0, 31));
+  XLSX.writeFile(wb, staffName + '_' + new Date().toISOString().split('T')[0] + '.xlsx');
+  showToast('Excel ' + staffName + ' diunduh!');
+}
+
+async function exportExcelAll() {
   const [memberData, staffData] = await Promise.all([
     api.get('/members/admin/today'),
     api.get('/staff'),
   ]);
-  const members  = memberData.success ? memberData.data : [];
-  const staffAll = staffData.success  ? staffData.data.filter(s=>s.role==='staff'&&s.isActive) : [];
-  const wrap = document.getElementById('ranking-list');
-
-  const ranked = staffAll.map(s => {
-    const entry = members.find(m=>m.staffId?._id===s._id||m.staffId?.toString()===s._id?.toString());
-    const mList = entry?.members || [];
-    const valid = mList.filter(x=>x.isValid).length;
-    const dep   = mList.reduce((sum,x)=>sum+x.deposit,0);
-    return { ...s, valid, dep, total: mList.length };
-  }).sort((a,b) => b.valid - a.valid || b.dep - a.dep);
-
-  const medals = ['🥇','🥈','🥉'];
-  wrap.innerHTML = ranked.map((s,i) => `
-    <div class="card" style="margin-bottom:10px;display:flex;align-items:center;gap:16px">
-      <div style="font-family:'Bebas Neue';font-size:36px;color:${i===0?'#F59E0B':i===1?'#94A3B8':i===2?'#CD7F32':'#475569'};min-width:60px;text-align:center">${medals[i]||'#'+(i+1)}</div>
-      <div style="flex:1">
-        <div style="font-weight:700;color:#F1F5F9">${s.fullName}</div>
-        <div class="mono" style="font-size:10px;color:#64748B">${s.employeeId}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-family:'Bebas Neue';font-size:28px;color:${s.valid>=3?'#22C55E':s.valid>0?'#F59E0B':'#EF4444'}">${s.valid} valid</div>
-        <div class="mono" style="font-size:10px;color:#64748B">${fmtRp(s.dep)}</div>
-      </div>
-    </div>`).join('');
-}
-
-// ═══════════════════════════════════════════════════
-// ABSENSI
-// ═══════════════════════════════════════════════════
-async function loadAbsensi() {
-  const data = await api.get('/attendance/admin/today');
-  const wrap = document.getElementById('absensi-table-wrap');
-  if (!data.success) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#EF4444">'+data.message+'</p>'; return; }
-
-  wrap.innerHTML = `<table>
-    <thead><tr><th>NAMA</th><th>EMPLOYEE ID</th><th>CLOCK IN</th><th>CLOCK OUT</th><th>STATUS</th></tr></thead>
-    <tbody>${data.data.map(a=>`<tr>
-      <td style="font-weight:600;color:#F1F5F9">${a.fullName}</td>
-      <td class="mono" style="font-size:12px;color:#94A3B8">${a.employeeId}</td>
-      <td class="mono" style="font-size:12px;color:#4ADE80">${fmtTime(a.clockIn)}</td>
-      <td class="mono" style="font-size:12px;color:#FCA5A5">${fmtTime(a.clockOut)}</td>
-      <td><span class="badge ${a.isPresent?'bgg':'bgr'}">${a.isPresent?'HADIR':'ABSEN'}</span></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-// ═══════════════════════════════════════════════════
-// RIWAYAT HISTORI
-// ═══════════════════════════════════════════════════
-async function loadHistori() {
-  const data = await api.get('/members/admin/history');
-  const wrap = document.getElementById('histori-table-wrap');
-  if (!data.success) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#EF4444">'+data.message+'</p>'; return; }
-  if (!data.data.length) { wrap.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Belum ada riwayat</p>'; return; }
-
-  wrap.innerHTML = `<table>
-    <thead><tr><th>TANGGAL</th><th>STAFF</th><th>MEMBER</th><th>VALID</th><th>TOTAL DEPOSIT</th><th>TARGET</th></tr></thead>
-    <tbody>${data.data.map(entry => {
-      const members = entry.members || [];
-      const valid = members.filter(m=>m.isValid).length;
-      const dep   = members.reduce((s,m)=>s+m.deposit, 0);
-      return `<tr>
-        <td class="mono" style="font-size:12px;color:#64748B">${entry.date}</td>
-        <td style="font-weight:600;color:#F1F5F9">${entry.staffId?.fullName||'—'}</td>
-        <td class="mono" style="font-size:12px">${members.length}</td>
-        <td class="mono" style="font-size:12px;color:#4ADE80">${valid}</td>
-        <td class="mono" style="font-size:12px;color:#4ADE80">${fmtRp(dep)}</td>
-        <td><span class="badge ${valid>=3?'bgg':'bgr'}">${valid>=3?'✓ TERCAPAI':'BELUM'}</span></td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
-}
-
-// ═══════════════════════════════════════════════════
-// PENGUMUMAN
-// ═══════════════════════════════════════════════════
-async function loadAnnouncements() {
-  const data = await api.get('/announcements');
-  const el = document.getElementById('ann-list');
-  if (!data.success || !data.data.length) { el.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Belum ada pengumuman</p>'; return; }
-  el.innerHTML = data.data.map(a=>`
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div>
-          <div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:5px">📣 ${a.title}</div>
-          <div style="font-size:13px;color:#E2E8F0;line-height:1.6">${a.content}</div>
-          <div class="mono" style="font-size:9px;color:#475569;margin-top:8px">${new Date(a.createdAt).toLocaleDateString('id-ID')}</div>
-        </div>
-        <button onclick="deleteAnn('${a._id}')" class="btn-sm" style="background:rgba(239,68,68,0.1);color:#FCA5A5;margin-left:12px">Hapus</button>
-      </div>
-    </div>`).join('');
-}
-
-async function postAnn() {
-  const title   = document.getElementById('ann-title').value.trim();
-  const content = document.getElementById('ann-content').value.trim();
-  if (!title || !content) { showToast('Isi judul dan isi pengumuman','err'); return; }
-  const data = await api.post('/announcements', {title, content});
-  showToast(data.message, data.success?'':'err');
-  if (data.success) {
-    document.getElementById('ann-title').value = '';
-    document.getElementById('ann-content').value = '';
-    loadAnnouncements();
-  }
-}
-
-async function deleteAnn(id) {
-  const data = await api.delete('/announcements/' + id);
-  showToast(data.message, data.success?'':'err');
-  if (data.success) loadAnnouncements();
-}
-
-// ═══════════════════════════════════════════════════
-// IP WHITELIST
-// ═══════════════════════════════════════════════════
-async function loadIPList() {
-  const data = await api.get('/ipwhitelist');
-  const el = document.getElementById('ip-list');
-  if (!data.success || !data.data.length) { el.innerHTML='<p class="mono" style="font-size:11px;color:#475569">Daftar kosong — semua IP diizinkan</p>'; return; }
-  el.innerHTML = data.data.map(entry=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
-      <div>
-        <span class="mono" style="color:#60A5FA">${entry.ip}</span>
-        ${entry.label?`<span style="font-size:11px;color:#64748B;margin-left:10px">${entry.label}</span>`:''}
-      </div>
-      <button onclick="deleteIP('${entry._id}')" class="btn-sm" style="background:rgba(239,68,68,0.1);color:#FCA5A5">Hapus</button>
-    </div>`).join('');
-}
-
-async function addIPManual() {
-  const ip    = document.getElementById('ip-input').value.trim();
-  const label = document.getElementById('ip-label').value.trim();
-  if (!ip) { showToast('Masukkan IP terlebih dahulu','err'); return; }
-  const data = await api.post('/ipwhitelist', {ip, label});
-  showToast(data.message, data.success?'':'err');
-  if (data.success) {
-    document.getElementById('ip-input').value = '';
-    document.getElementById('ip-label').value = '';
-    loadIPList();
-  }
-}
-
-async function deleteIP(id) {
-  const data = await api.delete('/ipwhitelist/' + id);
-  showToast(data.message, data.success?'':'err');
-  if (data.success) loadIPList();
-}
-
-// ═══════════════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const user  = (() => { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch { return null; } })();
-  if (token && user?.role === 'admin') {
-    initApp();
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    document.getElementById('login-page').style.display = 'flex';
-  }
-
-  document.getElementById('l-pass').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
+  if (!memberData.success) { showToast('Gagal ambil data', 'err'); return; }
+  const wb = XLSX.utils.book_new();
+  const sumRows = [['Nama Staff','Employee ID','Total Member','Member Valid','Total Deposit','Target']];
+  memberData.data.forEach(entry => {
+    const members = entry.members || [];
+    const valid   = members.filter(m => m.isValid).length;
+    const dep     = members.reduce((s, m) => s + m.deposit, 0);
+    sumRows.push([
+      entry.staffId?.fullName || '—',
+      entry.staffId?.employeeId || '—',
+      members.length, valid, dep, valid >= 3 ? 'TERCAPAI' : 'BELUM'
+    ]);
   });
-});
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sumRows), 'Ringkasan');
+  memberData.data.forEach(entry => {
+    const name    = (entry.staffId?.fullName || 'Staff').slice(0, 31);
+    const members = entry.members || [];
+    const rows    = [['No','Member ID','Deposit','Status']];
+    members.forEach((m, i) => rows.push([i+1, m.memberId, m.deposit, m.isValid ? 'VALID' : 'TOLAK']));
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:5},{wch:22},{wch:15},{wch:10}];
+    XLSX.utils.book_append_sheet(wb, ws, name);
+  });
+  XLSX.writeFile(wb, 'STAFFANG_' + new Date().toISOString().split('T')[0] + '.xlsx');
+  showToast('Export semua staff berhasil!');
+}
 </script>
 </body>
 </html>
