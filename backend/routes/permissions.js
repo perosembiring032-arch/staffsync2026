@@ -4,116 +4,110 @@ const Permission = require('../models/Permission');
 const { authMiddleware, staffOnly, adminOnly } = require('../middleware/auth');
 
 const getToday = () => new Date().toISOString().split('T')[0];
-const TIMER_SECONDS = 600; // 10 menit
-
-const fieldMap = {
-  toilet: { used: 'toiletUsed', startAt: 'toiletStartAt', endAt: 'toiletEndAt', dur: 'toiletDurationSeconds' },
-  smoke_1: { used: 'smoke1Used', startAt: 'smoke1StartAt', endAt: 'smoke1EndAt', dur: 'smoke1DurationSeconds' },
-  smoke_2: { used: 'smoke2Used', startAt: 'smoke2StartAt', endAt: 'smoke2EndAt', dur: 'smoke2DurationSeconds' },
-};
+const TOTAL_LIMIT = 1800; // 30 menit total per hari
 
 function buildResponse(record) {
   const now = new Date();
+  let secondsRunning = 0;
   let timerSecondsLeft = null;
+
   if (record.activeTimer && record.timerStartAt) {
-    const elapsed = Math.floor((now - record.timerStartAt) / 1000);
-    timerSecondsLeft = Math.max(0, TIMER_SECONDS - elapsed);
+    secondsRunning = Math.floor((now - record.timerStartAt) / 1000);
+    const alreadyUsed = record.totalUsedSeconds;
+    const remaining = Math.max(0, TOTAL_LIMIT - alreadyUsed - secondsRunning);
+    timerSecondsLeft = remaining; // bisa 0 (artinya overtime)
   }
+
+  const remainingSeconds = Math.max(0, TOTAL_LIMIT - record.totalUsedSeconds);
+
   return {
-    toiletUsed: record.toiletUsed,
-    toiletStartAt: record.toiletStartAt,
-    toiletEndAt: record.toiletEndAt,
-    toiletDurationSeconds: record.toiletDurationSeconds,
-    smoke1Used: record.smoke1Used,
-    smoke1StartAt: record.smoke1StartAt,
-    smoke1EndAt: record.smoke1EndAt,
-    smoke1DurationSeconds: record.smoke1DurationSeconds,
-    smoke2Used: record.smoke2Used,
-    smoke2StartAt: record.smoke2StartAt,
-    smoke2EndAt: record.smoke2EndAt,
-    smoke2DurationSeconds: record.smoke2DurationSeconds,
+    totalLimitSeconds: TOTAL_LIMIT,
+    totalUsedSeconds: record.totalUsedSeconds,
+    totalOvertimeSeconds: record.totalOvertimeSeconds,
+    remainingSeconds,
     activeTimer: record.activeTimer,
     timerStartAt: record.timerStartAt,
     timerSecondsLeft,
-    logs: record.logs,
+    secondsRunning,
+    sessions: record.sessions,
   };
 }
 
-// POST /api/permissions/start - Staff mulai timer izin
+// POST /api/permissions/start - Staff mulai keluar
 router.post('/start', authMiddleware, staffOnly, async (req, res) => {
   try {
-    const { type } = req.body;
-    if (!fieldMap[type]) return res.status(400).json({ success: false, message: 'Tipe izin tidak valid.' });
     const staffId = req.user._id;
     const today = getToday();
     let record = await Permission.findOne({ staffId, date: today });
     if (!record) record = new Permission({ staffId, date: today });
 
-    // Cek jika ada timer aktif
-    if (record.activeTimer) return res.status(400).json({ success: false, message: 'Ada izin yang sedang berjalan. Tekan Masuk dulu.' });
-
-    const f = fieldMap[type];
-    if (record[f.used]) return res.status(400).json({ success: false, message: 'Izin ini sudah dipakai hari ini.' });
+    if (record.activeTimer) {
+      return res.status(400).json({ success: false, message: 'Masih ada izin aktif. Klik Masuk dulu.' });
+    }
 
     const now = new Date();
-    record.activeTimer = type;
+    record.activeTimer = 'izin';
     record.timerStartAt = now;
-    record[f.startAt] = now;
-    record.logs.push({ type, action: 'start', at: now, durationSeconds: 0 });
+    record.sessions.push({ startAt: now });
     await record.save();
 
-    res.json({ success: true, message: 'Timer izin dimulai. Kamu punya 10 menit.', data: buildResponse(record) });
+    const remaining = Math.max(0, TOTAL_LIMIT - record.totalUsedSeconds);
+    const mnt = Math.floor(remaining / 60);
+    const dtk = remaining % 60;
+    res.json({
+      success: true,
+      message: `Izin dimulai. Sisa jatah: ${mnt}m ${dtk}s.`,
+      data: buildResponse(record),
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 
-// POST /api/permissions/stop - Staff kembali (stop timer)
+// POST /api/permissions/stop - Staff kembali
 router.post('/stop', authMiddleware, staffOnly, async (req, res) => {
   try {
     const staffId = req.user._id;
     const today = getToday();
     const record = await Permission.findOne({ staffId, date: today });
-    if (!record || !record.activeTimer) return res.status(400).json({ success: false, message: 'Tidak ada timer aktif.' });
+    if (!record || !record.activeTimer) {
+      return res.status(400).json({ success: false, message: 'Tidak ada timer aktif.' });
+    }
 
     const now = new Date();
     const elapsed = Math.floor((now - record.timerStartAt) / 1000);
-    const type = record.activeTimer;
-    const f = fieldMap[type];
 
-    record[f.endAt] = now;
-    record[f.dur] = elapsed;
-    record[f.used] = true;
+    // Hitung sisa jatah sebelum sesi ini
+    const beforeUsed = record.totalUsedSeconds;
+    const remainingBefore = Math.max(0, TOTAL_LIMIT - beforeUsed);
 
-    // Jika overtime (lebih dari 10 menit), kurangi dari izin berikutnya otomatis
-    const overtime = Math.max(0, elapsed - TIMER_SECONDS);
-    let overtimeMsg = '';
-    if (overtime > 0) {
-      record.logs.push({ type, action: 'overtime', at: now, durationSeconds: overtime });
-      // Auto-consume next available izin for overtime
-      const order = ['toilet', 'smoke_1', 'smoke_2'];
-      const nextIdx = order.indexOf(type) + 1;
-      for (let i = nextIdx; i < order.length; i++) {
-        const nf = fieldMap[order[i]];
-        if (!record[nf.used]) {
-          record[nf.used] = true;
-          record[nf.startAt] = new Date(record.timerStartAt.getTime() + TIMER_SECONDS * 1000);
-          record[nf.endAt] = now;
-          record[nf.dur] = overtime;
-          record.logs.push({ type: order[i], action: 'overtime', at: now, durationSeconds: overtime });
-          overtimeMsg = ` Overtime ${Math.floor(overtime/60)}m ${overtime%60}s — Izin ${i+1} otomatis terpotong.`;
-          break;
-        }
-      }
-    }
+    const actualUsed = Math.min(elapsed, remainingBefore);
+    const overtime = Math.max(0, elapsed - remainingBefore);
+
+    record.totalUsedSeconds += actualUsed;
+    record.totalOvertimeSeconds += overtime;
+
+    // Update sesi terakhir
+    const lastSession = record.sessions[record.sessions.length - 1];
+    lastSession.endAt = now;
+    lastSession.durationSeconds = elapsed;
+    lastSession.isOvertime = overtime > 0;
+    lastSession.overtimeSeconds = overtime;
 
     record.activeTimer = null;
     record.timerStartAt = null;
-    record.logs.push({ type, action: 'stop', at: now, durationSeconds: elapsed });
     await record.save();
 
-    res.json({ success: true, message: `Izin selesai. Durasi: ${Math.floor(elapsed/60)}m ${elapsed%60}s.${overtimeMsg}`, data: buildResponse(record) });
+    const remainingAfter = Math.max(0, TOTAL_LIMIT - record.totalUsedSeconds);
+    let msg = `Kembali! Durasi keluar: ${Math.floor(elapsed/60)}m ${elapsed%60}s.`;
+    if (overtime > 0) {
+      msg += ` ⚠️ Overtime ${Math.floor(overtime/60)}m ${overtime%60}s!`;
+    } else {
+      msg += ` Sisa jatah: ${Math.floor(remainingAfter/60)}m ${remainingAfter%60}s.`;
+    }
+
+    res.json({ success: true, message: msg, data: buildResponse(record) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error.' });
@@ -127,10 +121,15 @@ router.get('/today', authMiddleware, staffOnly, async (req, res) => {
     const record = await Permission.findOne({ staffId: req.user._id, date: today });
     if (!record) {
       return res.json({ success: true, data: {
-        toiletUsed: false, toiletStartAt: null, toiletEndAt: null, toiletDurationSeconds: 0,
-        smoke1Used: false, smoke1StartAt: null, smoke1EndAt: null, smoke1DurationSeconds: 0,
-        smoke2Used: false, smoke2StartAt: null, smoke2EndAt: null, smoke2DurationSeconds: 0,
-        activeTimer: null, timerStartAt: null, timerSecondsLeft: null, logs: [],
+        totalLimitSeconds: TOTAL_LIMIT,
+        totalUsedSeconds: 0,
+        totalOvertimeSeconds: 0,
+        remainingSeconds: TOTAL_LIMIT,
+        activeTimer: null,
+        timerStartAt: null,
+        timerSecondsLeft: null,
+        secondsRunning: 0,
+        sessions: [],
       }});
     }
     res.json({ success: true, data: buildResponse(record) });
@@ -139,53 +138,35 @@ router.get('/today', authMiddleware, staffOnly, async (req, res) => {
   }
 });
 
-// GET /api/permissions/admin/logs - Admin lihat log izin
+// GET /api/permissions/admin/logs - Admin lihat log izin per staff
 router.get('/admin/logs', authMiddleware, adminOnly, async (req, res) => {
   try {
     const date = req.query.date || getToday();
     const records = await Permission.find({ date }).populate('staffId', 'name username employeeId');
-    const logs = [];
-    records.forEach(r => {
-      r.logs.forEach(log => {
-        if (log.action === 'start') {
-          logs.push({
-            staffName: r.staffId?.name,
-            username: r.staffId?.username,
-            employeeId: r.staffId?.employeeId,
-            type: log.type,
-            action: log.action,
-            usedAt: log.at,
-            durationSeconds: log.durationSeconds,
-          });
-        }
-      });
-      // Also include end info
-      const endLogs = r.logs.filter(l => l.action === 'stop' || l.action === 'overtime');
-      endLogs.forEach(log => {
-        logs.push({
-          staffName: r.staffId?.name,
-          username: r.staffId?.username,
-          employeeId: r.staffId?.employeeId,
-          type: log.type,
-          action: log.action,
-          usedAt: log.at,
-          durationSeconds: log.durationSeconds,
-        });
-      });
+
+    const summary = records.map(r => {
+      const sessions = r.sessions.map(s => ({
+        startAt: s.startAt,
+        endAt: s.endAt,
+        durationSeconds: s.durationSeconds,
+        isOvertime: s.isOvertime,
+        overtimeSeconds: s.overtimeSeconds,
+      }));
+
+      return {
+        staffName: r.staffId?.name || '-',
+        username: r.staffId?.username || '-',
+        employeeId: r.staffId?.employeeId || '-',
+        totalUsedSeconds: r.totalUsedSeconds,
+        totalOvertimeSeconds: r.totalOvertimeSeconds,
+        remainingSeconds: Math.max(0, TOTAL_LIMIT - r.totalUsedSeconds),
+        activeTimer: r.activeTimer,
+        sessionCount: r.sessions.length,
+        sessions,
+      };
     });
-    logs.sort((a, b) => new Date(b.usedAt) - new Date(a.usedAt));
 
-    // Also build summary per staff
-    const summary = records.map(r => ({
-      staffName: r.staffId?.name,
-      employeeId: r.staffId?.employeeId,
-      toiletUsed: r.toiletUsed, toiletDur: r.toiletDurationSeconds,
-      smoke1Used: r.smoke1Used, smoke1Dur: r.smoke1DurationSeconds,
-      smoke2Used: r.smoke2Used, smoke2Dur: r.smoke2DurationSeconds,
-      activeTimer: r.activeTimer,
-    }));
-
-    res.json({ success: true, date, data: logs, summary });
+    res.json({ success: true, date, data: summary });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error.' });
   }

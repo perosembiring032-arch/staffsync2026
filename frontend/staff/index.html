@@ -180,13 +180,13 @@
                 KETENTUAN POIN
               </div>
               <div style="display:grid;grid-template-columns:1fr auto;gap:3px 12px;align-items:center;">
-                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">1. Telat masuk office (10.20 Menit)</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">⏰ Telat masuk office (>10.20)</span>
                 <span style="font-family:'Courier New',monospace;font-size:10px;color:#EF4444;font-weight:700;text-align:right;">- 50 poin</span>
-                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">2. Telat masuk break (20 menit)</span>
-                <span style="font-family:'Courier New',monospace;font-size:10px;color:#F59E0B;font-weight:700;text-align:right;">- 50 poin</span>
-                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">3. Tidur di office</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">☕ Telat masuk break</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#F59E0B;font-weight:700;text-align:right;">- 10 poin</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">😴 Tidur di office</span>
                 <span style="font-family:'Courier New',monospace;font-size:10px;color:#EF4444;font-weight:700;text-align:right;">- 50 poin</span>
-                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">4. Tidak masuk tanpa keterangan</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;">🚫 Tidak masuk tanpa keterangan</span>
                 <span style="font-family:'Courier New',monospace;font-size:10px;color:#EF4444;font-weight:700;text-align:right;">- 50 poin</span>
               </div>
             </div>
@@ -303,7 +303,7 @@
               <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
               <div style="display:flex;flex-direction:column;gap:7px;">
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#64748B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 1 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
               </div>
             </div>
@@ -330,43 +330,49 @@
 
         <!-- TIMER BESAR - tampil saat izin aktif -->
         <div id="timer-panel" class="card" style="display:none;margin-bottom:20px;padding:28px;text-align:center;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.04);">
-          <div class="mono" style="font-size:11px;color:#EF4444;letter-spacing:.15em;margin-bottom:8px;" id="timer-label">IZIN 1 BERJALAN</div>
-          <div style="font-family:'Bebas Neue';font-size:80px;line-height:1;color:#fff;letter-spacing:.02em;" id="timer-display">10:00</div>
-          <div class="mono" style="font-size:11px;color:#94A3B8;margin-top:6px;" id="timer-sub">Sisa waktu izin</div>
+          <div class="mono" style="font-size:11px;color:#EF4444;letter-spacing:.15em;margin-bottom:8px;" id="timer-label">SEDANG IZIN</div>
+          <div style="font-family:'Bebas Neue';font-size:80px;line-height:1;color:#fff;letter-spacing:.02em;" id="timer-display">00:00</div>
+          <div class="mono" style="font-size:11px;color:#94A3B8;margin-top:6px;" id="timer-sub">Durasi keluar sekarang</div>
+          <!-- Sisa jatah -->
+          <div style="margin-top:12px;padding:8px 16px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;display:inline-block;">
+            <span class="mono" style="font-size:11px;color:#4ADE80;">Sisa jatah: </span>
+            <span class="mono" style="font-size:13px;color:#4ADE80;font-weight:700;" id="timer-sisa">30:00</span>
+          </div>
           <button onclick="doStopTimer()" id="btn-masuk" class="btn" style="margin-top:20px;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:14px 40px;font-size:15px;border-radius:12px;width:100%;max-width:300px;">
             ↩ MASUK — Selesai Izin
           </button>
-          <div id="overtime-warn" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;">
-            <p class="mono" style="font-size:11px;color:#FCD34D;">⚠ Waktu habis! Izin berikutnya mulai terpotong...</p>
+          <div id="overtime-warn" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;">
+            <p class="mono" style="font-size:11px;color:#FCA5A5;" id="overtime-text">⚠ Jatah habis! Overtime: 00:00</p>
           </div>
         </div>
 
         <!-- 3 Izin cards -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
-          <div class="izin-card" id="izin-card-1">
-            <div class="izin-num izin-num-avail" id="izin-num-1">1</div>
-            <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 1</h3>
-            <p class="mono" style="font-size:10px;color:#94A3B8;margin-bottom:4px;">10 menit</p>
-            <p id="izin-dur-1" class="mono" style="font-size:10px;color:#64748B;margin-bottom:12px;min-height:14px;">—</p>
-            <p id="izin-status-1" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
-            <button id="izin-btn-1" onclick="startIzin('toilet',1)" class="izin-btn izin-btn-avail">Izin 1</button>
+        <!-- IZIN BARU: 1 slot, total 30 menit -->
+        <div style="margin-bottom:20px;">
+          <div class="izin-card" id="izin-card-main" style="max-width:100%;padding:24px;">
+            <!-- Progress bar sisa jatah -->
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">JATAH IZIN HARI INI</span>
+                <span id="izin-sisa-label" style="font-family:'JetBrains Mono';font-size:11px;color:#4ADE80;font-weight:700;">30:00 tersisa</span>
+              </div>
+              <div style="height:8px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden;">
+                <div id="izin-progress-bar" style="height:100%;width:100%;background:linear-gradient(90deg,#16A34A,#4ADE80);border-radius:100px;transition:width 0.5s;"></div>
+              </div>
+            </div>
+            <!-- Status dan tombol -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+              <div>
+                <p id="izin-status-main" style="font-family:'JetBrains Mono';font-size:12px;color:#4ADE80;margin-bottom:4px;">✓ Siap Izin</p>
+                <p id="izin-session-info" style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;">Belum ada sesi hari ini</p>
+              </div>
+              <button id="izin-btn-main" onclick="startIzin()" class="izin-btn izin-btn-avail" style="min-width:120px;padding:12px 20px;font-size:14px;">
+                🚪 Keluar Izin
+              </button>
+            </div>
           </div>
-          <div class="izin-card" id="izin-card-2">
-            <div class="izin-num izin-num-avail" id="izin-num-2">2</div>
-            <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 2</h3>
-            <p class="mono" style="font-size:10px;color:#94A3B8;margin-bottom:4px;">10 menit</p>
-            <p id="izin-dur-2" class="mono" style="font-size:10px;color:#64748B;margin-bottom:12px;min-height:14px;">—</p>
-            <p id="izin-status-2" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
-            <button id="izin-btn-2" onclick="startIzin('smoke_1',2)" class="izin-btn izin-btn-avail">Izin 2</button>
-          </div>
-          <div class="izin-card" id="izin-card-3">
-            <div class="izin-num izin-num-avail" id="izin-num-3">3</div>
-            <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Izin 3</h3>
-            <p class="mono" style="font-size:10px;color:#94A3B8;margin-bottom:4px;">10 menit</p>
-            <p id="izin-dur-3" class="mono" style="font-size:10px;color:#64748B;margin-bottom:12px;min-height:14px;">—</p>
-            <p id="izin-status-3" class="mono" style="font-size:11px;color:#4ADE80;margin-bottom:14px;">✓ Tersedia</p>
-            <button id="izin-btn-3" onclick="startIzin('smoke_2',3)" class="izin-btn izin-btn-avail">Izin 3</button>
-          </div>
+          <!-- Riwayat sesi hari ini -->
+          <div id="izin-sessions-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
 
         <!-- Log -->
@@ -382,383 +388,190 @@
 
 <script src="/shared/api.js"></script>
 <script>
-// ── Timer State ──────────────────────────────────────────────
+// ═══ IZIN SYSTEM - 1 izin, total 30 menit ═══
 let timerInterval = null;
-let timerServerSeconds = 0; // seconds left dari server
-let timerLocalStart = null; // local Date when we started counting
+let timerElapsedSeconds = 0; // detik sudah berjalan sesi ini
+let timerRemainingAtStart = 1800; // sisa jatah saat mulai sesi
 
-function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
-function showToast(msg,type='ok'){
-  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
-  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
-}
-function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
-
-async function doLogin(){
-  const username=document.getElementById('login-username').value.trim();
-  const password=document.getElementById('login-password').value;
-  const btn=document.getElementById('login-btn');const errEl=document.getElementById('login-error');
-  if(!username||!password){errEl.textContent='Isi username dan password.';errEl.classList.remove('hidden');return;}
-  btn.disabled=true;btn.textContent='Memverifikasi…';errEl.classList.add('hidden');
-  const data=await api.post('/auth/login/staff',{username,password});
-  if(data.success){api.setToken(data.token);api.setUser(data.user);initApp(data.user);}
-  else{errEl.textContent=data.message||'Login gagal.';errEl.classList.remove('hidden');btn.disabled=false;btn.textContent='Masuk';}
-}
-function doLogout(){
-  localStorage.removeItem('staffang_token');
-  localStorage.removeItem('staffang_user');
-  api.token=null;
-  window.location.href='/staff/index.html';
+function fmtTime(s) {
+  const m = Math.floor(Math.abs(s) / 60);
+  const sec = Math.abs(s) % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-function showToast(msg,type='ok'){
-  const w=document.getElementById('toast-wrap');const t=document.createElement('div');
-  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);
-}
-function setMA(el){document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
+function startLocalTimer(remainingSecondsAtStart) {
+  if (timerInterval) clearInterval(timerInterval);
+  timerElapsedSeconds = 0;
+  timerRemainingAtStart = remainingSecondsAtStart;
+  const startMs = Date.now();
 
-function initApp(user){
-  document.getElementById('view-login').classList.add('hidden');
-  document.getElementById('view-app').classList.remove('hidden');
-  document.getElementById('user-name').textContent=user.name;
-  document.getElementById('user-empid').textContent=user.employeeId;
-  document.getElementById('user-avatar-s').textContent=user.name?user.name[0].toUpperCase():'S';
-  document.getElementById('user-name-m')&&(document.getElementById('user-name-m').textContent=user.employeeId);
-  document.getElementById('today-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  loadDashboard();loadPermissions();
-}
+  timerInterval = setInterval(() => {
+    timerElapsedSeconds = Math.floor((Date.now() - startMs) / 1000);
+    const sisaJatah = timerRemainingAtStart - timerElapsedSeconds;
 
-function showPage(page){
-  ['dashboard','input','permission'].forEach(p=>{
-    document.getElementById(`page-${p}`)?.classList.add('hidden');
-    document.getElementById(`nav-${p}`)?.classList.remove('active');
-  });
-  document.getElementById(`page-${page}`)?.classList.remove('hidden');
-  document.getElementById(`nav-${page}`)?.classList.add('active');
-  if(page==='dashboard')loadDashboard();
-  if(page==='input'){loadDashboard();loadInputStatus();}
-  if(page==='permission')loadPermissions();
-}
+    // Update display timer (durasi keluar sekarang)
+    document.getElementById('timer-display').textContent = fmtTime(timerElapsedSeconds);
 
-// ── DASHBOARD ──────────────────────────────────────────────
-async function loadDashboard(){
-  const[members,perms,att,anns]=await Promise.all([
-    api.get('/members/today'),
-    api.get('/permissions/today'),
-    api.get('/attendance/today'),
-    api.get('/announcements'),
-  ]);
-  if(!members.success)return;
-  const{validCount,targetReached,breakHours,members:list}=members.data;
-  const perm=perms.success?perms.data:{};
+    // Update sisa jatah di timer panel
+    const sisaEl = document.getElementById('timer-sisa');
+    if (sisaEl) {
+      if (sisaJatah > 0) {
+        sisaEl.textContent = fmtTime(sisaJatah);
+        sisaEl.style.color = sisaJatah < 300 ? '#FCD34D' : '#4ADE80';
+      } else {
+        sisaEl.textContent = '00:00';
+        sisaEl.style.color = '#EF4444';
+      }
+    }
 
-  // Stats
-  document.getElementById('stat-members').innerHTML=`${validCount}<span style="color:#1E293B;font-size:28px;">/3</span>`;
-  const tEl=document.getElementById('stat-target');
-  const tCard=document.getElementById('stat-target-card');
-  if(validCount===0){tEl.textContent='BELUM';tEl.style.color='#334155';tCard.style.borderColor='var(--border)';}
-  else if(targetReached){tEl.textContent='TERCAPAI';tEl.style.color='#22C55E';tCard.style.borderColor='rgba(34,197,94,0.2)';}
-  else{tEl.textContent='PROSES';tEl.style.color='#F59E0B';tCard.style.borderColor='rgba(245,158,11,0.2)';}
-  if(breakHours===0){document.getElementById('stat-break').textContent='NO BREAK';document.getElementById('stat-break').style.color='#EF4444';}
-  else{document.getElementById('stat-break').textContent=`${breakHours} JAM`;document.getElementById('stat-break').style.color=breakHours>=2?'#22C55E':'#F59E0B';}
-  const usedPerms=[perm.toiletUsed,perm.smoke1Used,perm.smoke2Used].filter(Boolean).length;
-  document.getElementById('stat-perms').innerHTML=`${usedPerms}<span style="color:#1E293B;font-size:28px;">/3</span>`;
+    // Update progress bar utama
+    const totalPct = Math.max(0, (sisaJatah / 1800) * 100);
+    const bar = document.getElementById('izin-progress-bar');
+    if (bar) {
+      bar.style.width = totalPct + '%';
+      bar.style.background = totalPct > 33 
+        ? 'linear-gradient(90deg,#16A34A,#4ADE80)' 
+        : totalPct > 10 
+        ? 'linear-gradient(90deg,#B45309,#F59E0B)'
+        : 'linear-gradient(90deg,#991B1B,#EF4444)';
+    }
+    const sisaLabel = document.getElementById('izin-sisa-label');
+    if (sisaLabel) sisaLabel.textContent = sisaJatah > 0 ? `${fmtTime(sisaJatah)} tersisa` : 'Jatah habis!';
 
-  // Progress
-  const pct=Math.round((validCount/3)*100);
-  const bar=document.getElementById('progress-bar');
-  bar.style.width=`${pct}%`;
-  if(targetReached)bar.classList.add('done');else bar.classList.remove('done');
-  document.getElementById('progress-label').textContent=`${validCount} / 3 member`;
-  document.getElementById('progress-hint').textContent=targetReached?'Target tercapai! Break penuh 2 jam.': `${3-validCount} member lagi untuk mencapai target.`;
-
-  // Member list
-  const listEl=document.getElementById('member-list');
-  if(!list||!list.length){listEl.innerHTML='<p class="mono" style="font-size:11px;color:#94A3B8;text-align:center;padding:12px 0;">Belum ada entri hari ini.</p>';}
-  else{listEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${list.map((m,i)=>`
-    <div class="member-row">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="mono" style="font-size:10px;color:#64748B;">#${i+1}</span>
-        <span class="mono" style="font-size:13px;font-weight:700;">${m.memberId}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="mono" style="font-size:12px;color:#4ADE80;">${formatCurrency(m.deposit)}</span>
-        <span class="badge ${m.isValid?'bgg':'bgr'}">${m.isValid?'VALID':'TOLAK'}</span>
-      </div>
-    </div>`).join('')}}</div>`;}
-
-  // Absensi widget
-  const ciBtn=document.getElementById('btn-clockin');
-  const coBtn=document.getElementById('btn-clockout');
-  if(att.success){
-    const a=att.data;
-    const fmt=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
-    document.getElementById('ci-time').textContent=fmt(a.clockIn);
-    document.getElementById('co-time').textContent=fmt(a.clockOut);
-    const badge=document.getElementById('att-badge');
-    if(!a.clockIn){
-      badge.textContent='BELUM';badge.className='badge bg';
-      ciBtn.disabled=false;ciBtn.style.opacity='1';
-      coBtn.disabled=true;coBtn.style.opacity='0.4';
-    } else if(!a.clockOut){
-      badge.textContent=a.status.toUpperCase();
-      badge.className=`badge ${a.status==='terlambat'?'bgo':'bgg'}`;
-      ciBtn.disabled=true;ciBtn.style.opacity='0.4';
-      coBtn.disabled=false;coBtn.style.opacity='1';
+    // Overtime warning
+    const overtimeEl = document.getElementById('overtime-warn');
+    const overtimeText = document.getElementById('overtime-text');
+    if (sisaJatah < 0) {
+      document.getElementById('timer-display').style.color = '#EF4444';
+      document.getElementById('timer-label').textContent = 'OVERTIME BERJALAN!';
+      if (overtimeEl) { overtimeEl.style.display = 'block'; }
+      if (overtimeText) overtimeText.textContent = `⚠ Jatah habis! Overtime: ${fmtTime(Math.abs(sisaJatah))}`;
     } else {
-      badge.textContent='SELESAI';badge.className='badge bgg';
-      ciBtn.disabled=true;ciBtn.style.opacity='0.4';
-      coBtn.disabled=true;coBtn.style.opacity='0.4';
+      document.getElementById('timer-display').style.color = '#fff';
+      document.getElementById('timer-label').textContent = 'SEDANG IZIN';
+      if (overtimeEl) overtimeEl.style.display = 'none';
     }
+  }, 500);
+}
+
+function stopLocalTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function showTimerPanel(remainingSeconds) {
+  const panel = document.getElementById('timer-panel');
+  panel.style.display = 'block';
+  document.getElementById('timer-display').textContent = '00:00';
+  document.getElementById('timer-display').style.color = '#fff';
+  document.getElementById('timer-label').textContent = 'SEDANG IZIN';
+  const sisaEl = document.getElementById('timer-sisa');
+  if (sisaEl) { sisaEl.textContent = fmtTime(remainingSeconds); sisaEl.style.color = '#4ADE80'; }
+  const overtimeEl = document.getElementById('overtime-warn');
+  if (overtimeEl) overtimeEl.style.display = 'none';
+
+  // Sembunyikan tombol keluar izin saat timer aktif
+  const btnMain = document.getElementById('izin-btn-main');
+  if (btnMain) { btnMain.disabled = true; btnMain.textContent = '⏳ Sedang Keluar...'; }
+}
+
+function updateIzinCard(data) {
+  const remaining = data.remainingSeconds || 0;
+  const used = data.totalUsedSeconds || 0;
+  const overtime = data.totalOvertimeSeconds || 0;
+  const sessions = data.sessions || [];
+  const isActive = !!data.activeTimer;
+
+  // Progress bar
+  const pct = Math.min(100, (remaining / 1800) * 100);
+  const bar = document.getElementById('izin-progress-bar');
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pct > 33 
+      ? 'linear-gradient(90deg,#16A34A,#4ADE80)' 
+      : pct > 10 
+      ? 'linear-gradient(90deg,#B45309,#F59E0B)'
+      : 'linear-gradient(90deg,#991B1B,#EF4444)';
+  }
+
+  const sisaLabel = document.getElementById('izin-sisa-label');
+  if (sisaLabel) {
+    if (isActive) { sisaLabel.textContent = 'Sedang keluar...'; sisaLabel.style.color = '#FCD34D'; }
+    else { sisaLabel.textContent = `${fmtTime(remaining)} tersisa`; sisaLabel.style.color = remaining > 0 ? '#4ADE80' : '#EF4444'; }
+  }
+
+  // Status
+  const statusEl = document.getElementById('izin-status-main');
+  const sessionInfo = document.getElementById('izin-session-info');
+  if (statusEl) {
+    if (isActive) { statusEl.textContent = '🚪 Sedang di luar...'; statusEl.style.color = '#FCD34D'; }
+    else if (remaining === 0) { statusEl.textContent = '🔴 Jatah habis'; statusEl.style.color = '#EF4444'; }
+    else { statusEl.textContent = '✓ Siap Izin'; statusEl.style.color = '#4ADE80'; }
+  }
+  if (sessionInfo) {
+    if (sessions.length === 0) { sessionInfo.textContent = 'Belum ada sesi hari ini'; }
+    else { sessionInfo.textContent = `${sessions.length}x keluar | Terpakai: ${fmtTime(used)}${overtime > 0 ? ` | Overtime: ${fmtTime(overtime)}` : ''}`; }
+  }
+
+  // Tombol keluar
+  const btnMain = document.getElementById('izin-btn-main');
+  if (btnMain) {
+    if (isActive) { btnMain.disabled = true; btnMain.textContent = '⏳ Sedang Keluar...'; }
+    else if (remaining === 0) { btnMain.disabled = true; btnMain.textContent = '🔴 Jatah Habis'; btnMain.className = 'izin-btn'; }
+    else { btnMain.disabled = false; btnMain.textContent = '🚪 Keluar Izin'; btnMain.className = 'izin-btn izin-btn-avail'; }
+  }
+
+  // Riwayat sesi hari ini
+  const listEl = document.getElementById('izin-sessions-list');
+  if (listEl && sessions.length > 0) {
+    listEl.innerHTML = sessions.map((s, i) => {
+      const dur = s.durationSeconds || 0;
+      const ot = s.overtimeSeconds || 0;
+      const timeOut = s.startAt ? new Date(s.startAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const timeIn = s.endAt ? new Date(s.endAt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '(masih keluar)';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 14px;">
+        <span style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;">Sesi ${i+1}</span>
+        <span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8;">🚪 ${timeOut} → ↩ ${timeIn}</span>
+        <span style="font-family:'JetBrains Mono';font-size:11px;${s.isOvertime?'color:#FCA5A5;':'color:#4ADE80;'}">
+          ${fmtTime(dur)}${ot > 0 ? ` (+${fmtTime(ot)} OT)` : ''}
+        </span>
+      </div>`;
+    }).join('');
+  } else if (listEl) {
+    listEl.innerHTML = '';
+  }
+}
+
+async function startIzin() {
+  const btn = document.getElementById('izin-btn-main');
+  btn.disabled = true; btn.textContent = 'Memulai...';
+  const data = await api.post('/permissions/start', {});
+  if (data.success) {
+    showToast('Izin dimulai! ' + data.message);
+    const remaining = data.data.remainingSeconds || 0;
+    showTimerPanel(remaining);
+    startLocalTimer(remaining);
+    updateIzinCard(data.data);
   } else {
-    // Attendance API error - tetap enable Clock In
-    ciBtn.disabled=false;ciBtn.style.opacity='1';
-    coBtn.disabled=true;coBtn.style.opacity='0.4';
-  }
-
-  // Pengumuman preview
-  const annEl=document.getElementById('ann-preview');
-  if(anns.success&&anns.data.length){
-    const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
-    annEl.innerHTML=anns.data.slice(0,3).map(a=>`
-      <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-          <span style="width:7px;height:7px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
-          <span style="font-size:12px;font-weight:700;color:#D1D9E6;">${a.title}</span>
-          <span style="font-size:10px;font-family:monospace;color:${colors[a.priority]};margin-left:auto;text-transform:uppercase;">${a.priority}</span>
-        </div>
-        <p style="font-size:12px;color:#94A3B8;line-height:1.7;white-space:pre-line;">${a.content}</p>
-      </div>`).join('');
-  }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#64748B;">Tidak ada pengumuman.</p>';}
-}
-
-// ── Absensi ──────────────────────────────────────────────
-async function doClockIn(){
-  const btn=document.getElementById('btn-clockin');
-  btn.disabled=true;btn.textContent='Mencatat...';
-  const data=await api.post('/attendance/clockin',{});
-  if(data.success){
-    showToast(`Clock-in berhasil! Status: ${data.data.status}`);
-    loadDashboard();
-  } else if(data.alreadyDone){
-    showToast('Sudah clock-in hari ini.','err');
-    loadDashboard();
-  } else {
-    showToast(data.message||'Gagal clock-in','err');
-    btn.disabled=false;
-    btn.textContent='Clock In';
+    showToast(data.message, 'err');
+    btn.disabled = false; btn.textContent = '🚪 Keluar Izin';
   }
 }
-async function doClockOut(){
-  const btn=document.getElementById('btn-clockout');
-  btn.disabled=true;btn.textContent='Mencatat...';
-  const data=await api.post('/attendance/clockout',{});
-  if(data.success){showToast(`Clock-out! Durasi: ${data.data.duration}`);loadDashboard();}
-  else{showToast(data.message,'err');btn.disabled=false;btn.textContent='Clock Out';}
-}
 
-// ── Input Member ──────────────────────────────────────────────
-async function loadInputStatus(){
-  const data=await api.get('/members/today');
-  if(data.success){
-    const{validCount,targetReached}=data.data;
-    document.getElementById('input-status-text').innerHTML=`Entri valid: <span style="color:#fff;">${validCount}/3</span><br>Target: <span style="color:${targetReached?'#22C55E':'#F59E0B'};">${targetReached?'Tercapai ✓':'Belum'}</span><br>Sisa: <span style="color:#fff;">${Math.max(0,3-validCount)} member lagi</span>`;
-    // Tidak ada batas - tombol selalu aktif
-    document.getElementById('input-btn').disabled=false;document.getElementById('input-btn').textContent='Submit Entri';
-  }
-}
-async function submitMember(){
-  const memberId=document.getElementById('input-member-id').value.trim();
-  const deposit=document.getElementById('input-deposit').value;
-  const btn=document.getElementById('input-btn');
-  const errEl=document.getElementById('input-error');
-  const succEl=document.getElementById('input-success');
-  errEl.classList.add('hidden');succEl.classList.add('hidden');
-  if(!memberId||!deposit){errEl.textContent='Isi semua field.';errEl.classList.remove('hidden');return;}
-  btn.disabled=true;btn.textContent='Menyimpan…';
-  const data=await api.post('/members/input',{memberId,deposit:Number(deposit)});
-  if(data.success){
-    succEl.textContent=`✓ Member ${memberId} berhasil! (${formatCurrency(data.data.deposit)})`;
-    succEl.classList.remove('hidden');
-    document.getElementById('input-member-id').value='';
-    document.getElementById('input-deposit').value='';
-    showToast(`Member ditambahkan! ${data.data.validCount}/3`);
-    loadInputStatus();
-  }else{errEl.textContent=data.message||'Gagal.';errEl.classList.remove('hidden');}
-  btn.disabled=false;btn.textContent='Submit Entri';
-}
-
-// ── IZIN & TIMER ──────────────────────────────────────────────
-const TIMER_MAX = 600; // 10 menit
-
-function fmtTimer(s){
-  const m=Math.floor(Math.abs(s)/60);const sec=Math.abs(s)%60;
-  return (s<0?'-':'')+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
-}
-function fmtDur(s){
-  if(!s)return'—';
-  const m=Math.floor(s/60);const sec=s%60;
-  return `${m}m ${sec}s`;
-}
-
-function startLocalTimer(secondsLeft){
-  if(timerInterval)clearInterval(timerInterval);
-  timerLocalStart=Date.now();
-  timerServerSeconds=secondsLeft;
-
-  function tick(){
-    const elapsed=Math.floor((Date.now()-timerLocalStart)/1000);
-    const remaining=timerServerSeconds-elapsed;
-    const disp=document.getElementById('timer-display');
-    const sub=document.getElementById('timer-sub');
-    const warn=document.getElementById('overtime-warn');
-    if(remaining>=0){
-      disp.textContent=fmtTimer(remaining);
-      disp.style.color=remaining<60?'#EF4444':'#fff';
-      sub.textContent='Sisa waktu izin';
-      warn.style.display='none';
-    }else{
-      disp.textContent=fmtTimer(remaining); // shows -00:05 etc
-      disp.style.color='#F59E0B';
-      sub.textContent='Waktu habis! Izin berikutnya terpotong.';
-      warn.style.display='block';
-    }
-  }
-  tick();
-  timerInterval=setInterval(tick,1000);
-}
-
-function stopLocalTimer(){
-  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
-}
-
-async function loadPermissions(){
-  const[permData,memberData]=await Promise.all([api.get('/permissions/today'),api.get('/members/today')]);
-  if(!permData.success)return;
-  const d=permData.data;
-  const validCount=memberData.success?memberData.data.validCount:0;
-
-  // Break badge
-  const bv=document.getElementById('break-val');
-  if(validCount===0){bv.textContent='NO BREAK';bv.style.color='#EF4444';}
-  else{bv.textContent='2 JAM';bv.style.color='#22C55E';}
-
-  // If timer active from server (e.g. page reload while timer running)
-  if(d.activeTimer&&d.timerSecondsLeft!==null){
-    showTimerPanel(d.activeTimer,d.timerSecondsLeft);
-    startLocalTimer(d.timerSecondsLeft);
-  }else{
+async function doStopTimer() {
+  const btn = document.getElementById('btn-masuk');
+  btn.disabled = true; btn.textContent = 'Mencatat...';
+  const data = await api.post('/permissions/stop', {});
+  if (data.success) {
     stopLocalTimer();
-    document.getElementById('timer-panel').style.display='none';
-  }
-
-  // Izin 1
-  setIzinCard(1,d.toiletUsed,d.activeTimer==='toilet',d.toiletDurationSeconds);
-  // Izin 2
-  setIzinCard(2,d.smoke1Used,d.activeTimer==='smoke_1',d.smoke1DurationSeconds);
-  // Izin 3
-  setIzinCard(3,d.smoke2Used,d.activeTimer==='smoke_2',d.smoke2DurationSeconds);
-
-  // Disable all buttons if timer active
-  const hasActive=!!d.activeTimer;
-  ['izin-btn-1','izin-btn-2','izin-btn-3'].forEach(id=>{
-    const btn=document.getElementById(id);
-    if(!btn.classList.contains('izin-btn-used'))btn.disabled=hasActive;
-  });
-
-  // Log
-  const logEl=document.getElementById('perm-log');
-  const lmap={toilet:'Izin 1',smoke_1:'Izin 2',smoke_2:'Izin 3'};
-  const actionMap={start:'Mulai',stop:'Selesai',overtime:'Overtime'};
-  const startLogs=d.logs?d.logs.filter(l=>l.action==='start'||l.action==='stop'):[];
-  if(!startLogs.length){logEl.innerHTML='<p class="mono" style="font-size:11px;color:#94A3B8;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p>';}
-  else{logEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${startLogs.map(l=>`
-    <div class="member-row">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:28px;height:28px;border-radius:7px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:15px;color:#EF4444;">${l.type==='toilet'?'1':l.type==='smoke_1'?'2':'3'}</div>
-        <div>
-          <span style="font-size:13px;font-weight:700;">${lmap[l.type]||l.type}</span>
-          <span class="mono" style="font-size:10px;color:#94A3B8;margin-left:6px;">${actionMap[l.action]||l.action}</span>
-        </div>
-      </div>
-      <div style="text-align:right;">
-        <div class="mono" style="font-size:11px;color:#94A3B8;">${new Date(l.at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</div>
-        ${l.durationSeconds?`<div class="mono" style="font-size:10px;color:#64748B;">${fmtDur(l.durationSeconds)}</div>`:''}
-      </div>
-    </div>`).join('')}}</div>`;}
-}
-
-function setIzinCard(num,used,isActive,durSeconds){
-  const typeMap={1:'toilet',2:'smoke_1',3:'smoke_2'};
-  const card=document.getElementById(`izin-card-${num}`);
-  const numEl=document.getElementById(`izin-num-${num}`);
-  const btn=document.getElementById(`izin-btn-${num}`);
-  const status=document.getElementById(`izin-status-${num}`);
-  const durEl=document.getElementById(`izin-dur-${num}`);
-
-  if(isActive){
-    card.classList.remove('used');
-    numEl.className='izin-num';
-    numEl.style.background='rgba(239,68,68,0.2)';
-    numEl.style.borderColor='rgba(239,68,68,0.5)';
-    numEl.style.color='#EF4444';
-    btn.disabled=true;btn.textContent='Sedang Berjalan...';btn.className='izin-btn izin-btn-used';
-    status.textContent='⏱ Timer aktif';status.style.color='#EF4444';
-    durEl.textContent='—';
-  }else if(used){
-    card.classList.add('used');
-    numEl.className='izin-num izin-num-used';
-    numEl.style.background='';numEl.style.borderColor='';numEl.style.color='';
-    btn.disabled=true;btn.textContent=`Izin ${num} ✓`;btn.className='izin-btn izin-btn-used';
-    status.textContent='Sudah dipakai';status.style.color='#334155';
-    durEl.textContent=fmtDur(durSeconds);
-  }else{
-    card.classList.remove('used');
-    numEl.className='izin-num izin-num-avail';
-    numEl.style.background='';numEl.style.borderColor='';numEl.style.color='';
-    btn.disabled=false;btn.textContent=`Izin ${num}`;btn.className='izin-btn izin-btn-avail';
-    status.textContent='✓ Tersedia';status.style.color='#4ADE80';
-    durEl.textContent='—';
-  }
-}
-
-function showTimerPanel(type,secondsLeft){
-  const labelMap={toilet:'IZIN 1',smoke_1:'IZIN 2',smoke_2:'IZIN 3'};
-  document.getElementById('timer-label').textContent=`${labelMap[type]||type} BERJALAN`;
-  document.getElementById('timer-display').textContent=fmtTimer(secondsLeft);
-  document.getElementById('timer-panel').style.display='block';
-  document.getElementById('overtime-warn').style.display='none';
-}
-
-async function startIzin(type,num){
-  const btn=document.getElementById(`izin-btn-${num}`);
-  btn.disabled=true;btn.textContent='Memulai...';
-  const data=await api.post('/permissions/start',{type});
-  if(data.success){
-    showToast(`Izin ${num} dimulai! 10 menit.`);
-    showTimerPanel(type,600);
-    startLocalTimer(600);
-    loadPermissions();
-  }else{
-    showToast(data.message,'err');
-    btn.disabled=false;btn.textContent=`Izin ${num}`;
-  }
-}
-
-async function doStopTimer(){
-  const btn=document.getElementById('btn-masuk');
-  btn.disabled=true;btn.textContent='Mencatat...';
-  const data=await api.post('/permissions/stop',{});
-  if(data.success){
-    stopLocalTimer();
-    document.getElementById('timer-panel').style.display='none';
+    document.getElementById('timer-panel').style.display = 'none';
     showToast(data.message);
-    loadPermissions();
-  }else{
-    showToast(data.message,'err');
-    btn.disabled=false;btn.textContent='↩ MASUK — Selesai Izin';
+    updateIzinCard(data.data);
+  } else {
+    showToast(data.message, 'err');
+    btn.disabled = false; btn.textContent = '↩ MASUK — Selesai Izin';
   }
 }
+
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('view-login').classList.contains('hidden'))doLogin();});
 window.addEventListener('DOMContentLoaded',()=>{
@@ -777,6 +590,116 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 });
 
+
+
+async function loadPermissions(){
+  const [permData, memberData] = await Promise.all([
+    api.get('/permissions/today'),
+    api.get('/members/today')
+  ]);
+  if (!permData.success) return;
+  const d = permData.data;
+  const validCount = memberData.success ? memberData.data.validCount : 0;
+
+  // Break badge
+  const bv = document.getElementById('break-val');
+  if (bv) {
+    if (validCount === 0) { bv.textContent = 'NO BREAK'; bv.style.color = '#EF4444'; }
+    else if (validCount < 3) { bv.textContent = '1 JAM'; bv.style.color = '#F59E0B'; }
+    else { bv.textContent = '2 JAM'; bv.style.color = '#22C55E'; }
+  }
+
+  // Jika timer aktif dari server (reload saat izin berjalan)
+  if (d.activeTimer && d.timerStartAt) {
+    const serverElapsed = Math.floor((Date.now() - new Date(d.timerStartAt)) / 1000);
+    const remainingNow = Math.max(0, d.remainingSeconds - serverElapsed + d.remainingSeconds);
+    // Gunakan remainingSeconds dari server
+    const remaining = d.remainingSeconds || 0;
+    showTimerPanel(remaining);
+    startLocalTimer(remaining);
+  } else {
+    stopLocalTimer();
+    document.getElementById('timer-panel').style.display = 'none';
+  }
+
+  updateIzinCard(d);
+}
+
 </script>
+
+<!-- MODAL: Edit Member -->
+<div id="modal-edit-member" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:none;align-items:center;justify-content:center;">
+  <div style="background:#1E293B;border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:28px;width:90%;max-width:360px;">
+    <div style="font-family:'Bebas Neue';font-size:20px;color:#60A5FA;margin-bottom:4px;">Edit Entri Member</div>
+    <div style="font-family:'JetBrains Mono';font-size:10px;color:#64748B;margin-bottom:20px;">Perbarui ID dan nominal deposit</div>
+    <div id="edit-member-err" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono';font-size:11px;color:#FCA5A5;margin-bottom:14px;"></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;display:block;margin-bottom:6px;">USER ID / MEMBER ID</label>
+        <input id="edit-member-id" type="text" class="field mono" placeholder="Masukkan ID member"/>
+      </div>
+      <div>
+        <label style="font-family:'JetBrains Mono';font-size:10px;color:#94A3B8;display:block;margin-bottom:6px;">DEPOSIT (Rp)</label>
+        <input id="edit-deposit" type="number" min="10000" class="field mono" placeholder="Minimal Rp 10.000"/>
+        <p style="font-family:'JetBrains Mono';font-size:9px;color:#64748B;margin-top:4px;">Min Rp 10.000 | Valid Rp 50.000+</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button onclick="closeEditMember()" style="flex:1;padding:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#94A3B8;font-family:'JetBrains Mono';font-size:12px;cursor:pointer;">Batal</button>
+      <button onclick="submitEditMember()" id="btn-submit-edit" style="flex:1;padding:11px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);border:none;border-radius:10px;color:#fff;font-family:'JetBrains Mono';font-size:12px;cursor:pointer;font-weight:700;">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ EDIT MEMBER ═══
+let _editIndex = -1;
+
+function openEditMember(index, memberId, deposit) {
+  _editIndex = index;
+  document.getElementById('edit-member-id').value = memberId;
+  document.getElementById('edit-deposit').value = deposit;
+  document.getElementById('edit-member-err').style.display = 'none';
+  const modal = document.getElementById('modal-edit-member');
+  modal.style.display = 'flex';
+}
+
+function closeEditMember() {
+  document.getElementById('modal-edit-member').style.display = 'none';
+  _editIndex = -1;
+}
+
+async function submitEditMember() {
+  const memberId = document.getElementById('edit-member-id').value.trim();
+  const deposit = Number(document.getElementById('edit-deposit').value);
+  const errEl = document.getElementById('edit-member-err');
+  const btn = document.getElementById('btn-submit-edit');
+
+  if (!memberId) {
+    errEl.textContent = 'Member ID tidak boleh kosong.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!deposit || deposit < 10000) {
+    errEl.textContent = 'Deposit minimal Rp 10.000.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+  const data = await api.put(`/members/edit/${_editIndex}`, { memberId, deposit });
+  
+  if (data.success) {
+    closeEditMember();
+    showToast('Entri berhasil diperbarui!');
+    loadDashboard();
+  } else {
+    errEl.textContent = data.message || 'Gagal menyimpan.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Simpan Perubahan';
+  }
+}
+// ════════════════════
+</script>
+
+
 </body>
 </html>

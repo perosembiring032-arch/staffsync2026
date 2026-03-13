@@ -5,7 +5,7 @@ const BreakStatus = require('../models/BreakStatus');
 const { authMiddleware, staffOnly, adminOnly } = require('../middleware/auth');
 
 const DAILY_TARGET = 3;
-const MIN_DEPOSIT = 1000;
+const MIN_DEPOSIT = 10000;
 
 const getToday = () => new Date().toISOString().split('T')[0];
 
@@ -211,5 +211,47 @@ router.get('/admin/staff/:staffId', authMiddleware, adminOnly, async (req, res) 
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
+
+// PUT /api/members/edit/:index - Staff edit member by index
+router.put('/edit/:index', authMiddleware, staffOnly, async (req, res) => {
+  try {
+    const { memberId, deposit } = req.body;
+    const index = parseInt(req.params.index);
+    const staffId = req.user._id;
+    const today = getToday();
+
+    if (!memberId || memberId.trim() === '') {
+      return res.status(400).json({ success: false, message: 'Member ID tidak boleh kosong.' });
+    }
+    const depositNum = Number(deposit);
+    if (isNaN(depositNum) || depositNum < 1000) {
+      return res.status(400).json({ success: false, message: 'Deposit minimal Rp 10.000.' });
+    }
+
+    const record = await MemberInput.findOne({ staffId, date: today });
+    if (!record || index < 0 || index >= record.members.length) {
+      return res.status(404).json({ success: false, message: 'Entri tidak ditemukan.' });
+    }
+
+    record.members[index].memberId = memberId.trim();
+    record.members[index].deposit = depositNum;
+    record.members[index].isValid = depositNum >= MIN_DEPOSIT;
+
+    // Recalculate validCount
+    const validCount = record.members.filter(m => m.isValid).length;
+    record.validCount = validCount;
+    record.targetReached = validCount >= DAILY_TARGET;
+
+    record.markModified('members');
+    await record.save();
+    await updateBreakStatus(staffId, today, validCount);
+
+    res.json({ success: true, message: 'Entri berhasil diperbarui.', data: record });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
 
 module.exports = router;

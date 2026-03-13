@@ -4,29 +4,21 @@ const permissionSchema = new mongoose.Schema({
   staffId: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff', required: true },
   date: { type: String, required: true },
 
-  toiletUsed: { type: Boolean, default: false },
-  toiletStartAt: { type: Date, default: null },
-  toiletEndAt: { type: Date, default: null },
-  toiletDurationSeconds: { type: Number, default: 0 },
+  // Single izin - total 30 menit per hari
+  totalLimitSeconds: { type: Number, default: 1800 }, // 30 menit
+  totalUsedSeconds: { type: Number, default: 0 },     // total sudah dipakai
+  totalOvertimeSeconds: { type: Number, default: 0 }, // total overtime
 
-  smoke1Used: { type: Boolean, default: false },
-  smoke1StartAt: { type: Date, default: null },
-  smoke1EndAt: { type: Date, default: null },
-  smoke1DurationSeconds: { type: Number, default: 0 },
-
-  smoke2Used: { type: Boolean, default: false },
-  smoke2StartAt: { type: Date, default: null },
-  smoke2EndAt: { type: Date, default: null },
-  smoke2DurationSeconds: { type: Number, default: 0 },
-
-  activeTimer: { type: String, enum: ['toilet', 'smoke_1', 'smoke_2', null], default: null },
+  activeTimer: { type: String, enum: ['izin', null], default: null },
   timerStartAt: { type: Date, default: null },
 
-  logs: [{
-    type: { type: String },
-    action: { type: String, enum: ['start', 'stop', 'overtime'] },
-    at: { type: Date, default: Date.now },
+  // Log setiap keluar-masuk
+  sessions: [{
+    startAt: { type: Date },
+    endAt: { type: Date, default: null },
     durationSeconds: { type: Number, default: 0 },
+    isOvertime: { type: Boolean, default: false },
+    overtimeSeconds: { type: Number, default: 0 },
   }],
 });
 
