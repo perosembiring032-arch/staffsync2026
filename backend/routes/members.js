@@ -5,7 +5,11 @@ const MemberInput = require('../models/MemberInput');
 const MIN_DEPOSIT = 10000;
 const VALID_DEPOSIT = 50000;
 
-const getToday = () => new Date().toISOString().split('T')[0];
+const getToday = () => {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  return wib.toISOString().split('T')[0];
+};
 
 // GET today's input (staff)
 router.get('/today', auth, staffOnly, async (req, res) => {

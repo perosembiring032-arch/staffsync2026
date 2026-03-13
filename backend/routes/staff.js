@@ -4,7 +4,11 @@ const { auth, adminOnly } = require('../middleware/auth');
 const Staff = require('../models/Staff');
 const MemberInput = require('../models/MemberInput');
 
-const getToday = () => new Date().toISOString().split('T')[0];
+const getToday = () => {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  return wib.toISOString().split('T')[0];
+};
 
 router.get('/', auth, adminOnly, async (req, res) => {
   try {

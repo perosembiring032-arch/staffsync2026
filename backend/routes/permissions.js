@@ -4,7 +4,11 @@ const Permission = require('../models/Permission');
 const Staff = require('../models/Staff');
 
 const TOTAL_LIMIT = 1800; // 30 menit dalam detik
-const getToday = () => new Date().toISOString().split('T')[0];
+const getToday = () => {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  return wib.toISOString().split('T')[0];
+};
 
 const getOrCreate = async (staffId) => {
   let perm = await Permission.findOne({ staffId, date: getToday() });

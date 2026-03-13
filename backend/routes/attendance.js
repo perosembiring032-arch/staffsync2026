@@ -3,7 +3,11 @@ const { auth, staffOnly, adminOnly } = require('../middleware/auth');
 const Attendance = require('../models/Attendance');
 const Staff = require('../models/Staff');
 
-const getToday = () => new Date().toISOString().split('T')[0];
+const getToday = () => {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  return wib.toISOString().split('T')[0];
+};
 
 router.get('/today', auth, staffOnly, async (req, res) => {
   try {
