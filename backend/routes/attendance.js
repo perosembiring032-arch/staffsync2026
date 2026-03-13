@@ -1,4 +1,4 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const { auth, staffOnly, adminOnly } = require('../middleware/auth');
 const Attendance = require('../models/Attendance');
 const Staff = require('../models/Staff');
@@ -47,7 +47,14 @@ router.get('/admin/today', auth, adminOnly, async (req, res) => {
     const atts = await Attendance.find({ date: getToday() });
     const result = staffList.map(s => {
       const a = atts.find(x => x.staffId.toString() === s._id.toString());
-      return { staffId: s._id, fullName: s.fullName, employeeId: s.employeeId, clockIn: a?.clockIn, clockOut: a?.clockOut, isPresent: a?.isPresent || false };
+      return {
+        staffId: s._id,
+        fullName: s.fullName || s.name || s.username || '—',
+        employeeId: s.employeeId || '—',
+        clockIn: a?.clockIn,
+        clockOut: a?.clockOut,
+        isPresent: a?.isPresent || false
+      };
     });
     res.json({ success: true, data: result });
   } catch (err) {

@@ -18,14 +18,14 @@ router.get('/', auth, adminOnly, async (req, res) => {
 // GET ranking today
 router.get('/ranking/today', auth, adminOnly, async (req, res) => {
   try {
-    const inputs = await MemberInput.find({ date: getToday() }).populate('staffId', 'fullName employeeId username');
+    const inputs = await MemberInput.find({ date: getToday() }).populate('staffId', 'fullName name employeeId username');
     const ranking = inputs.map(inp => {
       const members = inp.members || [];
       const validCount = members.filter(m => m.isValid).length;
       const totalDeposit = members.reduce((s, m) => s + m.deposit, 0);
       return {
         staffId: inp.staffId?._id,
-        fullName: inp.staffId?.fullName || inp.staffId?.username || '—',
+        fullName: inp.staffId?.fullName || inp.staffId?.name || inp.staffId?.username || '—',
         employeeId: inp.staffId?.employeeId || '—',
         username: inp.staffId?.username || '—',
         validCount,

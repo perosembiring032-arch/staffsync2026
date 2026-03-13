@@ -81,7 +81,7 @@ router.put('/edit/:index', auth, staffOnly, async (req, res) => {
 // GET all staff inputs today (admin) - /admin/today
 router.get('/admin/today', auth, adminOnly, async (req, res) => {
   try {
-    const inputs = await MemberInput.find({ date: getToday() }).populate('staffId', 'fullName username employeeId');
+    const inputs = await MemberInput.find({ date: getToday() }).populate('staffId', 'fullName name username employeeId');
     res.json({ success: true, data: inputs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -92,15 +92,15 @@ router.get('/admin/today', auth, adminOnly, async (req, res) => {
 router.get('/admin/all', auth, adminOnly, async (req, res) => {
   try {
     const date = req.query.date || getToday();
-    const inputs = await MemberInput.find({ date }).populate('staffId', 'fullName username employeeId');
+    const inputs = await MemberInput.find({ date }).populate('staffId', 'fullName name username employeeId');
     const data = inputs.map(inp => {
       const members = inp.members || [];
       const validCount = members.filter(m => m.isValid).length;
       const totalDeposit = members.reduce((s, m) => s + m.deposit, 0);
       return {
         staffId: inp.staffId?._id,
-        name: inp.staffId?.fullName || inp.staffId?.username || '—',
-        fullName: inp.staffId?.fullName || inp.staffId?.username || '—',
+        name: inp.staffId?.fullName || inp.staffId?.name || inp.staffId?.username || '—',
+        fullName: inp.staffId?.fullName || inp.staffId?.name || inp.staffId?.username || '—',
         employeeId: inp.staffId?.employeeId || '—',
         username: inp.staffId?.username || '—',
         members,
@@ -119,7 +119,7 @@ router.get('/admin/all', auth, adminOnly, async (req, res) => {
 // GET history (admin) - /admin/history
 router.get('/admin/history', auth, adminOnly, async (req, res) => {
   try {
-    const inputs = await MemberInput.find({}).populate('staffId', 'fullName username employeeId').sort({ date: -1 }).limit(200);
+    const inputs = await MemberInput.find({}).populate('staffId', 'fullName name username employeeId').sort({ date: -1 }).limit(200);
     res.json({ success: true, data: inputs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

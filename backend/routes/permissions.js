@@ -1,4 +1,4 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const { auth, staffOnly, adminOnly } = require('../middleware/auth');
 const Permission = require('../models/Permission');
 const Staff = require('../models/Staff');
@@ -96,7 +96,7 @@ router.get('/admin/logs', auth, adminOnly, async (req, res) => {
       const p = perms.find(x => x.staffId.toString() === s._id.toString());
       return {
         staffId: s._id,
-        fullName: s.fullName,
+        fullName: s.fullName || s.name || s.username || '—',
         employeeId: s.employeeId,
         totalUsedSeconds: p?.totalUsedSeconds || 0,
         totalOvertimeSeconds: p?.totalOvertimeSeconds || 0,
