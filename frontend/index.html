@@ -1,27 +1,277 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>STAFF ANG — Staff Monitoring</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0A0E1A;color:#E2E8F0;font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-    .logo{font-family:'Bebas Neue';font-size:64px;letter-spacing:4px;background:linear-gradient(135deg,#6366F1,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-    .sub{font-family:'JetBrains Mono';font-size:12px;color:#475569;letter-spacing:2px;margin-bottom:48px}
-    .btn{display:inline-block;padding:14px 32px;border-radius:12px;font-family:'JetBrains Mono';font-size:13px;font-weight:700;text-decoration:none;letter-spacing:1px;transition:all .2s}
-    .btn-staff{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;margin-right:12px}
-    .btn-admin{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94A3B8}
-    .btn:hover{transform:translateY(-2px);opacity:.9}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>STAFF ANG</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#080A12}
+
+/* ── Mesh gradient background ── */
+.bg{
+  position:fixed;inset:0;z-index:0;
+  background:#080A12;
+}
+.bg::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 55% 55% at 8% 15%,  rgba(123,31,162,.55) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 92% 85%,  rgba(0,188,212,.4)  0%,transparent 55%),
+    radial-gradient(ellipse 45% 45% at 85% 10%,  rgba(255,64,129,.3)  0%,transparent 50%),
+    radial-gradient(ellipse 60% 60% at 15% 90%,  rgba(29,233,182,.25) 0%,transparent 55%),
+    radial-gradient(ellipse 35% 35% at 50% 50%,  rgba(63,81,181,.2)   0%,transparent 60%);
+  animation:mesh 10s ease-in-out infinite alternate;
+  filter:blur(40px);
+}
+@keyframes mesh{
+  0%  {transform:translate(0,0) scale(1)}
+  33% {transform:translate(15px,-10px) scale(1.04)}
+  66% {transform:translate(-10px,20px) scale(.97)}
+  100%{transform:translate(20px,10px) scale(1.02)}
+}
+
+/* ── Film grain ── */
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+}
+
+/* ── Dark vignette ── */
+.vig{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 85% 85% at 50% 50%,transparent 45%,rgba(0,0,0,.75));
+}
+
+/* ── Frosted glass card in center ── */
+.card{
+  position:fixed;inset:0;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+}
+.glass{
+  position:relative;
+  width:min(420px,90vw);
+  padding:52px 44px 44px;
+  border-radius:28px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(32px) saturate(180%);
+  -webkit-backdrop-filter:blur(32px) saturate(180%);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 32px 80px rgba(0,0,0,.55),
+    0 0 60px rgba(123,31,162,.08);
+  overflow:hidden;
+  animation:cardIn .7s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(28px) scale(.97)}
+  to  {opacity:1;transform:translateY(0)    scale(1)}
+}
+
+/* ── Top shimmer line on card ── */
+.glass::before{
+  content:'';
+  position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),rgba(180,140,255,.4),rgba(255,255,255,.25),transparent);
+  animation:shimline 3s ease-in-out infinite;
+}
+@keyframes shimline{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── Badge ── */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:100px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  font-family:'Geist Mono',monospace;
+  font-size:9px;letter-spacing:.25em;
+  color:rgba(255,255,255,.4);
+  text-transform:uppercase;margin-bottom:28px;
+  animation:up .6s .1s both;
+}
+.bdot{width:5px;height:5px;border-radius:50%;background:#1DE9B6;box-shadow:0 0 6px #1DE9B6;animation:lp 1.8s ease infinite}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── Title ── */
+.ttl{
+  font-family:'Instrument Serif',serif;
+  font-size:62px;line-height:.88;
+  letter-spacing:-2px;
+  color:#fff;margin-bottom:8px;
+  animation:up .7s .15s both;
+}
+.ttl em{
+  font-style:italic;
+  background:linear-gradient(135deg,#CE93D8,#80DEEA,#F48FB1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:200% 200%;
+  animation:gradshift 5s ease infinite;
+}
+@keyframes gradshift{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+
+/* ── Sub ── */
+.subt{
+  font-family:'Geist Mono',monospace;
+  font-size:10px;letter-spacing:.22em;
+  color:rgba(255,255,255,.28);
+  text-transform:uppercase;margin-bottom:40px;
+  animation:up .6s .25s both;
+}
+
+/* ── Divider ── */
+.div{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  margin-bottom:36px;
+  animation:up .6s .3s both;
+}
+
+/* ── Buttons ── */
+.btns{
+  display:flex;flex-direction:column;gap:10px;
+  animation:up .7s .35s both;
+}
+
+.btn{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 20px;border-radius:14px;
+  text-decoration:none;
+  font-family:'Geist Mono',monospace;
+  transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;
+  position:relative;overflow:hidden;
+}
+.btn:hover{transform:translateY(-2px) scale(1.01)}
+.btn:active{transform:scale(.99)}
+
+/* Sweep shimmer on hover */
+.btn::after{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+  transform:skewX(-20deg);transition:left .4s;
+}
+.btn:hover::after{left:140%}
+
+/* Staff — vivid violet → cyan gradient pill */
+.btn-staff{
+  background:linear-gradient(135deg,rgba(123,31,162,.6),rgba(0,150,200,.5));
+  border:1px solid rgba(180,140,255,.2);
+  box-shadow:0 4px 24px rgba(123,31,162,.25),0 1px 0 rgba(255,255,255,.08) inset;
+}
+.btn-staff:hover{
+  box-shadow:0 8px 36px rgba(123,31,162,.4),0 0 0 1px rgba(180,140,255,.3),0 1px 0 rgba(255,255,255,.1) inset;
+}
+
+/* Admin — dark glass */
+.btn-admin{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 4px 20px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.05) inset;
+}
+.btn-admin:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.18);
+  box-shadow:0 8px 32px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.08) inset;
+}
+
+/* Icon box */
+.ico{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.btn-staff .ico{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12)}
+.btn-admin .ico{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)}
+
+.btn-txt{flex:1}
+.btn-s{display:block;font-size:8px;letter-spacing:.25em;color:rgba(255,255,255,.35);margin-bottom:2px;text-transform:uppercase}
+.btn-l{display:block;font-size:13px;letter-spacing:.06em;color:rgba(255,255,255,.9);font-weight:500}
+.btn-staff .btn-l{color:#fff}
+
+.arr{font-size:12px;opacity:.25;transition:all .2s;color:rgba(255,255,255,.7)}
+.btn:hover .arr{opacity:.8;transform:translateX(3px)}
+
+/* ── Footer inside card ── */
+.foot{
+  margin-top:28px;text-align:center;
+  font-family:'Geist Mono',monospace;
+  font-size:8px;letter-spacing:.2em;
+  color:rgba(255,255,255,.15);
+  animation:up .6s .45s both;
+}
+#clk{color:rgba(255,255,255,.2)}
+
+@keyframes up{
+  from{opacity:0;transform:translateY(14px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+/* ── Floating ambient orbs (behind card) ── */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:1;filter:blur(70px)}
+.orb1{width:300px;height:300px;top:-80px;left:-80px;background:rgba(123,31,162,.3);animation:ofloat 8s ease-in-out infinite}
+.orb2{width:250px;height:250px;bottom:-60px;right:-60px;background:rgba(0,188,212,.25);animation:ofloat 11s ease-in-out infinite reverse}
+.orb3{width:180px;height:180px;top:40%;right:5%;background:rgba(255,64,129,.2);animation:ofloat 9s ease-in-out infinite 2s}
+@keyframes ofloat{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
+</style>
 </head>
 <body>
-  <div style="text-align:center">
-    <div class="logo">STAFF ANG</div>
-    <div class="sub">STAFF MONITORING SYSTEM</div>
-    <a href="/staff/index.html" class="btn btn-staff">🧑‍💼 Portal Staff</a>
-    <a href="/admin/index.html" class="btn btn-admin">⚙️ Portal Admin</a>
+<div class="bg"></div>
+<div class="grain"></div>
+<div class="vig"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="card">
+  <div class="glass">
+
+    <div class="badge">
+      <span class="bdot"></span>
+      Sistem Aktif &nbsp;·&nbsp; <span id="clk">--:--</span>
+    </div>
+
+    <div class="ttl">Staff<br><em>ANG</em></div>
+    <div class="subt">Monitoring · Produktivitas · Realtime</div>
+
+    <div class="div"></div>
+
+    <div class="btns">
+      <a href="/staff/index.html" class="btn btn-staff">
+        <div class="ico">👤</div>
+        <div class="btn-txt">
+          <span class="btn-s">Masuk sebagai</span>
+          <span class="btn-l">Portal Staff</span>
+        </div>
+        <span class="arr">→</span>
+      </a>
+      <a href="/admin/index.html" class="btn btn-admin">
+        <div class="ico">⚙️</div>
+        <div class="btn-txt">
+          <span class="btn-s">Masuk sebagai</span>
+          <span class="btn-l">Portal Admin</span>
+        </div>
+        <span class="arr">→</span>
+      </a>
+    </div>
+
+    <div class="foot">staffsync.site &nbsp;·&nbsp; v2.0 &nbsp;·&nbsp; © 2026</div>
   </div>
+</div>
+
+<script>
+function tick(){
+  const n=new Date(Date.now()+7*3600000);
+  document.getElementById('clk').textContent=
+    String(n.getUTCHours()).padStart(2,'0')+':'+
+    String(n.getUTCMinutes()).padStart(2,'0')+':'+
+    String(n.getUTCSeconds()).padStart(2,'0')+' WIB';
+}
+tick();setInterval(tick,1000);
+</script>
 </body>
 </html>
