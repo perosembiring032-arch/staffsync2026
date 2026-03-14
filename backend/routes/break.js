@@ -21,11 +21,11 @@ router.get('/today', auth, staffOnly, async (req, res) => {
   try {
     const today = getToday();
     // Ambil validCount dari memberinput hari ini
-    const mi = await MemberInput.findOne({ staffId: req.user.id, date: today });
+    const mi = await MemberInput.findOne({ staffId: req.staff._id, date: today });
     const validCount = mi ? mi.members.filter(m => m.deposit >= 50000).length : 0;
     const jatahMenit = hitungJatah(validCount);
 
-    let session = await BreakSession.findOne({ staffId: req.user.id, date: today });
+    let session = await BreakSession.findOne({ staffId: req.staff._id, date: today });
     if (!session) {
       return res.json({ success: true, data: {
         status: 'idle', jatahMenit, validCount,
@@ -48,18 +48,18 @@ router.get('/today', auth, staffOnly, async (req, res) => {
 router.post('/start', auth, staffOnly, async (req, res) => {
   try {
     const today = getToday();
-    const mi = await MemberInput.findOne({ staffId: req.user.id, date: today });
+    const mi = await MemberInput.findOne({ staffId: req.staff._id, date: today });
     const validCount = mi ? mi.members.filter(m => m.deposit >= 50000).length : 0;
     const jatahMenit = hitungJatah(validCount);
 
     if (jatahMenit === 0) return res.status(400).json({ success: false, message: 'Belum ada member valid, tidak dapat break.' });
 
-    let session = await BreakSession.findOne({ staffId: req.user.id, date: today });
+    let session = await BreakSession.findOne({ staffId: req.staff._id, date: today });
     if (session && session.status === 'on_break') return res.status(400).json({ success: false, message: 'Break sedang berjalan.' });
     if (session && session.status === 'done')    return res.status(400).json({ success: false, message: 'Break hari ini sudah selesai.' });
 
     if (!session) {
-      session = new BreakSession({ staffId: req.user.id, date: today, jatahMenit });
+      session = new BreakSession({ staffId: req.staff._id, date: today, jatahMenit });
     }
     session.startTime = new Date();
     session.status    = 'on_break';
@@ -73,7 +73,7 @@ router.post('/start', auth, staffOnly, async (req, res) => {
 router.post('/end', auth, staffOnly, async (req, res) => {
   try {
     const today = getToday();
-    const session = await BreakSession.findOne({ staffId: req.user.id, date: today });
+    const session = await BreakSession.findOne({ staffId: req.staff._id, date: today });
 
     if (!session || session.status !== 'on_break') return res.status(400).json({ success: false, message: 'Tidak ada break yang sedang berjalan.' });
 
