@@ -267,6 +267,10 @@
           <div class="card-title">Detail Per Staff</div>
           <div id="perm-log-container"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
         </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Riwayat Detail</span></div>
+          <div id="perm-detail-log"><p style="padding:28px;text-align:center;font-family:'JetBrains Mono';font-size:11px;color:#475569;">Memuat...</p></div>
+        </div>
       </div>
 
       <!-- STAFF LIST -->
@@ -1171,7 +1175,11 @@ async function _doExportHistori(date) {
 // ── Pengumuman ──────────────────────────────────────────────
 async function loadAnnouncements(){
   const data=await api.get('/announcements');
-  if(!data.success)return;
+  if(!data.success){
+    const el2=document.getElementById('ann-list');
+    if(el2) el2.innerHTML='<div class="card" style="padding:20px;text-align:center;"><p class="mono" style="font-size:11px;color:#EF4444;">Gagal memuat: '+( data.message||'Error API')+'</p></div>';
+    return;
+  }
   const list=data.data;
   const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
   const el=document.getElementById('ann-list');
