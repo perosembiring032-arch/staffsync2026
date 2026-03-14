@@ -1084,86 +1084,94 @@ async function _doExportHistori(date) {
   ]);
   if (!mData.success) { showToast('Gagal ambil data', 'err'); return; }
 
-  const staff = mData.data;
+  const staff  = mData.data;
   const pm = {};
   if (pData.success) pData.data.forEach(p => { pm[p.staffId] = p; pm[p.fullName] = p; });
 
-  const tglLabel = new Date(date+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const tglLabel = new Date(date+'T00:00:00').toLocaleDateString('id-ID',
+    {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
   const wb = XLSX.utils.book_new();
 
-  // ══ SHEET 1: Ringkasan per Staff ══
-  const s1 = [
-    ['LAPORAN RIWAYAT HISTORI - ' + tglLabel],
+  // ══ SHEET 1: Detail lengkap — satu baris per member ══
+  const rows = [
+    ['LAPORAN DETAIL MEMBER - ' + tglLabel],
     [],
-    ['No','Nama Staff','Username','ID Karyawan','Total Member Input','Member Valid','Target Tercapai','Total Deposit (Rp)','Izin Dipakai','Status'],
+    ['No','Nama Staff','Username','ID Karyawan','No','ID Member','Nominal Deposit (Rp)','Status Member','Status Target Staff'],
+  ];
+
+  let no = 1;
+  staff.forEach(s => {
+    const nama   = s.fullName || s.name || '—';
+    const uname  = s.username || '—';
+    const empId  = s.employeeId || '—';
+    const target = s.validCount === 0 ? 'Belum Mulai' : s.targetReached ? 'Target ✓' : 'Proses';
+    const membs  = s.members || [];
+
+    if (membs.length === 0) {
+      rows.push([no++, nama, uname, empId, '-', '(Belum ada input)', 0, '-', target]);
+    } else {
+      membs.forEach((m, mi) => {
+        rows.push([
+          no++,
+          nama,
+          uname,
+          empId,
+          '#' + (mi + 1),
+          m.memberId || '—',
+          Number(m.deposit || 0),
+          m.isValid ? 'VALID' : 'TIDAK VALID',
+          mi === 0 ? target : '',
+        ]);
+      });
+    }
+  });
+
+  // Baris total bawah
+  rows.push([]);
+  rows.push(['','','','','','TOTAL STAFF:', staff.length, 'Target ✓:', staff.filter(s=>s.targetReached).length]);
+  rows.push(['','','','','','','','Proses:', staff.filter(s=>!s.targetReached&&s.validCount>0).length]);
+  rows.push(['','','','','','','','Belum Mulai:', staff.filter(s=>s.validCount===0).length]);
+
+  const ws1 = XLSX.utils.aoa_to_sheet(rows);
+  ws1['!cols'] = [{wch:4},{wch:28},{wch:16},{wch:14},{wch:6},{wch:22},{wch:22},{wch:14},{wch:16}];
+  ws1['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:8}}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Detail Member');
+
+  // ══ SHEET 2: Ringkasan per Staff ══
+  const s2 = [
+    ['RINGKASAN PER STAFF - ' + tglLabel],
+    [],
+    ['No','Nama Staff','Username','ID Karyawan','Total Input','Valid','Total Deposit (Rp)','Izin','Status'],
   ];
   staff.forEach((s, i) => {
     const perm    = pm[s.staffId] || pm[s.fullName] || pm[s.name] || {};
     const izinSec = perm.totalUsedSeconds || 0;
     const izinFmt = izinSec > 0 ? Math.floor(izinSec/60)+'m '+(izinSec%60)+'d' : '0';
-    const totalDep = (s.members||[]).reduce((a,m) => a + Number(m.deposit||0), 0);
-    s1.push([
+    s2.push([
       i+1,
       s.fullName || s.name || '—',
       s.username || '—',
       s.employeeId || '—',
       (s.members||[]).length,
       s.validCount || 0,
-      s.targetReached ? 'YA' : 'TIDAK',
-      totalDep,
+      s.totalDeposit || 0,
       izinFmt,
       s.validCount === 0 ? 'Belum Mulai' : s.targetReached ? 'Target ✓' : 'Proses',
     ]);
   });
-  s1.push([]);
-  s1.push(['','','','','','Target Tercapai:',staff.filter(s=>s.targetReached).length,'Dalam Proses:',staff.filter(s=>!s.targetReached&&s.validCount>0).length,'Belum Mulai:']);
-  s1.push(['','','','','','','','','',staff.filter(s=>s.validCount===0).length]);
+  s2.push([]);
+  s2.push(['','','','','Target ✓:', staff.filter(s=>s.targetReached).length,'Proses:', staff.filter(s=>!s.targetReached&&s.validCount>0).length,'Belum:', staff.filter(s=>s.validCount===0).length]);
 
-  const ws1 = XLSX.utils.aoa_to_sheet(s1);
-  ws1['!cols'] = [{wch:4},{wch:26},{wch:16},{wch:14},{wch:18},{wch:14},{wch:16},{wch:20},{wch:12},{wch:14}];
-  ws1['!merges'] = [{s:{r:0,c:0},e:{r:0,c:9}}];
-  XLSX.utils.book_append_sheet(wb, ws1, 'Ringkasan Staff');
-
-  // ══ SHEET 2: Detail Member (satu baris per member) ══
-  const s2 = [
-    ['DETAIL MEMBER PER STAFF - ' + tglLabel],
-    [],
-    ['No','Nama Staff','Username','ID Karyawan','No Member','ID Member / Username','Nominal Deposit (Rp)','Status Valid','Status Target Staff'],
-  ];
-  let no = 1;
-  staff.forEach(s => {
-    const nama  = s.fullName || s.name || '—';
-    const uname = s.username || '—';
-    const empId = s.employeeId || '—';
-    const status = s.validCount === 0 ? 'Belum Mulai' : s.targetReached ? 'Target ✓' : 'Proses';
-    if ((s.members||[]).length === 0) {
-      s2.push([no++, nama, uname, empId, '—', '(Belum ada input)', 0, '—', status]);
-    } else {
-      (s.members||[]).forEach((m, mi) => {
-        s2.push([
-          no++,
-          nama,
-          uname,
-          empId,
-          '#' + (mi+1),
-          m.memberId || '—',
-          Number(m.deposit || 0),
-          m.isValid ? 'VALID' : 'TIDAK VALID',
-          mi === 0 ? status : '',   // status hanya di baris pertama per staff
-        ]);
-      });
-    }
-  });
   const ws2 = XLSX.utils.aoa_to_sheet(s2);
-  ws2['!cols'] = [{wch:4},{wch:26},{wch:16},{wch:14},{wch:10},{wch:22},{wch:22},{wch:14},{wch:16}];
-  ws2['!merges'] = [{s:{r:0,c:0},e:{r:0,c:8}}];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Detail Member');
+  ws2['!cols'] = [{wch:4},{wch:28},{wch:16},{wch:14},{wch:12},{wch:8},{wch:20},{wch:12},{wch:14}];
+  ws2['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:8}}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Ringkasan Staff');
 
   const fname = 'Histori_' + date + '_StaffANG.xlsx';
   XLSX.writeFile(wb, fname);
   showToast('Excel berhasil diunduh! ' + fname);
 }
-
 // ── Pengumuman ──────────────────────────────────────────────
 async function loadAnnouncements(){
   const data=await api.get('/announcements');
