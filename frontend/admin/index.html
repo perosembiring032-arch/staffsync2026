@@ -1173,13 +1173,18 @@ async function exportExcelAll() {
 // BREAK ADMIN
 // ══════════════════════════════════════════
 async function loadBreakAdmin() {
+  const tbody = document.getElementById('brk-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94A3B8;padding:20px;">Memuat...</td></tr>';
   const dateFilter = document.getElementById('brk-filter-date')?.value || '';
-  const url = dateFilter ? `/break/admin/all?date=${dateFilter}` : '/break/admin/today';
+  // Pakai /admin/all agar tidak ada masalah date filter — admin/today kadang miss timezone
+  const url = dateFilter ? `/break/admin/all?date=${dateFilter}` : '/break/admin/all';
   const res = await api.get(url);
-  if (!res.success) return;
+  if (!res.success) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#EF4444;padding:20px;">Gagal memuat: ${res.message||'Error API'}</td></tr>`;
+    return;
+  }
 
   const list = res.data;
-  const tbody = document.getElementById('brk-tbody');
 
   // Stats
   const total   = list.length;
@@ -1193,7 +1198,8 @@ async function loadBreakAdmin() {
   document.getElementById('bstat-late').textContent   = late;
 
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Belum ada data break hari ini</td></tr>';
+    const msg = dateFilter ? `Belum ada data break pada ${dateFilter}` : 'Belum ada staff yang break hari ini';
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#475569;padding:20px;">${msg}</td></tr>`;
     return;
   }
 
