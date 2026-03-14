@@ -322,7 +322,14 @@
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
           <div><div class="page-title">RIWAYAT HISTORI</div><div class="page-sub">Data member & target per tanggal</div></div>
           <div style="display:flex;align-items:center;gap:10px;">
-            <input type="date" id="histori-date" class="field" style="width:160px;padding:8px 12px;font-size:12px;" onchange="loadHistori()"/>
+            <input type="date" id="histori-date"
+              style="width:180px;padding:9px 14px;font-size:13px;font-family:'JetBrains Mono',monospace;
+                     background:#1E293B;border:1.5px solid #F59E0B;border-radius:10px;color:#F8FAFC;
+                     cursor:pointer;outline:none;font-weight:600;letter-spacing:.05em;"
+              onchange="loadHistori()"/>
+            <button onclick="exportHistoriExcel()" class="btn btn-gold" style="display:flex;align-items:center;gap:7px;padding:9px 18px;font-size:12px;">
+              ⬇ Export Excel
+            </button>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
@@ -1052,6 +1059,103 @@ async function loadHistori() {
           <td class="c">${st}</td>
         </tr>`;
       }).join('');
+}
+
+// ── Export Histori Excel ─────────────
+function exportHistoriExcel() {
+  const date = document.getElementById('histori-date').value;
+  if (!date) { showToast('Pilih tanggal terlebih dahulu', 'err'); return; }
+
+  const rows = document.querySelectorAll('#histori-table tr');
+  if (!rows.length || (rows.length === 1 && rows[0].querySelector('td[colspan]'))) {
+    showToast('Tidak ada data untuk di-export', 'err'); return;
+  }
+
+  // Kumpulkan data dari API (pakai data yang sudah dirender di DOM)
+  // Kita re-fetch untuk dapat data bersih
+  _doExportHistori(date);
+}
+
+async function _doExportHistori(date) {
+  showToast('Menyiapkan Excel...');
+  const [mData, pData] = await Promise.all([
+    api.get('/members/admin/all?date=' + date),
+    api.get('/permissions/admin/logs?date=' + date)
+  ]);
+  if (!mData.success) { showToast('Gagal ambil data', 'err'); return; }
+
+  const staff = mData.data;
+  const pm = {};
+  if (pData.success) pData.data.forEach(p => { pm[p.staffId || p.fullName] = p; });
+
+  // Buat workbook
+  const wb = XLSX.utils.book_new();
+
+  // ── Sheet 1: Ringkasan per Staff ──
+  const summaryRows = [
+    ['LAPORAN RIWAYAT HISTORI - ' + new Date(date+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})],
+    [],
+    ['No','Nama Staff','ID Karyawan','Total Member','Member Valid','Target Tercapai','Total Deposit (Rp)','Izin Dipakai','Status'],
+  ];
+  staff.forEach((s, i) => {
+    const perm = pm[s.staffId] || pm[s.fullName] || pm[s.name] || {};
+    const izinSec = perm.totalUsedSeconds || 0;
+    const izinFmt = izinSec > 0 ? Math.floor(izinSec/60)+'m '+( izinSec%60)+'d' : '0';
+    const totalDep = (s.members||[]).reduce((a,m)=>a+Number(m.deposit||0),0);
+    summaryRows.push([
+      i+1,
+      s.fullName || s.name || s.username || '—',
+      s.employeeId || '—',
+      (s.members||[]).length,
+      s.validCount || 0,
+      s.targetReached ? 'YA' : 'TIDAK',
+      totalDep,
+      izinFmt,
+      s.validCount === 0 ? 'Belum' : s.targetReached ? 'Target ✓' : 'Proses',
+    ]);
+  });
+  // Summary stats
+  summaryRows.push([]);
+  summaryRows.push(['Total Target Tercapai:', staff.filter(s=>s.targetReached).length, '', 'Total Dalam Proses:', staff.filter(s=>!s.targetReached&&s.validCount>0).length, '', 'Belum Mulai:', staff.filter(s=>s.validCount===0).length]);
+
+  const ws1 = XLSX.utils.aoa_to_sheet(summaryRows);
+  // Style lebar kolom
+  ws1['!cols'] = [{wch:4},{wch:28},{wch:14},{wch:14},{wch:14},{wch:16},{wch:20},{wch:14},{wch:12}];
+  ws1['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:8}}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Ringkasan');
+
+  // ── Sheet 2: Detail Member per Staff ──
+  const detailRows = [
+    ['DETAIL MEMBER - ' + date],
+    [],
+    ['No','Nama Staff','ID Karyawan','Urutan','ID Member','Deposit (Rp)','Valid','Tanggal'],
+  ];
+  let no = 1;
+  staff.forEach(s => {
+    const nama = s.fullName || s.name || s.username || '—';
+    const empId = s.employeeId || '—';
+    (s.members||[]).forEach((m, mi) => {
+      detailRows.push([
+        no++,
+        nama,
+        empId,
+        mi+1,
+        m.memberId || '—',
+        Number(m.deposit || 0),
+        m.isValid ? 'VALID' : 'TIDAK VALID',
+        date,
+      ]);
+    });
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(detailRows);
+  ws2['!cols'] = [{wch:4},{wch:28},{wch:14},{wch:8},{wch:20},{wch:16},{wch:12},{wch:14}];
+  ws2['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:7}}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Detail Member');
+
+  // Download
+  const fname = 'Histori_' + date + '_StaffANG.xlsx';
+  XLSX.writeFile(wb, fname);
+  showToast('Excel berhasil diunduh: ' + fname);
 }
 
 // ── Pengumuman ──────────────────────────────────────────────
