@@ -4,11 +4,8 @@ const cors    = require('cors');
 const path    = require('path');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/database');
-const { startScheduler } = require('./config/scheduler');
-
 const app = express();
 connectDB();
-startScheduler();
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());

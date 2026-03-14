@@ -21,7 +21,6 @@ router.get('/today', auth, staffOnly, async (req, res) => {
   try {
     const today = getToday();
     // Ambil validCount dari memberinput hari ini
-    const MemberInput = require('../models/MemberInput');
     const mi = await MemberInput.findOne({ staffId: req.user.id, date: today });
     const validCount = mi ? mi.members.filter(m => m.deposit >= 50000).length : 0;
     const jatahMenit = hitungJatah(validCount);
