@@ -19,10 +19,12 @@ router.post('/', auth, adminOnly, async (req, res) => {
     const { title, content, priority, expiresAt } = req.body;
     if (!title || !content)
       return res.json({ success: false, message: 'Judul dan isi wajib diisi.' });
+    // Default expires 24 jam dari sekarang
+    const defaultExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const ann = await Announcement.create({
       title, content,
       priority:  priority  || 'normal',
-      expiresAt: expiresAt || null,
+      expiresAt: expiresAt ? new Date(expiresAt) : defaultExpiry,
       createdBy: req.staff._id,
     });
     res.json({ success: true, message: 'Pengumuman berhasil dikirim.', data: ann });
