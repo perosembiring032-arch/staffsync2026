@@ -259,7 +259,7 @@
               <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
               <div style="display:flex;flex-direction:column;gap:7px;">
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#334155;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 1 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
               </div>
             </div>
@@ -325,6 +325,13 @@
           <div id="izin-sessions-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
 
+        <!-- Log -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Izin Hari Ini</span></div>
+          <div id="perm-log" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p></div>
+        </div>
+      </div>
+
     
       <!-- ── BREAK PAGE ── -->
       <div id="page-break" class="fade-up hidden">
@@ -338,6 +345,71 @@
             <div style="font-family:'Bebas Neue';font-size:28px;color:#34D399;" id="brk-jatah-label">— JAM</div>
           </div>
         </div>
+
+        <div style="border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:24px;margin-bottom:16px;background:rgba(16,185,129,0.03);">
+          <div style="margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span class="mono" style="font-size:11px;color:#94A3B8;">DURASI BREAK</span>
+              <span class="mono" id="brk-sisa-label" style="font-size:11px;color:#34D399;font-weight:700;">Belum dimulai</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:100px;height:8px;overflow:hidden;">
+              <div id="brk-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:100px;transition:width .5s;"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div id="brk-status-text" style="font-size:15px;font-weight:700;color:#34D399;margin-bottom:4px;">— Menunggu —</div>
+              <div class="mono" id="brk-sub-text" style="font-size:11px;color:#475569;">Tekan Mulai Break untuk memulai</div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button id="brk-btn-start" onclick="doStartBreak()" class="btn" style="background:linear-gradient(135deg,#065F46,#10B981);color:#fff;padding:10px 20px;font-size:12px;display:flex;align-items:center;gap:7px;">☕ Mulai Break</button>
+              <button id="brk-btn-end" onclick="doEndBreak()" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#F87171;padding:10px 20px;font-size:12px;display:none;align-items:center;gap:7px;">✓ Selesai Break</button>
+            </div>
+          </div>
+          <div id="brk-timer-wrap" style="display:none;margin-top:20px;text-align:center;padding:20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(16,185,129,0.15);">
+            <div class="mono" style="font-size:11px;color:#475569;margin-bottom:4px;letter-spacing:.15em;">SISA WAKTU BREAK</div>
+            <div id="brk-countdown" style="font-family:'Bebas Neue';font-size:64px;letter-spacing:4px;color:#34D399;line-height:1;">00:00</div>
+            <div class="mono" style="font-size:10px;color:#334155;margin-top:4px;" id="brk-elapsed-label">Berjalan: 00:00</div>
+          </div>
+        </div>
+
+        <div id="brk-overtime-warn" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:14px 18px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;">⚠️</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F87171;" id="brk-overtime-text">Overtime Break!</div>
+              <div class="mono" style="font-size:11px;color:#475569;" id="brk-overtime-sub">Segera kembali bekerja</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="brk-result-card" style="display:none;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;margin-bottom:16px;">
+          <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.12em;margin-bottom:12px;">HASIL BREAK HARI INI</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;text-align:center;">
+              <div class="mono" style="font-size:9px;color:#475569;margin-bottom:4px;">JATAH</div>
+              <div style="font-family:'Bebas Neue';font-size:24px;color:#94A3B8;" id="res-jatah">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;text-align:center;">
+              <div class="mono" style="font-size:9px;color:#475569;margin-bottom:4px;">AKTUAL</div>
+              <div style="font-family:'Bebas Neue';font-size:24px;color:#34D399;" id="res-aktual">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;text-align:center;">
+              <div class="mono" style="font-size:9px;color:#475569;margin-bottom:4px;">TELAT</div>
+              <div style="font-family:'Bebas Neue';font-size:24px;" id="res-telat">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px;">
+          <div class="mono" style="font-size:10px;color:#334155;letter-spacing:.12em;margin-bottom:10px;">KETENTUAN BREAK</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;"><span class="mono" style="font-size:11px;color:#475569;">0 member valid</span><span class="mono" style="font-size:11px;color:#64748B;">Tidak dapat break</span></div>
+            <div style="display:flex;justify-content:space-between;"><span class="mono" style="font-size:11px;color:#475569;">1 – 2 member valid</span><span class="mono" style="font-size:11px;color:#94A3B8;">1 Jam break</span></div>
+            <div style="display:flex;justify-content:space-between;"><span class="mono" style="font-size:11px;color:#475569;">3+ member valid</span><span class="mono" style="font-size:11px;color:#34D399;">2 Jam break</span></div>
+          </div>
+        </div>
+      </div>
 
         <!-- Status card -->
         <div style="border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:24px;margin-bottom:16px;background:rgba(16,185,129,0.03);">
@@ -571,7 +643,7 @@ async function loadDashboard(){
         </div>
         <p style="font-size:11px;color:#64748B;line-height:1.5;padding-left:12px;">${a.content.length>80?a.content.slice(0,80)+'...':a.content}</p>
       </div>`).join('');
-  }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">Tidak ada pengumuman.</p>';}
+  }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">' + (anns.success ? 'Tidak ada pengumuman aktif.' : 'Gagal memuat pengumuman.') + '</p>';}
 }
 
 
