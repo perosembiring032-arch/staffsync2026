@@ -524,7 +524,7 @@ async function loadDashboard(){
   // Absensi widget
   const ciBtn=document.getElementById('btn-clockin');
   const coBtn=document.getElementById('btn-clockout');
-  if(att.success){
+  if(att.success && att.data){
     const a=att.data;
     const fmt=t=>t?new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'—';
     document.getElementById('ci-time').textContent=fmt(a.clockIn);

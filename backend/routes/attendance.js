@@ -12,7 +12,8 @@ const getToday = () => {
 router.get('/today', auth, staffOnly, async (req, res) => {
   try {
     const att = await Attendance.findOne({ staffId: req.staff._id, date: getToday() });
-    res.json({ success: true, data: att });
+    // Return object default kalau belum ada record (belum clock-in)
+    res.json({ success: true, data: att || { clockIn: null, clockOut: null, isPresent: false } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
