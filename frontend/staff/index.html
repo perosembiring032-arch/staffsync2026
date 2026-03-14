@@ -135,6 +135,9 @@
       <div onclick="showPage('permission')" id="nav-permission" class="nav-item">
         <span class="nav-icon">◷</span><span class="nav-label">Izin Harian</span>
       </div>
+      <div onclick="showPage('break')" id="nav-break" class="nav-item">
+        <span class="nav-icon">☕</span><span class="nav-label">Break</span>
+      </div>
     </nav>
     <div style="padding:16px;border-top:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -256,7 +259,7 @@
               <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
               <div style="display:flex;flex-direction:column;gap:7px;">
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#334155;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 1 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
               </div>
             </div>
@@ -322,7 +325,102 @@
           <div id="izin-sessions-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
 
-    </div>
+        <!-- Log -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Izin Hari Ini</span></div>
+          <div id="perm-log" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p></div>
+        </div>
+      </div>
+
+    
+      <!-- ── BREAK PAGE ── -->
+      <div id="page-break" class="fade-up hidden">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+          <div>
+            <div class="page-title">BREAK HARIAN</div>
+            <div class="mono" style="font-size:11px;color:#475569;margin-top:4px;">Gunakan jatah break sesuai target anggota</div>
+          </div>
+          <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px 18px;text-align:center;">
+            <div class="mono" style="font-size:10px;color:#6EE7B7;margin-bottom:2px;">JATAH BREAK</div>
+            <div style="font-family:'Bebas Neue';font-size:28px;color:#34D399;" id="brk-jatah-label">— JAM</div>
+          </div>
+        </div>
+
+        <!-- Status card -->
+        <div style="border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:24px;margin-bottom:16px;background:rgba(16,185,129,0.03);">
+
+          <!-- Progress bar jatah -->
+          <div style="margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span class="mono" style="font-size:11px;color:#94A3B8;">DURASI BREAK</span>
+              <span class="mono" id="brk-sisa-label" style="font-size:11px;color:#34D399;font-weight:700;">Belum dimulai</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:100px;height:8px;overflow:hidden;">
+              <div id="brk-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:100px;transition:width .5s;"></div>
+            </div>
+          </div>
+
+          <!-- Status & tombol -->
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div id="brk-status-text" style="font-size:15px;font-weight:700;color:#34D399;margin-bottom:4px;">— Menunggu —</div>
+              <div class="mono" id="brk-sub-text" style="font-size:11px;color:#475569;">Tekan Mulai Break untuk memulai</div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button id="brk-btn-start" onclick="doStartBreak()" class="btn" style="background:linear-gradient(135deg,#065F46,#10B981);color:#fff;padding:10px 20px;font-size:12px;display:flex;align-items:center;gap:7px;">☕ Mulai Break</button>
+              <button id="brk-btn-end" onclick="doEndBreak()" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#F87171;padding:10px 20px;font-size:12px;display:none;align-items:center;gap:7px;">✓ Selesai Break</button>
+            </div>
+          </div>
+
+          <!-- Countdown timer (saat on_break) -->
+          <div id="brk-timer-wrap" style="display:none;margin-top:20px;text-align:center;padding:20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(16,185,129,0.15);">
+            <div class="mono" style="font-size:11px;color:#475569;margin-bottom:4px;letter-spacing:.15em;">SISA WAKTU BREAK</div>
+            <div id="brk-countdown" style="font-family:'Bebas Neue';font-size:64px;letter-spacing:4px;color:#34D399;line-height:1;">00:00</div>
+            <div class="mono" style="font-size:10px;color:#334155;margin-top:4px;" id="brk-elapsed-label">Berjalan: 00:00</div>
+          </div>
+        </div>
+
+        <!-- Overtime warning -->
+        <div id="brk-overtime-warn" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:14px 18px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;">⚠️</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F87171;" id="brk-overtime-text">Overtime Break!</div>
+              <div class="mono" style="font-size:11px;color:#475569;" id="brk-overtime-sub">Segera kembali bekerja</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hasil break -->
+        <div id="brk-result-card" style="display:none;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;">
+          <div class="mono" style="font-size:10px;color:#475569;letter-spacing:.12em;margin-bottom:12px;">HASIL BREAK HARI INI</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;text-align:center;">
+              <div class="mono" style="font-size:9px;color:#475569;margin-bottom:4px;">JATAH</div>
+              <div style="font-family:'Bebas Neue';font-size:24px;color:#94A3B8;" id="res-jatah">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;text-align:center;">
+              <div class="mono" style="font-size:9px;color:#475569;margin-bottom:4px;">AKTUAL</div>
+              <div style="font-family:'Bebas Neue';font-size:24px;color:#34D399;" id="res-aktual">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;text-align:center;">
+              <div class="mono" style="font-size:9px;color:#475569;margin-bottom:4px;">TELAT</div>
+              <div style="font-family:'Bebas Neue';font-size:24px;" id="res-telat" style="">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info jatah break -->
+        <div style="margin-top:16px;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px;">
+          <div class="mono" style="font-size:10px;color:#334155;letter-spacing:.12em;margin-bottom:10px;">KETENTUAN BREAK</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;"><span class="mono" style="font-size:11px;color:#475569;">0 member valid</span><span class="mono" style="font-size:11px;color:#64748B;">Tidak dapat break</span></div>
+            <div style="display:flex;justify-content:space-between;"><span class="mono" style="font-size:11px;color:#475569;">1 – 2 member valid</span><span class="mono" style="font-size:11px;color:#94A3B8;">1 Jam break</span></div>
+            <div style="display:flex;justify-content:space-between;"><span class="mono" style="font-size:11px;color:#475569;">3+ member valid</span><span class="mono" style="font-size:11px;color:#34D399;">2 Jam break</span></div>
+          </div>
+        </div>
+      </div>
+</div>
   </div>
 </div>
 
@@ -375,7 +473,7 @@ function initApp(user){
 }
 
 function showPage(page){
-  ['dashboard','input','permission'].forEach(p=>{
+  ['dashboard','input','permission','break','absensi'].forEach(p=>{
     document.getElementById(`page-${p}`)?.classList.add('hidden');
     document.getElementById(`nav-${p}`)?.classList.remove('active');
   });
@@ -384,6 +482,7 @@ function showPage(page){
   if(page==='dashboard')loadDashboard();
   if(page==='input'){loadDashboard();loadInputStatus();}
   if(page==='permission')loadPermissions();
+  if(page==='break')loadBreak();
 }
 
 // ── DASHBOARD ──────────────────────────────────────────────
@@ -480,6 +579,146 @@ async function loadDashboard(){
         <p style="font-size:11px;color:#64748B;line-height:1.5;padding-left:12px;">${a.content.length>80?a.content.slice(0,80)+'...':a.content}</p>
       </div>`).join('');
   }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">Tidak ada pengumuman.</p>';}
+}
+
+
+// ══════════════════════════════════════════
+// BREAK PAGE
+// ══════════════════════════════════════════
+let brkInterval = null;
+let brkData = {};
+
+async function loadBreak() {
+  const data = await api.get('/break/today');
+  if (!data.success) return;
+  brkData = data.data;
+  renderBreak();
+}
+
+function fmtSec(s) {
+  const m = Math.floor(Math.abs(s)/60), sec = Math.abs(s)%60;
+  return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+
+function renderBreak() {
+  const d = brkData;
+  const jatahSec = d.jatahMenit * 60;
+
+  // Jatah label
+  document.getElementById('brk-jatah-label').textContent =
+    d.jatahMenit === 0 ? 'NO BREAK' : (d.jatahMenit/60)+' JAM';
+
+  const statusEl  = document.getElementById('brk-status-text');
+  const subEl     = document.getElementById('brk-sub-text');
+  const btnStart  = document.getElementById('brk-btn-start');
+  const btnEnd    = document.getElementById('brk-btn-end');
+  const timerWrap = document.getElementById('brk-timer-wrap');
+  const resultCard= document.getElementById('brk-result-card');
+  const otWarn    = document.getElementById('brk-overtime-warn');
+
+  // Reset interval lama
+  if (brkInterval) { clearInterval(brkInterval); brkInterval = null; }
+
+  if (d.status === 'idle') {
+    statusEl.textContent = d.jatahMenit === 0 ? '❌ Belum Dapat Break' : '⏳ Siap Break';
+    statusEl.style.color = d.jatahMenit === 0 ? '#EF4444' : '#34D399';
+    subEl.textContent = d.jatahMenit === 0 ? 'Capai minimal 1 member valid terlebih dahulu' : 'Tekan Mulai Break bila siap';
+    btnStart.style.display = d.jatahMenit === 0 ? 'none' : 'flex';
+    btnEnd.style.display = 'none';
+    timerWrap.style.display = 'none';
+    resultCard.style.display = 'none';
+    otWarn.style.display = 'none';
+    document.getElementById('brk-progress-bar').style.width = '0%';
+    document.getElementById('brk-sisa-label').textContent = 'Belum dimulai';
+
+  } else if (d.status === 'on_break') {
+    statusEl.textContent = '☕ Sedang Break';
+    statusEl.style.color = '#FBBF24';
+    btnStart.style.display = 'none';
+    btnEnd.style.display = 'flex';
+    timerWrap.style.display = 'block';
+    resultCard.style.display = 'none';
+
+    // Running countdown
+    const startMs = new Date(d.startTime).getTime();
+    function tick() {
+      const elapsed = Math.floor((Date.now() - startMs) / 1000);
+      const sisa    = jatahSec - elapsed;
+      const pct     = Math.min(100, (elapsed / jatahSec) * 100);
+
+      document.getElementById('brk-countdown').textContent = fmtSec(Math.max(0, sisa));
+      document.getElementById('brk-elapsed-label').textContent = 'Berjalan: ' + fmtSec(elapsed);
+      document.getElementById('brk-progress-bar').style.width  = pct + '%';
+
+      if (sisa <= 0) {
+        // Overtime!
+        const ot = Math.abs(sisa);
+        document.getElementById('brk-countdown').style.color = '#EF4444';
+        document.getElementById('brk-countdown').textContent = '+' + fmtSec(ot);
+        document.getElementById('brk-sisa-label').textContent = 'OVERTIME ' + fmtSec(ot);
+        document.getElementById('brk-sisa-label').style.color = '#EF4444';
+        document.getElementById('brk-progress-bar').style.background = 'linear-gradient(90deg,#EF4444,#F87171)';
+        otWarn.style.display = 'flex';
+        document.getElementById('brk-overtime-text').textContent = 'Overtime Break! +' + fmtSec(ot);
+        document.getElementById('brk-overtime-sub').textContent = 'Segera kembali — telat akan dicatat';
+        subEl.textContent = '⚠️ Waktu break sudah habis!';
+      } else {
+        document.getElementById('brk-sisa-label').textContent = fmtSec(sisa) + ' tersisa';
+        document.getElementById('brk-sisa-label').style.color = sisa < 300 ? '#FBBF24' : '#34D399';
+        document.getElementById('brk-countdown').style.color  = sisa < 300 ? '#FBBF24' : '#34D399';
+        otWarn.style.display = 'none';
+        subEl.textContent = 'Klik Selesai Break saat sudah kembali';
+      }
+    }
+    tick();
+    brkInterval = setInterval(tick, 1000);
+
+  } else if (d.status === 'done') {
+    statusEl.textContent = d.overtime > 0 ? '⚠️ Break Selesai (Telat)' : '✅ Break Selesai';
+    statusEl.style.color = d.overtime > 0 ? '#F87171' : '#34D399';
+    subEl.textContent    = d.overtime > 0 ? `Telat ${Math.round(d.overtime/60)} menit dari jatah` : 'Tepat waktu!';
+    btnStart.style.display = 'none';
+    btnEnd.style.display   = 'none';
+    timerWrap.style.display= 'none';
+    resultCard.style.display = 'block';
+    otWarn.style.display   = 'none';
+
+    document.getElementById('brk-progress-bar').style.width = '100%';
+    document.getElementById('brk-sisa-label').textContent = 'Selesai';
+
+    // Isi result
+    document.getElementById('res-jatah').textContent  = d.jatahMenit+'m';
+    document.getElementById('res-aktual').textContent = Math.round(d.durasiAktual/60)+'m';
+    const telatEl = document.getElementById('res-telat');
+    telatEl.textContent = d.overtime > 0 ? '+'+Math.round(d.overtime/60)+'m' : '0m';
+    telatEl.style.color = d.overtime > 0 ? '#EF4444' : '#34D399';
+  }
+}
+
+async function doStartBreak() {
+  const btn = document.getElementById('brk-btn-start');
+  btn.disabled=true; btn.textContent='Memulai...';
+  const res = await api.post('/break/start', {});
+  if (res.success) {
+    showToast('Break dimulai! ' + res.data.jatahMenit + ' menit jatah');
+    await loadBreak();
+  } else {
+    showToast(res.message,'err');
+    btn.disabled=false; btn.innerHTML='☕ Mulai Break';
+  }
+}
+
+async function doEndBreak() {
+  const btn = document.getElementById('brk-btn-end');
+  btn.disabled=true; btn.textContent='Mencatat...';
+  const res = await api.post('/break/end', {});
+  if (res.success) {
+    showToast(res.message, res.data.overtime > 0 ? 'err' : '');
+    await loadBreak();
+  } else {
+    showToast(res.message,'err');
+    btn.disabled=false; btn.innerHTML='✓ Selesai Break';
+  }
 }
 
 // ── Absensi ──────────────────────────────────────────────

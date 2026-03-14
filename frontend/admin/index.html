@@ -165,6 +165,9 @@
       <div onclick="showPage('absensi')" id="nav-absensi" class="nav-item">
         <span class="nav-icon">◌</span><span class="nav-label">Absensi Staff</span>
       </div>
+      <div onclick="showPage('break')" id="nav-break" class="nav-item">
+        <span class="nav-icon">☕</span><span class="nav-label">Break Staff</span>
+      </div>
       <div onclick="showPage('histori')" id="nav-histori" class="nav-item">
         <span class="nav-icon">▣</span><span class="nav-label">Riwayat Histori</span>
       </div>
@@ -498,6 +501,66 @@
     </div>
   </div>
 </div>
+      <!-- ══ BREAK STAFF PAGE ══ -->
+      <div id="page-break" class="page hidden">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">BREAK STAFF</h2>
+            <p class="page-sub">Monitoring break & overtime harian</p>
+          </div>
+          <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:12px;">↺ Refresh</button>
+        </div>
+
+        <!-- Summary stats -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" id="brk-stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Staff Break</div>
+            <div class="stat-num" id="bstat-total">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Sedang Break</div>
+            <div class="stat-num" style="color:#FBBF24;" id="bstat-active">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Selesai Tepat</div>
+            <div class="stat-num" style="color:#34D399;" id="bstat-ontime">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Overtime Break</div>
+            <div class="stat-num" style="color:#F87171;" id="bstat-late">—</div>
+          </div>
+        </div>
+
+        <!-- Filter date -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div class="mono" style="font-size:10px;color:#475569;">FILTER TANGGAL:</div>
+          <input type="date" id="brk-filter-date" class="inp" style="width:180px;font-size:12px;"/>
+          <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:11px;padding:6px 14px;">Tampilkan</button>
+          <button onclick="document.getElementById('brk-filter-date').value='';loadBreakAdmin()" class="btn btn-ghost" style="font-size:11px;padding:6px 14px;">Reset</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Staff</th>
+                <th>ID Karyawan</th>
+                <th>Jatah</th>
+                <th>Mulai Break</th>
+                <th>Selesai Break</th>
+                <th>Durasi Aktual</th>
+                <th>Status</th>
+                <th>Overtime</th>
+              </tr>
+            </thead>
+            <tbody id="brk-tbody">
+              <tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
 
 <script src="/shared/api.js"></script>
 <script>
@@ -543,7 +606,7 @@ function initApp(user){
 }
 
 function showPage(page){
-  ['dashboard','monitoring','permissions','stafflist','ranking','absensi','histori','pengumuman','ipwhitelist'].forEach(p=>{
+  ['dashboard','monitoring','permissions','stafflist','ranking','absensi','histori','pengumuman','ipwhitelist','break'].forEach(p=>{
     document.getElementById(`page-${p}`)?.classList.add('hidden');
     document.getElementById(`nav-${p}`)?.classList.remove('active');
   });
@@ -558,6 +621,7 @@ function showPage(page){
   else if(page==='histori')initHistori();
   else if(page==='pengumuman')loadAnnouncements();
   else if(page==='ipwhitelist')loadIPWhitelist();
+  else if(page==='break')loadBreakAdmin();
 }
 
 async function loadDashboard() {
@@ -1134,6 +1198,72 @@ async function exportExcelAll() {
   XLSX.writeFile(wb, 'STAFFANG_' + new Date().toISOString().split('T')[0] + '.xlsx');
   showToast('Export semua staff berhasil!');
 }
+
+// ══════════════════════════════════════════
+// BREAK ADMIN
+// ══════════════════════════════════════════
+async function loadBreakAdmin() {
+  const dateFilter = document.getElementById('brk-filter-date')?.value || '';
+  const url = dateFilter ? `/break/admin/all?date=${dateFilter}` : '/break/admin/today';
+  const res = await api.get(url);
+  if (!res.success) return;
+
+  const list = res.data;
+  const tbody = document.getElementById('brk-tbody');
+
+  // Stats
+  const total   = list.length;
+  const active  = list.filter(x => x.status === 'on_break').length;
+  const ontime  = list.filter(x => x.status === 'done' && x.overtime === 0).length;
+  const late    = list.filter(x => x.status === 'done' && x.overtime > 0).length;
+
+  document.getElementById('bstat-total').textContent  = total;
+  document.getElementById('bstat-active').textContent = active;
+  document.getElementById('bstat-ontime').textContent = ontime;
+  document.getElementById('bstat-late').textContent   = late;
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Belum ada data break hari ini</td></tr>';
+    return;
+  }
+
+  const fmt = t => t ? new Date(t).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
+  const fmtDur = s => {
+    if (!s) return '—';
+    const m = Math.floor(s/60), sec = s%60;
+    return m+'m '+sec+'d';
+  };
+
+  tbody.innerHTML = list.map(b => {
+    const statusBadge =
+      b.status === 'on_break' ? '<span class="badge bgo">BREAK</span>' :
+      b.status === 'done' && b.overtime > 0 ? '<span class="badge bge">SELESAI</span>' :
+      b.status === 'done' ? '<span class="badge bgg">SELESAI</span>' :
+      '<span class="badge bg">IDLE</span>';
+
+    const overtimeCol = b.overtime > 0
+      ? `<span style="color:#F87171;font-weight:700;">+${b.overtimeMenit} menit</span>`
+      : b.status === 'done'
+        ? `<span style="color:#34D399;">Tepat waktu</span>`
+        : `<span style="color:#475569;">—</span>`;
+
+    const durasiCol = b.status === 'on_break'
+      ? `<span style="color:#FBBF24;">Sedang berjalan...</span>`
+      : fmtDur(b.durasiAktual);
+
+    return `<tr>
+      <td style="font-weight:600;">${b.nama}</td>
+      <td class="mono" style="font-size:11px;color:#475569;">${b.employeeId}</td>
+      <td class="mono">${b.jatahMenit} menit</td>
+      <td class="mono" style="font-size:11px;">${fmt(b.startTime)}</td>
+      <td class="mono" style="font-size:11px;">${fmt(b.endTime)}</td>
+      <td class="mono" style="font-size:12px;">${durasiCol}</td>
+      <td>${statusBadge}</td>
+      <td>${overtimeCol}</td>
+    </tr>`;
+  }).join('');
+}
+
 </script>
 </body>
 </html>
