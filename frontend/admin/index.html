@@ -382,6 +382,36 @@
         </div>
       </div>
 
+      <!-- ══ BREAK STAFF PAGE ══ -->
+      <div id="page-break" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">BREAK STAFF</div><div class="page-sub">Monitoring break & overtime harian</div></div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="date" id="brk-filter-date" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 12px;color:#E2E8F0;font-size:12px;font-family:'JetBrains Mono',monospace;"/>
+            <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:12px;padding:8px 14px;">↺ Refresh</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Total Break</div><div class="stat-value" style="font-size:36px;" id="bstat-total">0</div><div class="stat-sub">hari ini</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Sedang Break</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="bstat-active">0</div><div class="stat-sub">on break</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Tepat Waktu</div><div class="stat-value" style="font-size:36px;color:#22C55E;" id="bstat-ontime">0</div><div class="stat-sub">selesai</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Overtime</div><div class="stat-value" style="font-size:36px;color:#EF4444;" id="bstat-late">0</div><div class="stat-sub">telat kembali</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Break Hari Ini</span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead>
+                <tr><th>Nama Staff</th><th>ID Karyawan</th><th>Jatah</th><th>Mulai Break</th><th>Selesai Break</th><th>Durasi Aktual</th><th>Status</th><th>Overtime</th></tr>
+              </thead>
+              <tbody id="brk-tbody">
+                <tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -501,37 +531,6 @@
     </div>
   </div>
 </div>
-      <!-- ══ BREAK STAFF PAGE ══ -->
-      <div id="page-break" class="fade-up hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-          <div><div class="page-title">BREAK STAFF</div><div class="page-sub">Monitoring break & overtime harian</div></div>
-          <div style="display:flex;gap:10px;align-items:center;">
-            <input type="date" id="brk-filter-date" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 12px;color:#E2E8F0;font-size:12px;font-family:'JetBrains Mono',monospace;"/>
-            <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:12px;padding:8px 14px;">↺ Refresh</button>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
-          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Total Break</div><div class="stat-value" style="font-size:36px;" id="bstat-total">0</div><div class="stat-sub">hari ini</div></div>
-          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Sedang Break</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="bstat-active">0</div><div class="stat-sub">on break</div></div>
-          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Tepat Waktu</div><div class="stat-value" style="font-size:36px;color:#22C55E;" id="bstat-ontime">0</div><div class="stat-sub">selesai</div></div>
-          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Overtime</div><div class="stat-value" style="font-size:36px;color:#EF4444;" id="bstat-late">0</div><div class="stat-sub">telat kembali</div></div>
-        </div>
-        <div class="card">
-          <div class="section-head"><span class="section-title">Log Break Hari Ini</span></div>
-          <div style="overflow-x:auto;">
-            <table class="tbl">
-              <thead>
-                <tr><th>Nama Staff</th><th>ID Karyawan</th><th>Jatah</th><th>Mulai Break</th><th>Selesai Break</th><th>Durasi Aktual</th><th>Status</th><th>Overtime</th></tr>
-              </thead>
-              <tbody id="brk-tbody">
-                <tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Memuat data...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-
 <script src="/shared/api.js"></script>
 <script>
 function togglePwd(id){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
