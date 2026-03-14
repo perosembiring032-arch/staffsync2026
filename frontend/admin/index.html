@@ -502,62 +502,32 @@
   </div>
 </div>
       <!-- ══ BREAK STAFF PAGE ══ -->
-      <div id="page-break" class="page hidden">
-        <div class="page-header">
-          <div>
-            <h2 class="page-title">BREAK STAFF</h2>
-            <p class="page-sub">Monitoring break & overtime harian</p>
-          </div>
-          <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:12px;">↺ Refresh</button>
-        </div>
-
-        <!-- Summary stats -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" id="brk-stat-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Staff Break</div>
-            <div class="stat-num" id="bstat-total">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Sedang Break</div>
-            <div class="stat-num" style="color:#FBBF24;" id="bstat-active">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Selesai Tepat</div>
-            <div class="stat-num" style="color:#34D399;" id="bstat-ontime">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Overtime Break</div>
-            <div class="stat-num" style="color:#F87171;" id="bstat-late">—</div>
+      <div id="page-break" class="fade-up hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div><div class="page-title">BREAK STAFF</div><div class="page-sub">Monitoring break & overtime harian</div></div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="date" id="brk-filter-date" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 12px;color:#E2E8F0;font-size:12px;font-family:'JetBrains Mono',monospace;"/>
+            <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:12px;padding:8px 14px;">↺ Refresh</button>
           </div>
         </div>
-
-        <!-- Filter date -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-          <div class="mono" style="font-size:10px;color:#475569;">FILTER TANGGAL:</div>
-          <input type="date" id="brk-filter-date" class="inp" style="width:180px;font-size:12px;"/>
-          <button onclick="loadBreakAdmin()" class="btn btn-ghost" style="font-size:11px;padding:6px 14px;">Tampilkan</button>
-          <button onclick="document.getElementById('brk-filter-date').value='';loadBreakAdmin()" class="btn btn-ghost" style="font-size:11px;padding:6px 14px;">Reset</button>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Total Break</div><div class="stat-value" style="font-size:36px;" id="bstat-total">0</div><div class="stat-sub">hari ini</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Sedang Break</div><div class="stat-value" style="font-size:36px;color:#F59E0B;" id="bstat-active">0</div><div class="stat-sub">on break</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Tepat Waktu</div><div class="stat-value" style="font-size:36px;color:#22C55E;" id="bstat-ontime">0</div><div class="stat-sub">selesai</div></div>
+          <div class="card stat-widget" style="padding:16px 18px;"><div class="stat-label">Overtime</div><div class="stat-value" style="font-size:36px;color:#EF4444;" id="bstat-late">0</div><div class="stat-sub">telat kembali</div></div>
         </div>
-
-        <!-- Table -->
-        <div class="table-wrap">
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Staff</th>
-                <th>ID Karyawan</th>
-                <th>Jatah</th>
-                <th>Mulai Break</th>
-                <th>Selesai Break</th>
-                <th>Durasi Aktual</th>
-                <th>Status</th>
-                <th>Overtime</th>
-              </tr>
-            </thead>
-            <tbody id="brk-tbody">
-              <tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Memuat data...</td></tr>
-            </tbody>
-          </table>
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Break Hari Ini</span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead>
+                <tr><th>Nama Staff</th><th>ID Karyawan</th><th>Jatah</th><th>Mulai Break</th><th>Selesai Break</th><th>Durasi Aktual</th><th>Status</th><th>Overtime</th></tr>
+              </thead>
+              <tbody id="brk-tbody">
+                <tr><td colspan="8" style="text-align:center;color:#334155;padding:20px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1237,7 +1207,7 @@ async function loadBreakAdmin() {
   tbody.innerHTML = list.map(b => {
     const statusBadge =
       b.status === 'on_break' ? '<span class="badge bgo">BREAK</span>' :
-      b.status === 'done' && b.overtime > 0 ? '<span class="badge bge">SELESAI</span>' :
+      b.status === 'done' && b.overtime > 0 ? '<span class="badge bgr">SELESAI</span>' :
       b.status === 'done' ? '<span class="badge bgg">SELESAI</span>' :
       '<span class="badge bg">IDLE</span>';
 
