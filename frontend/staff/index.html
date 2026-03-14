@@ -167,7 +167,6 @@
     </div>
 
     <div class="content">
-      </div>
 
       <!-- DASHBOARD -->
       <div id="page-dashboard" class="fade-up">
@@ -197,7 +196,7 @@
             </div>
             <div style="display:flex;gap:8px;">
               <button id="btn-clockin" onclick="doClockIn()" class="btn" style="flex:1;background:linear-gradient(135deg,#065F46,#22C55E);color:#fff;padding:10px;font-size:12px;">Clock In</button>
-              <button id="btn-clockout" onclick="doClockOut()" class="btn btn-ghost" style="flex:1;padding:10px;font-size:12px;opacity:0.4;" disabled>Clock Out</button>
+              <button id="btn-clockout" onclick="doClockOut()" class="btn btn-ghost" style="flex:1;padding:10px;font-size:12px;opacity:0.4;" id="btn-clockout" disabled>Clock Out</button>
             </div>
           </div>
           <!-- Pengumuman preview -->
@@ -260,7 +259,7 @@
               <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
               <div style="display:flex;flex-direction:column;gap:7px;">
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#334155;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 1 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
               </div>
             </div>
@@ -326,6 +325,13 @@
           <div id="izin-sessions-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
 
+        <!-- Log -->
+        <div class="card">
+          <div class="section-head"><span class="section-title">Log Izin Hari Ini</span></div>
+          <div id="perm-log" style="padding:16px 18px;"><p class="mono" style="font-size:11px;color:#475569;text-align:center;padding:10px 0;">Belum ada izin digunakan.</p></div>
+        </div>
+      </div>
+
     
       <!-- ── BREAK PAGE ── -->
       <div id="page-break" class="fade-up hidden">
@@ -336,7 +342,7 @@
           </div>
           <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px 18px;text-align:center;">
             <div class="mono" style="font-size:10px;color:#6EE7B7;margin-bottom:2px;">JATAH BREAK</div>
-            <div style="font-family:'Bebas Neue';font-size:28px;color:#34D399;" id="brk-jatah-label">— JAM</div>
+            <div style="font-family:'Bebas Neue';font-size:28px;color:#34D399;" id="brk-jatah-label">-- JAM</div>
           </div>
         </div>
         <div style="border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:24px;margin-bottom:16px;background:rgba(16,185,129,0.03);">
@@ -351,7 +357,7 @@
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
             <div>
-              <div id="brk-status-text" style="font-size:15px;font-weight:700;color:#34D399;margin-bottom:4px;">— Menunggu —</div>
+              <div id="brk-status-text" style="font-size:15px;font-weight:700;color:#34D399;margin-bottom:4px;">-- Menunggu --</div>
               <div class="mono" id="brk-sub-text" style="font-size:11px;color:#475569;">Tekan Mulai Break untuk memulai</div>
             </div>
             <div style="display:flex;gap:10px;">
@@ -400,6 +406,7 @@
           </div>
         </div>
       </div>
+
     </div>
 
 <script src="/shared/api.js"></script>
@@ -549,12 +556,12 @@ async function loadDashboard(){
   if(anns.success&&anns.data.length){
     const colors={normal:'#64748B',penting:'#F59E0B',urgent:'#EF4444'};
     annEl.innerHTML=anns.data.slice(0,3).map(a=>`
-      <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-          <span style="width:7px;height:7px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
-          <span style="font-size:12px;font-weight:700;color:#F1F5F9;">${a.title}</span>
+      <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:${colors[a.priority]};flex-shrink:0;"></span>
+          <span style="font-size:12px;font-weight:700;color:#D1D9E6;">${a.title}</span>
         </div>
-        <p style="font-size:11px;color:#94A3B8;line-height:1.7;padding-left:13px;">${a.content}</p>
+        <p style="font-size:11px;color:#64748B;line-height:1.5;padding-left:12px;">${a.content}</p>
       </div>`).join('');
   }else{annEl.innerHTML='<p class="mono" style="font-size:11px;color:#334155;">Tidak ada pengumuman.</p>';}
 }
@@ -568,7 +575,11 @@ let brkData = {};
 
 async function loadBreak() {
   const data = await api.get('/break/today');
-  if (!data.success) return;
+  if (!data.success) {
+    const st = document.getElementById('brk-status-text');
+    if(st) { st.textContent = 'Gagal memuat: ' + (data.message||'Error'); st.style.color='#EF4444'; }
+    return;
+  }
   brkData = data.data;
   renderBreak();
 }
@@ -580,6 +591,8 @@ function fmtSec(s) {
 
 function renderBreak() {
   const d = brkData;
+  if (!d) return;
+  if (!document.getElementById('brk-jatah-label')) return; // page belum di DOM
   const jatahSec = d.jatahMenit * 60;
 
   // Jatah label
