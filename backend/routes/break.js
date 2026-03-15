@@ -31,10 +31,13 @@ router.get('/today', auth, staffOnly, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
-// ── POST /break/start ── mulai break
+// ── POST /break/start ── mulai break (menit: 60 atau 120)
 router.post('/start', auth, staffOnly, async (req, res) => {
   try {
     const today = getToday();
+    // Ambil pilihan durasi dari frontend, default 120 menit
+    const menit = req.body.menit === 60 ? 60 : JATAH_MENIT;
+
     let session = await BreakSession.findOne({ staffId: req.staff._id, date: today });
 
     if (session && session.status === 'on_break')
@@ -43,13 +46,15 @@ router.post('/start', auth, staffOnly, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Break hari ini sudah selesai.' });
 
     if (!session) {
-      session = new BreakSession({ staffId: req.staff._id, date: today, jatahMenit: JATAH_MENIT });
+      session = new BreakSession({ staffId: req.staff._id, date: today, jatahMenit: menit });
     }
-    session.startTime = new Date();
-    session.status    = 'on_break';
+    session.jatahMenit = menit;
+    session.startTime  = new Date();
+    session.status     = 'on_break';
     await session.save();
 
-    res.json({ success: true, message: 'Break dimulai! Nikmati 2 jam breakmu.', data: { startTime: session.startTime, jatahMenit: JATAH_MENIT } });
+    const jam = menit === 60 ? '1 jam' : '2 jam';
+    res.json({ success: true, message: 'Break ' + jam + ' dimulai!', data: { startTime: session.startTime, jatahMenit: menit } });
   } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 

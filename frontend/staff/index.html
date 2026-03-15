@@ -259,7 +259,7 @@
               <h4 style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;letter-spacing:.04em;">ATURAN BREAK</h4>
               <div style="display:flex;flex-direction:column;gap:7px;">
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#334155;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">0 member = <span style="color:#EF4444;">No Break</span></span></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 1 jam</span></span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="color:#F59E0B;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">1-2 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
                 <div style="display:flex;align-items:center;gap:8px;"><span style="color:#22C55E;font-size:12px;">●</span><span class="mono" style="font-size:11px;color:#64748B;">3 member valid = <span style="color:#fff;">Break 2 jam</span></span></div>
               </div>
             </div>
@@ -360,9 +360,20 @@
               <div id="brk-status-text" style="font-size:15px;font-weight:700;color:#34D399;margin-bottom:4px;">-- Menunggu --</div>
               <div class="mono" id="brk-sub-text" style="font-size:11px;color:#475569;">Tekan Mulai Break untuk memulai</div>
             </div>
-            <div style="display:flex;gap:10px;">
-              <button id="brk-btn-start" onclick="doStartBreak()" class="btn" style="background:linear-gradient(135deg,#065F46,#10B981);color:#fff;padding:10px 20px;font-size:12px;display:flex;align-items:center;gap:7px;">&#9749; Mulai Break</button>
-              <button id="brk-btn-end" onclick="doEndBreak()" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#F87171;padding:10px 20px;font-size:12px;display:none;align-items:center;gap:7px;">&#10003; Selesai Break</button>
+            <div style="display:flex;flex-direction:column;gap:10px;width:100%;">
+              <!-- Pilihan break (tampil saat idle) -->
+              <div id="brk-pilihan" style="display:flex;gap:10px;">
+                <button onclick="doStartBreak(60)" class="btn" style="flex:1;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#34D399;padding:12px 16px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px;">
+                  <span style="font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;">1 JAM</span>
+                  <span class="mono" style="font-size:9px;opacity:.6;">Break 60 menit</span>
+                </button>
+                <button onclick="doStartBreak(120)" class="btn" style="flex:1;background:linear-gradient(135deg,#065F46,#10B981);border:none;color:#fff;padding:12px 16px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px;">
+                  <span style="font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;">2 JAM</span>
+                  <span class="mono" style="font-size:9px;opacity:.7;">Break 120 menit</span>
+                </button>
+              </div>
+              <!-- Tombol selesai (tampil saat on_break) -->
+              <button id="brk-btn-end" onclick="doEndBreak()" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#F87171;padding:10px 20px;font-size:12px;display:none;align-items:center;justify-content:center;gap:7px;width:100%;">&#10003; Selesai Break</button>
             </div>
           </div>
           <div id="brk-timer-wrap" style="display:none;margin-top:20px;text-align:center;padding:20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(16,185,129,0.15);">
@@ -597,7 +608,7 @@ function renderBreak() {
 
   // Jatah label
   document.getElementById('brk-jatah-label').textContent =
-    d.jatahMenit === 0 ? 'NO BREAK' : (d.jatahMenit/60)+' JAM';
+    d.status === 'idle' ? 'PILIH' : (d.jatahMenit/60)+' JAM';
 
   const statusEl  = document.getElementById('brk-status-text');
   const subEl     = document.getElementById('brk-sub-text');
@@ -614,7 +625,7 @@ function renderBreak() {
     statusEl.textContent = '⏳ Siap Break';
     statusEl.style.color = '#34D399';
     subEl.textContent = 'Tekan Mulai Break bila siap';
-    btnStart.style.display = 'flex';
+    document.getElementById('brk-pilihan').style.display = 'flex';
     btnEnd.style.display = 'none';
     timerWrap.style.display = 'none';
     resultCard.style.display = 'none';
@@ -625,7 +636,7 @@ function renderBreak() {
   } else if (d.status === 'on_break') {
     statusEl.textContent = '☕ Sedang Break';
     statusEl.style.color = '#FBBF24';
-    btnStart.style.display = 'none';
+    document.getElementById('brk-pilihan').style.display = 'none';
     btnEnd.style.display = 'flex';
     timerWrap.style.display = 'block';
     resultCard.style.display = 'none';
@@ -668,7 +679,7 @@ function renderBreak() {
     statusEl.textContent = d.overtime > 0 ? '⚠️ Break Selesai (Telat)' : '✅ Break Selesai';
     statusEl.style.color = d.overtime > 0 ? '#F87171' : '#34D399';
     subEl.textContent    = d.overtime > 0 ? `Telat ${Math.round(d.overtime/60)} menit dari jatah` : 'Tepat waktu!';
-    btnStart.style.display = 'none';
+    document.getElementById('brk-pilihan').style.display = 'none';
     btnEnd.style.display   = 'none';
     timerWrap.style.display= 'none';
     resultCard.style.display = 'block';
@@ -686,16 +697,17 @@ function renderBreak() {
   }
 }
 
-async function doStartBreak() {
-  const btn = document.getElementById('brk-btn-start');
-  btn.disabled=true; btn.textContent='Memulai...';
-  const res = await api.post('/break/start', {});
+async function doStartBreak(menit) {
+  const btns = document.querySelectorAll('#brk-pilihan button');
+  btns.forEach(b => { b.disabled=true; b.style.opacity='0.5'; });
+  const res = await api.post('/break/start', { menit: menit });
   if (res.success) {
-    showToast('Break dimulai! ' + res.data.jatahMenit + ' menit jatah');
+    const jam = res.data.jatahMenit === 60 ? '1 jam' : '2 jam';
+    showToast('Break ' + jam + ' dimulai! Selamat istirahat.');
     await loadBreak();
   } else {
     showToast(res.message,'err');
-    btn.disabled=false; btn.innerHTML='☕ Mulai Break';
+    btns.forEach(b => { b.disabled=false; b.style.opacity='1'; });
   }
 }
 
